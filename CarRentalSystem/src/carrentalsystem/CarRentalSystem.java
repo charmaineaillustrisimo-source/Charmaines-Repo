@@ -15,7 +15,6 @@ public class CarRentalSystem {
      */
     public static void main(String[] args) {
 
-            System.out.println("Gwapo");
         // TODO code application logic here
         
     }
