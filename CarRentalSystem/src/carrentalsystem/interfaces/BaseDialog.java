@@ -56,7 +56,7 @@ public abstract class BaseDialog extends JDialog{
      * start'); return false; } return true;
      */
     public abstract boolean validateInputs();
-}/**
+    /**
      * REQUIRED: the action to run when the primary button is clicked.
      *
      * Always call validateInputs() first inside this method.
@@ -112,4 +112,5 @@ public abstract class BaseDialog extends JDialog{
     protected void wireConfirmButton(JButton btn) {
     btn.addActionListener(e -> onConfirm());
 
+    }
 }
