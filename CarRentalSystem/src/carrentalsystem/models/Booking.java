@@ -9,5 +9,7 @@ package carrentalsystem.models;
  * @author macbookairm1grey
  */
 public class Booking {
-    
+    public static void main(String[] args) {
+        System.out.println("HELLO world");
+    }
 }
