@@ -3,7 +3,6 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 package carrentalsystem.auth;
-
 import javax.swing.*;
 import java.awt.*;
 import java.net.URL;
@@ -11,24 +10,27 @@ import java.net.URL;
  *
  * @author macbookairm1grey
  */
-public class LoginFrame extends javax.swing.JFrame {
+public class SignupFrame extends javax.swing.JFrame {
     
-    private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(LoginFrame.class.getName());
+    private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(SignupFrame.class.getName());
 
     /**
-     * Creates new form LoginFrame
+     * Creates new form SignupFrame
      */
-    public LoginFrame() {
+    public SignupFrame() {
         initComponents();
+        
+        //Pane Glass
+        pnlGlass.setOpaque(false);
+        pnlGlass.setBackground(new Color(156, 142, 128, 120));
+        
+        
+        
         //Other setup style
         setSize(1440,1024);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
-        
-        //Pane Glass
-        pnlGlass.setOpaque(false);
-        pnlGlass.setBackground(new Color(68, 49, 38, 120));
-        
+       
         
     }
 
@@ -43,7 +45,6 @@ public class LoginFrame extends javax.swing.JFrame {
         java.awt.GridBagConstraints gridBagConstraints;
 
         pnlMainContainer = new BackgroundPanel();
-        ;
         pnlGlass = new javax.swing.JPanel() {
             @Override
             protected void paintComponent(java.awt.Graphics g) {
@@ -83,8 +84,76 @@ public class LoginFrame extends javax.swing.JFrame {
             // REMOVED the empty setBorder method that was blocking your changes
         }
         ;
+        lblFullname = new javax.swing.JLabel();
+        txtFullname = new javax.swing.JTextField() {
+            {
+                // 1. THIS IS THE INTERNAL PADDING (Top, Left, Bottom, Right)
+                // 20 pixels on the left will push the text away from the curve
+                setBorder(javax.swing.BorderFactory.createEmptyBorder(5, 20, 5, 20));
+                setOpaque(false);
+                setBackground(new java.awt.Color(0, 0, 0, 0));
+            }
+
+            @Override
+            protected void paintComponent(java.awt.Graphics g) {
+                java.awt.Graphics2D g2 = (java.awt.Graphics2D) g.create();
+                g2.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING, java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(java.awt.Color.WHITE);
+                g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 30, 30);
+                g2.dispose();
+                super.paintComponent(g);
+            }
+
+            // REMOVED the empty setBorder method that was blocking your changes
+        }
+        ;
+        lblEmail = new javax.swing.JLabel();
+        txtEmail = new javax.swing.JTextField() {
+            {
+                // 1. THIS IS THE INTERNAL PADDING (Top, Left, Bottom, Right)
+                // 20 pixels on the left will push the text away from the curve
+                setBorder(javax.swing.BorderFactory.createEmptyBorder(5, 20, 5, 20));
+                setOpaque(false);
+                setBackground(new java.awt.Color(0, 0, 0, 0));
+            }
+
+            @Override
+            protected void paintComponent(java.awt.Graphics g) {
+                java.awt.Graphics2D g2 = (java.awt.Graphics2D) g.create();
+                g2.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING, java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(java.awt.Color.WHITE);
+                g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 30, 30);
+                g2.dispose();
+                super.paintComponent(g);
+            }
+
+            // REMOVED the empty setBorder method that was blocking your changes
+        }
+        ;
         lblPassword = new javax.swing.JLabel();
         txtPassword = // Change JTextField to JPasswordField here!
+        new javax.swing.JPasswordField() {
+            {
+                setOpaque(false);
+                setBackground(new java.awt.Color(0, 0, 0, 0));
+            }
+
+            @Override
+            protected void paintComponent(java.awt.Graphics g) {
+                java.awt.Graphics2D g2 = (java.awt.Graphics2D) g.create();
+                g2.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING, java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
+
+                g2.setColor(java.awt.Color.WHITE);
+                g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 30, 30);
+
+                g2.dispose();
+                super.paintComponent(g);
+            }
+
+        }
+        ;
+        lblConfirmPassword = new javax.swing.JLabel();
+        txtConfirmPassword = // Change JTextField to JPasswordField here!
         new javax.swing.JPasswordField() {
             {
                 setOpaque(false);
@@ -132,6 +201,7 @@ public class LoginFrame extends javax.swing.JFrame {
             }
         }
         ;
+        lblLoginLink = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         getContentPane().setLayout(new java.awt.GridBagLayout());
@@ -139,21 +209,21 @@ public class LoginFrame extends javax.swing.JFrame {
         pnlMainContainer.setPreferredSize(new java.awt.Dimension(400, 300));
         pnlMainContainer.setLayout(new java.awt.GridBagLayout());
 
-        pnlGlass.setBackground(new java.awt.Color(68, 49, 38));
-        pnlGlass.setMinimumSize(new java.awt.Dimension(600, 600));
+        pnlGlass.setBackground(new java.awt.Color(156, 142, 128));
+        pnlGlass.setMinimumSize(new java.awt.Dimension(600, 900));
         pnlGlass.setOpaque(false);
-        pnlGlass.setPreferredSize(new java.awt.Dimension(600, 500));
+        pnlGlass.setPreferredSize(new java.awt.Dimension(600, 900));
         pnlGlass.setLayout(new java.awt.GridBagLayout());
 
         lblTitle.setFont(new java.awt.Font("Helvetica Neue", 1, 72)); // NOI18N
-        lblTitle.setForeground(new java.awt.Color(255, 255, 255));
         lblTitle.setText("Rent A Car");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTH;
         gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(70, 0, 10, 0);
+        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(70, 0, 40, 0);
         pnlGlass.add(lblTitle, gridBagConstraints);
 
         lblUsername.setFont(new java.awt.Font("Helvetica Neue", 0, 18)); // NOI18N
@@ -177,12 +247,54 @@ public class LoginFrame extends javax.swing.JFrame {
         gridBagConstraints.insets = new java.awt.Insets(0, 50, 20, 50);
         pnlGlass.add(txtUsername, gridBagConstraints);
 
+        lblFullname.setFont(new java.awt.Font("Helvetica Neue", 0, 18)); // NOI18N
+        lblFullname.setForeground(new java.awt.Color(255, 255, 255));
+        lblFullname.setText("Fullname");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(20, 50, 5, 0);
+        pnlGlass.add(lblFullname, gridBagConstraints);
+
+        txtFullname.setFont(new java.awt.Font("Helvetica Neue", 0, 15)); // NOI18N
+        txtFullname.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 20, 1, 20));
+        txtFullname.setPreferredSize(new java.awt.Dimension(500, 50));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 50, 20, 50);
+        pnlGlass.add(txtFullname, gridBagConstraints);
+
+        lblEmail.setFont(new java.awt.Font("Helvetica Neue", 0, 18)); // NOI18N
+        lblEmail.setForeground(new java.awt.Color(255, 255, 255));
+        lblEmail.setText("Email");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 5;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(20, 50, 5, 0);
+        pnlGlass.add(lblEmail, gridBagConstraints);
+
+        txtEmail.setFont(new java.awt.Font("Helvetica Neue", 0, 15)); // NOI18N
+        txtEmail.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 20, 1, 20));
+        txtEmail.setPreferredSize(new java.awt.Dimension(500, 50));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 6;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 50, 20, 50);
+        pnlGlass.add(txtEmail, gridBagConstraints);
+
         lblPassword.setFont(new java.awt.Font("Helvetica Neue", 0, 18)); // NOI18N
         lblPassword.setForeground(new java.awt.Color(255, 255, 255));
         lblPassword.setText("Password");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridy = 7;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         gridBagConstraints.insets = new java.awt.Insets(20, 50, 5, 0);
         pnlGlass.add(lblPassword, gridBagConstraints);
@@ -192,32 +304,64 @@ public class LoginFrame extends javax.swing.JFrame {
         txtPassword.setPreferredSize(new java.awt.Dimension(500, 50));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridy = 8;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTH;
         pnlGlass.add(txtPassword, gridBagConstraints);
 
-        btnSignUp.setBackground(new java.awt.Color(68, 49, 38));
+        lblConfirmPassword.setFont(new java.awt.Font("Helvetica Neue", 0, 18)); // NOI18N
+        lblConfirmPassword.setForeground(new java.awt.Color(255, 255, 255));
+        lblConfirmPassword.setText("Confirm Password");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 9;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(20, 50, 5, 0);
+        pnlGlass.add(lblConfirmPassword, gridBagConstraints);
+
+        txtConfirmPassword.setFont(new java.awt.Font("Helvetica Neue", 0, 15)); // NOI18N
+        txtConfirmPassword.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 20, 1, 20));
+        txtConfirmPassword.setPreferredSize(new java.awt.Dimension(500, 50));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 10;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTH;
+        pnlGlass.add(txtConfirmPassword, gridBagConstraints);
+
+        btnSignUp.setBackground(new java.awt.Color(156, 142, 128));
         btnSignUp.setFont(new java.awt.Font("Helvetica Neue", 1, 24)); // NOI18N
         btnSignUp.setForeground(new java.awt.Color(255, 255, 255));
-        btnSignUp.setText("Log In");
+        btnSignUp.setText("Sign Up");
         btnSignUp.setContentAreaFilled(false);
         btnSignUp.setPreferredSize(new java.awt.Dimension(200, 50));
-        btnSignUp.addActionListener(this::btnSignUpActionPerformed);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 11;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTH;
-        gridBagConstraints.weighty = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(30, 50, 10, 20);
         pnlGlass.add(btnSignUp, gridBagConstraints);
+
+        lblLoginLink.setFont(new java.awt.Font("Helvetica Neue", 0, 14)); // NOI18N
+        lblLoginLink.setForeground(new java.awt.Color(255, 255, 255));
+        lblLoginLink.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lblLoginLink.setText("<html>Already have an account? <span style='color: #5AC8FA; text-decoration: underline;'>Login</span></html>\n");
+        lblLoginLink.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        lblLoginLink.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                lblLoginLinkMouseClicked(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 12;
+        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 40, 0);
+        pnlGlass.add(lblLoginLink, gridBagConstraints);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 100);
         pnlMainContainer.add(pnlGlass, gridBagConstraints);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -231,9 +375,10 @@ public class LoginFrame extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void btnSignUpActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSignUpActionPerformed
+    private void lblLoginLinkMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblLoginLinkMouseClicked
         // TODO add your handling code here:
-    }//GEN-LAST:event_btnSignUpActionPerformed
+        System.out.println("Switching to Login Screen...");
+    }//GEN-LAST:event_lblLoginLinkMouseClicked
 
     /**
      * @param args the command line arguments
@@ -257,15 +402,16 @@ public class LoginFrame extends javax.swing.JFrame {
         //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(() -> new LoginFrame().setVisible(true));
+        java.awt.EventQueue.invokeLater(() -> new SignupFrame().setVisible(true));
     }
     
+    //Inner Class
     class BackgroundPanel extends javax.swing.JPanel {
         private Image img;
 
         public BackgroundPanel() {
             // Use the Project Resource path so it works for your teammates too!
-            URL imgURL = getClass().getResource("/carrentalsystem/auth/backgroundloginframe.png");
+            URL imgURL = getClass().getResource("/carrentalsystem/auth/backgroundsignupframe.jpeg");
             if (imgURL != null) {
                 this.img = new javax.swing.ImageIcon(imgURL).getImage();
             }
@@ -281,15 +427,28 @@ public class LoginFrame extends javax.swing.JFrame {
         }
     }
     
+   
+
+    
+    
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnSignUp;
+    private javax.swing.JLabel lblConfirmPassword;
+    private javax.swing.JLabel lblEmail;
+    private javax.swing.JLabel lblFullname;
+    private javax.swing.JLabel lblLoginLink;
     private javax.swing.JLabel lblPassword;
     private javax.swing.JLabel lblTitle;
     private javax.swing.JLabel lblUsername;
     private javax.swing.JPanel pnlGlass;
     private javax.swing.JPanel pnlMainContainer;
+    private javax.swing.JPasswordField txtConfirmPassword;
+    private javax.swing.JTextField txtEmail;
+    private javax.swing.JTextField txtFullname;
     private javax.swing.JPasswordField txtPassword;
     private javax.swing.JTextField txtUsername;
     // End of variables declaration//GEN-END:variables
+
 }
+
