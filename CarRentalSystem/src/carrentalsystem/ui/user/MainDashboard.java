@@ -4,6 +4,8 @@
  */
 package carrentalsystem.ui.user;
 
+import java.awt.Color;
+
 /**
  *
  * @author macbookairm1grey
@@ -17,6 +19,8 @@ public class MainDashboard extends javax.swing.JFrame {
      */
     public MainDashboard() {
         initComponents();
+        
+        
     }
 
     /**
@@ -27,19 +31,93 @@ public class MainDashboard extends javax.swing.JFrame {
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+        java.awt.GridBagConstraints gridBagConstraints;
+
+        pnlMainContainer = new javax.swing.JPanel();
+        pnlHeader = new javax.swing.JPanel();
+        btnBurgerIcon = new javax.swing.JButton();
+        pnlRightActions = new javax.swing.JPanel();
+        btnNotification = new javax.swing.JButton();
+        btnProfile = new javax.swing.JButton();
+        pnlSearchContainer = new javax.swing.JPanel();
+        txtUsername = new javax.swing.JTextField() {
+            {
+                // 1. THIS IS THE INTERNAL PADDING (Top, Left, Bottom, Right)
+                // 20 pixels on the left will push the text away from the curve
+                setBorder(javax.swing.BorderFactory.createEmptyBorder(5, 20, 5, 20));
+                setOpaque(false);
+                setBackground(new java.awt.Color(0, 0, 0, 0));
+            }
+
+            @Override
+            protected void paintComponent(java.awt.Graphics g) {
+                java.awt.Graphics2D g2 = (java.awt.Graphics2D) g.create();
+                g2.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING, java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(java.awt.Color.WHITE);
+                g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 30, 30);
+                g2.dispose();
+                super.paintComponent(g);
+            }
+
+            // REMOVED the empty setBorder method that was blocking your changes
+        }
+        ;
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setPreferredSize(new java.awt.Dimension(1440, 1024));
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
-        );
+        pnlMainContainer.setLayout(new java.awt.BorderLayout());
+
+        pnlHeader.setBackground(new java.awt.Color(44, 37, 37));
+        pnlHeader.setPreferredSize(new java.awt.Dimension(542, 70));
+        pnlHeader.setLayout(new java.awt.BorderLayout());
+
+        btnBurgerIcon.setText("Burger");
+        btnBurgerIcon.setBorderPainted(false);
+        btnBurgerIcon.setContentAreaFilled(false);
+        btnBurgerIcon.setFocusPainted(false);
+        btnBurgerIcon.setPreferredSize(new java.awt.Dimension(73, 60));
+        pnlHeader.add(btnBurgerIcon, java.awt.BorderLayout.WEST);
+
+        pnlRightActions.setOpaque(false);
+        pnlRightActions.setPreferredSize(new java.awt.Dimension(200, 60));
+        pnlRightActions.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.RIGHT));
+
+        btnNotification.setText("Notification");
+        btnNotification.setBorderPainted(false);
+        btnNotification.setContentAreaFilled(false);
+        btnNotification.setFocusPainted(false);
+        btnNotification.setPreferredSize(new java.awt.Dimension(73, 60));
+        pnlRightActions.add(btnNotification);
+
+        btnProfile.setText("Profile");
+        btnProfile.setBorderPainted(false);
+        btnProfile.setContentAreaFilled(false);
+        btnProfile.setFocusPainted(false);
+        btnProfile.setPreferredSize(new java.awt.Dimension(73, 60));
+        pnlRightActions.add(btnProfile);
+
+        pnlHeader.add(pnlRightActions, java.awt.BorderLayout.EAST);
+
+        pnlSearchContainer.setOpaque(false);
+        pnlSearchContainer.setLayout(new java.awt.GridBagLayout());
+
+        txtUsername.setFont(new java.awt.Font("Helvetica Neue", 0, 15)); // NOI18N
+        txtUsername.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 20, 1, 20));
+        txtUsername.setPreferredSize(new java.awt.Dimension(300, 30));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 50, 0, 50);
+        pnlSearchContainer.add(txtUsername, gridBagConstraints);
+
+        pnlHeader.add(pnlSearchContainer, java.awt.BorderLayout.CENTER);
+
+        pnlMainContainer.add(pnlHeader, java.awt.BorderLayout.PAGE_START);
+
+        getContentPane().add(pnlMainContainer, java.awt.BorderLayout.CENTER);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -70,5 +148,13 @@ public class MainDashboard extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnBurgerIcon;
+    private javax.swing.JButton btnNotification;
+    private javax.swing.JButton btnProfile;
+    private javax.swing.JPanel pnlHeader;
+    private javax.swing.JPanel pnlMainContainer;
+    private javax.swing.JPanel pnlRightActions;
+    private javax.swing.JPanel pnlSearchContainer;
+    private javax.swing.JTextField txtUsername;
     // End of variables declaration//GEN-END:variables
 }
