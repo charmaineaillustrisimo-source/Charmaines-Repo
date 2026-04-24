@@ -3,11 +3,72 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package carrentalsystem.models;
-
+import java.sql.Date;
+import java.sql.Timestamp;
 /**
  *
  * @author macbookairm1grey
  */
 public class Booking {
     
+    private int bookingId;
+    private int carId;
+    private int renterId;
+    private Date startDate;
+    private Date endDate;
+    private double totalPrice;
+    private String status; // "PENDING","CONFIRMED","SUCCESSFUL","REJECTED","CANCELLED"
+    private Timestamp createdAt;
+
+    // ── Extra fields populated via JOIN in BookingService (not in DB column) ──
+    private String carBrand;
+    private String carModel;
+    private int ownerId;       // from cars.owner_id — needed by InboxPanel
+
+    public Booking() {}
+
+    public Booking(int bookingId, int carId, int renterId, Date startDate,
+                   Date endDate, double totalPrice, String status,
+                   Timestamp createdAt) {
+        this.bookingId = bookingId;
+        this.carId = carId;
+        this.renterId = renterId;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.totalPrice = totalPrice;
+        this.status = status;
+        this.createdAt = createdAt;
+    }
+
+    // ── Getters ──────────────────────────────────────────────
+    public int getBookingId()           { return bookingId; }
+    public int getCarId()               { return carId; }
+    public int getRenterId()            { return renterId; }
+    public Date getStartDate()          { return startDate; }
+    public Date getEndDate()            { return endDate; }
+    public double getTotalPrice()       { return totalPrice; }
+    public String getStatus()           { return status; }
+    public Timestamp getCreatedAt()     { return createdAt; }
+    public String getCarBrand()         { return carBrand; }
+    public String getCarModel()         { return carModel; }
+    public int getOwnerId()             { return ownerId; }
+
+    // ── Setters ──────────────────────────────────────────────
+    public void setBookingId(int bookingId)           { this.bookingId = bookingId; }
+    public void setCarId(int carId)                   { this.carId = carId; }
+    public void setRenterId(int renterId)             { this.renterId = renterId; }
+    public void setStartDate(Date startDate)          { this.startDate = startDate; }
+    public void setEndDate(Date endDate)              { this.endDate = endDate; }
+    public void setTotalPrice(double totalPrice)      { this.totalPrice = totalPrice; }
+    public void setStatus(String status)              { this.status = status; }
+    public void setCreatedAt(Timestamp createdAt)     { this.createdAt = createdAt; }
+    public void setCarBrand(String carBrand)          { this.carBrand = carBrand; }
+    public void setCarModel(String carModel)          { this.carModel = carModel; }
+    public void setOwnerId(int ownerId)               { this.ownerId = ownerId; }
+
+    @Override
+    public String toString() {
+        return "Booking{bookingId=" + bookingId + ", carId=" + carId
+                + ", status=" + status + "}";
+    }
 }
