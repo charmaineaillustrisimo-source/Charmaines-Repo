@@ -8,6 +8,8 @@ package carrentalsystem.ui.admin;
  *
  * @author macbookairm1grey
  */
+import javax.swing.ImageIcon;
+import java.awt.Image;
 public class AdminDashboard extends javax.swing.JFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(AdminDashboard.class.getName());
@@ -16,8 +18,49 @@ public class AdminDashboard extends javax.swing.JFrame {
      * Creates new form AdminDashboard
      */
     public AdminDashboard() {
-        initComponents();
+    initComponents();
+    this.setExtendedState(javax.swing.JFrame.MAXIMIZED_BOTH);
+    TopBarPanel.add(ProfileIcon, new org.netbeans.lib.awtextra.AbsoluteConstraints(1210, 20, 50, 50));
+    TopBarPanel.add(NotifyIcon, new org.netbeans.lib.awtextra.AbsoluteConstraints(1140, 20, 50, 50));
+    
+    // Add this to your constructor after initComponents()
+    this.addComponentListener(new java.awt.event.ComponentAdapter() {
+    public void componentResized(java.awt.event.ComponentEvent evt) {
+        int width = getWidth();
+        // Position Profile 70 pixels from the right edge
+        ProfileIcon.setLocation(width - 90, ProfileIcon.getY());
+        // Position Notify 140 pixels from the right edge
+        NotifyIcon.setLocation(width - 160, NotifyIcon.getY());
     }
+});
+    
+    // The "Easy Way" - One line per icon
+    setIcon(OverviewIcon, "/carrentalsystem/ui/admin/PIC/four-squares.png", 35, 35);
+    setIcon(ListingIcon, "/carrentalsystem/ui/admin/PIC/Listing.png", 35, 35);
+    setIcon(UsersIcon, "/carrentalsystem/ui/admin/PIC/Users.png", 35, 35);
+    setIcon(BookingsIcon1, "/carrentalsystem/ui/admin/PIC/Bookings.png", 35, 35);
+    setIcon(SupportIcon, "/carrentalsystem/ui/admin/PIC/support.png", 35, 35);
+    setIcon(SettingsIcon, "/carrentalsystem/ui/admin/PIC/setting (1).png", 35, 35);
+    setIcon(LogoutIcon, "/carrentalsystem/ui/admin/PIC/logout.png", 35, 35);
+    setIcon(HamburgerIcon, "/carrentalsystem/ui/admin/PIC/hamburger.png", 35, 35);
+    //Top Bar Panel Icon
+    setIcon(ProfileIcon, "/carrentalsystem/ui/admin/PIC/Profile.png", 50, 50);
+    setIcon(NotifyIcon, "/carrentalsystem/ui/admin/PIC/bell.png", 50, 50);
+}
+    
+    private void setIcon(javax.swing.JLabel label, String path, int width, int height) {
+    try {
+        java.net.URL imgURL = getClass().getResource(path);
+        if (imgURL != null) {
+            ImageIcon icon = new ImageIcon(imgURL);
+            // Now uses the width and height parameters you pass in
+            Image img = icon.getImage().getScaledInstance(width, height, Image.SCALE_SMOOTH);
+            label.setIcon(new ImageIcon(img));
+        }
+    } catch (Exception e) {
+        System.err.println("Could not load image: " + path);
+    }
+}
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -28,18 +71,143 @@ public class AdminDashboard extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        TopBarPanel = new javax.swing.JPanel();
+        CarRental = new javax.swing.JLabel();
+        HamburgerIcon = new javax.swing.JLabel();
+        ProfileIcon = new javax.swing.JLabel();
+        NotifyIcon = new javax.swing.JLabel();
+        sideBarPanel = new javax.swing.JPanel();
+        Main1 = new javax.swing.JLabel();
+        Admin = new javax.swing.JLabel();
+        OverviewIcon = new javax.swing.JLabel();
+        Overview = new javax.swing.JLabel();
+        jPanel2 = new javax.swing.JPanel();
+        ListingIcon = new javax.swing.JLabel();
+        Listing = new javax.swing.JLabel();
+        UsersIcon = new javax.swing.JLabel();
+        Users = new javax.swing.JLabel();
+        BookingsIcon1 = new javax.swing.JLabel();
+        Bookings1 = new javax.swing.JLabel();
+        SupportIcon = new javax.swing.JLabel();
+        Support = new javax.swing.JLabel();
+        SettingsIcon = new javax.swing.JLabel();
+        Settings = new javax.swing.JLabel();
+        LogoutIcon = new javax.swing.JLabel();
+        Logout = new javax.swing.JLabel();
+        jPanel1 = new javax.swing.JPanel();
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setBackground(new java.awt.Color(3, 33, 33));
+
+        TopBarPanel.setBackground(new java.awt.Color(30, 30, 30));
+        TopBarPanel.setPreferredSize(new java.awt.Dimension(1290, 90));
+        TopBarPanel.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        CarRental.setFont(new java.awt.Font("Segoe UI", 0, 36)); // NOI18N
+        CarRental.setForeground(new java.awt.Color(255, 255, 255));
+        CarRental.setText("Rental Car Admin");
+        TopBarPanel.add(CarRental, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 20, -1, -1));
+        TopBarPanel.add(HamburgerIcon, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 10, 80, 70));
+
+        ProfileIcon.setPreferredSize(new java.awt.Dimension(20, 90));
+        TopBarPanel.add(ProfileIcon, new org.netbeans.lib.awtextra.AbsoluteConstraints(1220, 10, 80, 70));
+
+        NotifyIcon.setPreferredSize(new java.awt.Dimension(20, 90));
+        TopBarPanel.add(NotifyIcon, new org.netbeans.lib.awtextra.AbsoluteConstraints(1080, 20, 90, 60));
+
+        getContentPane().add(TopBarPanel, java.awt.BorderLayout.NORTH);
+
+        sideBarPanel.setBackground(new java.awt.Color(38, 38, 36));
+        sideBarPanel.setMinimumSize(new java.awt.Dimension(300, 485));
+        sideBarPanel.setPreferredSize(new java.awt.Dimension(353, 700));
+        sideBarPanel.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        Main1.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
+        Main1.setForeground(new java.awt.Color(255, 255, 255));
+        Main1.setText("MAIN");
+        sideBarPanel.add(Main1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 70, -1, -1));
+
+        Admin.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
+        Admin.setForeground(new java.awt.Color(255, 255, 255));
+        Admin.setText("ADMIN");
+        sideBarPanel.add(Admin, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 310, -1, -1));
+
+        OverviewIcon.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        sideBarPanel.add(OverviewIcon, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 110, 35, 35));
+
+        Overview.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
+        Overview.setForeground(new java.awt.Color(255, 255, 255));
+        Overview.setText("Overview");
+        sideBarPanel.add(Overview, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 110, -1, -1));
+
+        jPanel2.setBackground(new java.awt.Color(48, 48, 46));
+
+        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+        jPanel2.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 360, Short.MAX_VALUE)
         );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 50, Short.MAX_VALUE)
         );
+
+        sideBarPanel.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 100, 360, 50));
+
+        ListingIcon.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        sideBarPanel.add(ListingIcon, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 160, 35, 35));
+
+        Listing.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
+        Listing.setForeground(new java.awt.Color(255, 255, 255));
+        Listing.setText("Listing");
+        sideBarPanel.add(Listing, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 160, -1, -1));
+
+        UsersIcon.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        sideBarPanel.add(UsersIcon, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 210, 35, 35));
+
+        Users.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
+        Users.setForeground(new java.awt.Color(255, 255, 255));
+        Users.setText("Users");
+        sideBarPanel.add(Users, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 210, -1, -1));
+
+        BookingsIcon1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        sideBarPanel.add(BookingsIcon1, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 260, 35, 35));
+
+        Bookings1.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
+        Bookings1.setForeground(new java.awt.Color(255, 255, 255));
+        Bookings1.setText("Bookings");
+        sideBarPanel.add(Bookings1, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 260, -1, -1));
+
+        SupportIcon.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        sideBarPanel.add(SupportIcon, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 350, 35, 35));
+
+        Support.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
+        Support.setForeground(new java.awt.Color(255, 255, 255));
+        Support.setText("Support");
+        sideBarPanel.add(Support, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 350, -1, -1));
+
+        SettingsIcon.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        sideBarPanel.add(SettingsIcon, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 400, 35, 35));
+
+        Settings.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
+        Settings.setForeground(new java.awt.Color(255, 255, 255));
+        Settings.setText("Settings");
+        sideBarPanel.add(Settings, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 400, -1, -1));
+
+        LogoutIcon.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        sideBarPanel.add(LogoutIcon, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 450, 35, 35));
+
+        Logout.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
+        Logout.setForeground(new java.awt.Color(255, 0, 0));
+        Logout.setText("Logout");
+        sideBarPanel.add(Logout, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 450, -1, -1));
+
+        getContentPane().add(sideBarPanel, java.awt.BorderLayout.WEST);
+
+        jPanel1.setBackground(new java.awt.Color(48, 48, 46));
+        jPanel1.setLayout(new java.awt.BorderLayout());
+        getContentPane().add(jPanel1, java.awt.BorderLayout.CENTER);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -70,5 +238,29 @@ public class AdminDashboard extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel Admin;
+    private javax.swing.JLabel Bookings1;
+    private javax.swing.JLabel BookingsIcon1;
+    private javax.swing.JLabel CarRental;
+    private javax.swing.JLabel HamburgerIcon;
+    private javax.swing.JLabel Listing;
+    private javax.swing.JLabel ListingIcon;
+    private javax.swing.JLabel Logout;
+    private javax.swing.JLabel LogoutIcon;
+    private javax.swing.JLabel Main1;
+    private javax.swing.JLabel NotifyIcon;
+    private javax.swing.JLabel Overview;
+    private javax.swing.JLabel OverviewIcon;
+    private javax.swing.JLabel ProfileIcon;
+    private javax.swing.JLabel Settings;
+    private javax.swing.JLabel SettingsIcon;
+    private javax.swing.JLabel Support;
+    private javax.swing.JLabel SupportIcon;
+    private javax.swing.JPanel TopBarPanel;
+    private javax.swing.JLabel Users;
+    private javax.swing.JLabel UsersIcon;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel sideBarPanel;
     // End of variables declaration//GEN-END:variables
 }
