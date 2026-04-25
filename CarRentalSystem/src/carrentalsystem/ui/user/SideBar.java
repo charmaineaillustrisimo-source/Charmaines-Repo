@@ -33,6 +33,8 @@ public class SideBar extends javax.swing.JPanel {
 
         jTextField1.setFont(new java.awt.Font("Tempus Sans ITC", 2, 11)); // NOI18N
         jTextField1.setText("CAR RENTAL");
+        jTextField1.setCursor(new java.awt.Cursor(java.awt.Cursor.TEXT_CURSOR));
+        jTextField1.setHighlighter(null);
         jTextField1.setOpaque(false);
         jTextField1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {

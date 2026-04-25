@@ -19,7 +19,13 @@ public class MainDashboard extends javax.swing.JFrame {
      */
     public MainDashboard() {
         initComponents();
-        
+        // Create the panel and add it to your dashboard's center area
+DiscoveryPanel discovery = new DiscoveryPanel();
+mainPanel.setLayout(new java.awt.BorderLayout()); 
+    mainPanel.add(discovery, java.awt.BorderLayout.CENTER);
+    
+    mainPanel.revalidate();
+    mainPanel.repaint();
         
     }
 
@@ -62,10 +68,12 @@ public class MainDashboard extends javax.swing.JFrame {
             // REMOVED the empty setBorder method that was blocking your changes
         }
         ;
+        mainPanel = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setPreferredSize(new java.awt.Dimension(1440, 1024));
 
+        pnlMainContainer.setBackground(new java.awt.Color(245, 245, 245));
         pnlMainContainer.setLayout(new java.awt.BorderLayout());
 
         pnlHeader.setBackground(new java.awt.Color(44, 37, 37));
@@ -117,6 +125,9 @@ public class MainDashboard extends javax.swing.JFrame {
 
         pnlMainContainer.add(pnlHeader, java.awt.BorderLayout.PAGE_START);
 
+        mainPanel.setLayout(new java.awt.CardLayout());
+        pnlMainContainer.add(mainPanel, java.awt.BorderLayout.CENTER);
+
         getContentPane().add(pnlMainContainer, java.awt.BorderLayout.CENTER);
 
         pack();
@@ -151,6 +162,7 @@ public class MainDashboard extends javax.swing.JFrame {
     private javax.swing.JButton btnBurgerIcon;
     private javax.swing.JButton btnNotification;
     private javax.swing.JButton btnProfile;
+    private javax.swing.JPanel mainPanel;
     private javax.swing.JPanel pnlHeader;
     private javax.swing.JPanel pnlMainContainer;
     private javax.swing.JPanel pnlRightActions;
