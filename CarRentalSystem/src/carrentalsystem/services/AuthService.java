@@ -15,7 +15,7 @@ import org.mindrot.jbcrypt.BCrypt;
 public class AuthService implements IAuthService{
     @Override
     public User login(String email, String password) throws SQLException {
-        String sql = "SELECT * FROM users WHERE email = ? AND status = 'ACTIVE'";
+        String sql = "SELECT * FROM users WHERE username = ? AND status = 'ACTIVE'";
         try (PreparedStatement ps = DBConnection.getConnection().prepareStatement(sql)) {
             ps.setString(1, email);
             ResultSet rs = ps.executeQuery();

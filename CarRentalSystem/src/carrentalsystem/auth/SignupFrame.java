@@ -33,6 +33,83 @@ public class SignupFrame extends javax.swing.JFrame {
        
         
     }
+    
+    private carrentalsystem.interfaces.IAuthService authService
+            = new carrentalsystem.services.AuthService();
+
+    private void handleSignUp() {
+        String username = txtUsername.getText().trim();
+        String fullName = txtFullname.getText().trim();
+        String email = txtEmail.getText().trim();
+        String password = new String(txtPassword.getPassword());
+        String confirmPassword = new String(txtConfirmPassword.getPassword());
+
+        // ── Validate fields ───────────────────────────────────
+        if (username.isEmpty() || fullName.isEmpty()
+                || email.isEmpty() || password.isEmpty()) {
+            JOptionPane.showMessageDialog(this,
+                    "Please fill in all fields.",
+                    "Missing Fields",
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        if (!carrentalsystem.utils.Validator.isValidUsername(username)) {
+            JOptionPane.showMessageDialog(this,
+                    "Username must be 3-30 characters.\n"
+                    + "Letters, numbers, and underscores only.",
+                    "Invalid Username",
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        if (!carrentalsystem.utils.Validator.isValidEmail(email)) {
+            JOptionPane.showMessageDialog(this,
+                    "Please enter a valid email address.",
+                    "Invalid Email",
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        if (!carrentalsystem.utils.Validator.isPasswordSecure(password)) {
+            JOptionPane.showMessageDialog(this,
+                    "Password must be at least 8 characters\n"
+                    + "and contain at least one letter and one number.",
+                    "Weak Password",
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        if (!carrentalsystem.utils.Validator.passwordsMatch(password, confirmPassword)) {
+            JOptionPane.showMessageDialog(this,
+                    "Passwords do not match.",
+                    "Password Mismatch",
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        // ── Register ──────────────────────────────────────────
+        try {
+            authService.register(fullName, username, email, password);
+
+            JOptionPane.showMessageDialog(this,
+                    "Account created successfully!\n"
+                    + "You can now log in with your email.",
+                    "Sign Up Successful",
+                    JOptionPane.INFORMATION_MESSAGE);
+
+            // Go to LoginFrame after successful signup
+            new LoginFrame().setVisible(true);
+            this.dispose();
+
+        } catch (java.sql.SQLException e) {
+            // AuthService throws descriptive messages for duplicates
+            JOptionPane.showMessageDialog(this,
+                    e.getMessage(),
+                    "Sign Up Failed",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -342,6 +419,7 @@ public class SignupFrame extends javax.swing.JFrame {
         btnSignUp.setText("Sign Up");
         btnSignUp.setContentAreaFilled(false);
         btnSignUp.setPreferredSize(new java.awt.Dimension(200, 50));
+        btnSignUp.addActionListener(this::btnSignUpActionPerformed);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 11;
@@ -387,7 +465,44 @@ public class SignupFrame extends javax.swing.JFrame {
     private void lblLoginLinkMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblLoginLinkMouseClicked
         // TODO add your handling code here:
         System.out.println("Switching to Login Screen...");
+        new LoginFrame().setVisible(true);
+        this.dispose();
     }//GEN-LAST:event_lblLoginLinkMouseClicked
+
+    private void btnSignUpActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSignUpActionPerformed
+        // TODO add your handling code here:
+        String fullName = txtFullname.getText();
+        String username = txtUsername.getText();
+        String email = txtEmail.getText();
+        String password = new String(txtPassword.getPassword());
+        String confirmPass = new String(txtConfirmPassword.getPassword());
+
+        // 2. Simple Validation
+        if (fullName.isEmpty() || username.isEmpty() || email.isEmpty() || password.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please fill in all fields!");
+            return;
+        }
+
+        if (!password.equals(confirmPass)) {
+            JOptionPane.showMessageDialog(this, "Passwords do not match!");
+            return;
+        }
+
+        // 3. Call AuthService to save to DB
+        try {
+            carrentalsystem.services.AuthService auth = new carrentalsystem.services.AuthService();
+            auth.register(fullName, username, email, password);
+
+            JOptionPane.showMessageDialog(this, "Registration Successful!");
+
+            // 4. Switch back to Login
+            new LoginFrame().setVisible(true);
+            this.dispose();
+
+        } catch (java.sql.SQLException e) {
+            JOptionPane.showMessageDialog(this, "Error: " + e.getMessage());
+        }
+    }//GEN-LAST:event_btnSignUpActionPerformed
 
     /**
      * @param args the command line arguments
