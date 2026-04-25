@@ -10,10 +10,13 @@ package carrentalsystem.ui.admin;
  */
 import javax.swing.ImageIcon;
 import java.awt.Image;
+import java.util.Map;
+import java.util.HashMap;
 public class AdminDashboard extends javax.swing.JFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(AdminDashboard.class.getName());
-
+    // Add this at the top of your class variables
+private java.util.List<carrentalsystem.models.Car> userCarList = new java.util.ArrayList<>();
     /**
      * Creates new form AdminDashboard
      */
@@ -31,6 +34,11 @@ public class AdminDashboard extends javax.swing.JFrame {
         ProfileIcon.setLocation(width - 90, ProfileIcon.getY());
         // Position Notify 140 pixels from the right edge
         NotifyIcon.setLocation(width - 160, NotifyIcon.getY());
+        
+    TotalUsers.setData("Total Users", "", "", new java.awt.Color(11, 213, 91));
+    ActiveListings.setData("Active Listings", "", "", new java.awt.Color(11, 213, 91));
+    BookingsToday.setData("Bookings Today", "", "", java.awt.Color.WHITE);
+    PendingApprovals.setData("Pending Approvals", "", "", java.awt.Color.ORANGE, java.awt.Color.RED);
     }
 });
     
@@ -61,6 +69,7 @@ public class AdminDashboard extends javax.swing.JFrame {
         System.err.println("Could not load image: " + path);
     }
 }
+    
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -95,6 +104,14 @@ public class AdminDashboard extends javax.swing.JFrame {
         LogoutIcon = new javax.swing.JLabel();
         Logout = new javax.swing.JLabel();
         jPanel1 = new javax.swing.JPanel();
+        cardContainer = new javax.swing.JPanel();
+        TotalUsers = new carrentalsystem.ui.admin.StatCard();
+        ActiveListings = new carrentalsystem.ui.admin.StatCard();
+        BookingsToday = new carrentalsystem.ui.admin.StatCard();
+        PendingApprovals = new carrentalsystem.ui.admin.StatCard();
+        lblOverview = new javax.swing.JLabel();
+        carTypeChart = new carrentalsystem.ui.admin.ListingChart();
+        jLabel1 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setBackground(new java.awt.Color(3, 33, 33));
@@ -206,7 +223,60 @@ public class AdminDashboard extends javax.swing.JFrame {
         getContentPane().add(sideBarPanel, java.awt.BorderLayout.WEST);
 
         jPanel1.setBackground(new java.awt.Color(48, 48, 46));
-        jPanel1.setLayout(new java.awt.BorderLayout());
+        jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        cardContainer.setBackground(new java.awt.Color(38, 38, 36));
+        cardContainer.setOpaque(false);
+        cardContainer.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT, 25, 10));
+
+        TotalUsers.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        TotalUsers.setPreferredSize(new java.awt.Dimension(220, 160));
+        cardContainer.add(TotalUsers);
+
+        ActiveListings.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        ActiveListings.setPreferredSize(new java.awt.Dimension(220, 160));
+        cardContainer.add(ActiveListings);
+
+        BookingsToday.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        BookingsToday.setPreferredSize(new java.awt.Dimension(220, 160));
+        cardContainer.add(BookingsToday);
+
+        PendingApprovals.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        PendingApprovals.setPreferredSize(new java.awt.Dimension(220, 160));
+        cardContainer.add(PendingApprovals);
+
+        jPanel1.add(cardContainer, new org.netbeans.lib.awtextra.AbsoluteConstraints(3, 50, -1, -1));
+
+        lblOverview.setFont(new java.awt.Font("Segoe UI", 0, 32)); // NOI18N
+        lblOverview.setForeground(new java.awt.Color(255, 255, 255));
+        lblOverview.setText("Overview");
+        jPanel1.add(lblOverview, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 10, -1, -1));
+
+        carTypeChart.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
+
+        jLabel1.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
+        jLabel1.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel1.setText("Listings by type");
+
+        javax.swing.GroupLayout carTypeChartLayout = new javax.swing.GroupLayout(carTypeChart);
+        carTypeChart.setLayout(carTypeChartLayout);
+        carTypeChartLayout.setHorizontalGroup(
+            carTypeChartLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(carTypeChartLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel1)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        carTypeChartLayout.setVerticalGroup(
+            carTypeChartLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(carTypeChartLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel1)
+                .addContainerGap(117, Short.MAX_VALUE))
+        );
+
+        jPanel1.add(carTypeChart, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 235, -1, -1));
+
         getContentPane().add(jPanel1, java.awt.BorderLayout.CENTER);
 
         pack();
@@ -238,9 +308,11 @@ public class AdminDashboard extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private carrentalsystem.ui.admin.StatCard ActiveListings;
     private javax.swing.JLabel Admin;
     private javax.swing.JLabel Bookings1;
     private javax.swing.JLabel BookingsIcon1;
+    private carrentalsystem.ui.admin.StatCard BookingsToday;
     private javax.swing.JLabel CarRental;
     private javax.swing.JLabel HamburgerIcon;
     private javax.swing.JLabel Listing;
@@ -251,16 +323,22 @@ public class AdminDashboard extends javax.swing.JFrame {
     private javax.swing.JLabel NotifyIcon;
     private javax.swing.JLabel Overview;
     private javax.swing.JLabel OverviewIcon;
+    private carrentalsystem.ui.admin.StatCard PendingApprovals;
     private javax.swing.JLabel ProfileIcon;
     private javax.swing.JLabel Settings;
     private javax.swing.JLabel SettingsIcon;
     private javax.swing.JLabel Support;
     private javax.swing.JLabel SupportIcon;
     private javax.swing.JPanel TopBarPanel;
+    private carrentalsystem.ui.admin.StatCard TotalUsers;
     private javax.swing.JLabel Users;
     private javax.swing.JLabel UsersIcon;
+    private carrentalsystem.ui.admin.ListingChart carTypeChart;
+    private javax.swing.JPanel cardContainer;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
+    private javax.swing.JLabel lblOverview;
     private javax.swing.JPanel sideBarPanel;
     // End of variables declaration//GEN-END:variables
 }

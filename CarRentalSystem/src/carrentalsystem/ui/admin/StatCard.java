@@ -17,6 +17,13 @@ public class StatCard extends javax.swing.JPanel {
     public StatCard() {
         initComponents();
     }
+    
+    public void setData(String title, String value, String subtext, java.awt.Color subColor) {
+    lblTitle.setText(title);
+    lblValue.setText(value);
+    lblSubtext.setText(subtext);
+    lblSubtext.setForeground(subColor);
+}
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -27,16 +34,40 @@ public class StatCard extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jLabel1 = new javax.swing.JLabel();
+        lblTitle = new javax.swing.JLabel();
+        lblValue = new javax.swing.JLabel();
+        lblSubtext = new javax.swing.JLabel();
 
+        setBackground(new java.awt.Color(38, 38, 36));
+        setPreferredSize(new java.awt.Dimension(260, 160));
         setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jLabel1.setText("jLabel1");
-        add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 10, -1, -1));
+        lblTitle.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
+        lblTitle.setForeground(new java.awt.Color(255, 255, 255));
+        lblTitle.setText("Total Users");
+        add(lblTitle, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 10, -1, -1));
+
+        lblValue.setFont(new java.awt.Font("Segoe UI", 1, 30)); // NOI18N
+        lblValue.setForeground(new java.awt.Color(255, 255, 255));
+        add(lblValue, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 40, 240, 80));
+
+        lblSubtext.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
+        lblSubtext.setForeground(new java.awt.Color(11, 213, 91));
+        add(lblSubtext, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 120, 250, 30));
     }// </editor-fold>//GEN-END:initComponents
 
+    public void setData(String title, String value, String subtext, java.awt.Color valueColor, java.awt.Color subColor) {
+    lblTitle.setText(title);
+    lblValue.setText(value);
+    lblValue.setForeground(valueColor); // This allows you to set the value to Orange
+    lblSubtext.setText(subtext);
+    lblSubtext.setForeground(subColor); // This allows you to set the subtext to Red
+}
+    
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel lblSubtext;
+    private javax.swing.JLabel lblTitle;
+    private javax.swing.JLabel lblValue;
     // End of variables declaration//GEN-END:variables
 }
