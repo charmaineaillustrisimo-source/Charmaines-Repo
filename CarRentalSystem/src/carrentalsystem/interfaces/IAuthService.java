@@ -12,8 +12,7 @@ import java.sql.SQLException;
 public interface IAuthService {
     User login(String email, String password) throws SQLException;
 
-    void register(String fullName, String username, String email, String password)
-            throws SQLException;
+    void register(String fullName, String username, String email, String password) throws SQLException;
 
     void sendPasswordReset(String email) throws SQLException;
 
