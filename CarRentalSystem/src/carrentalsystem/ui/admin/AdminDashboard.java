@@ -50,7 +50,6 @@ private java.util.List<carrentalsystem.models.Car> userCarList = new java.util.A
     setIcon(SupportIcon, "/carrentalsystem/ui/admin/PIC/support.png", 35, 35);
     setIcon(SettingsIcon, "/carrentalsystem/ui/admin/PIC/setting (1).png", 35, 35);
     setIcon(LogoutIcon, "/carrentalsystem/ui/admin/PIC/logout.png", 35, 35);
-    setIcon(HamburgerIcon, "/carrentalsystem/ui/admin/PIC/hamburger.png", 35, 35);
     //Top Bar Panel Icon
     setIcon(ProfileIcon, "/carrentalsystem/ui/admin/PIC/Profile.png", 50, 50);
     setIcon(NotifyIcon, "/carrentalsystem/ui/admin/PIC/bell.png", 50, 50);
@@ -70,6 +69,74 @@ private java.util.List<carrentalsystem.models.Car> userCarList = new java.util.A
     }
 }
     
+    private void refreshListingStats() {
+    // 1. Clear the old labels so they don't double up
+    carTypeContainer.removeAll();
+
+    // 2. Count the types from your user list
+    Map<String, Integer> counts = new HashMap<>();
+    for (carrentalsystem.models.Car car : userCarList) {
+        String type = car.getType();
+        counts.put(type, counts.getOrDefault(type, 0) + 1);
+    }
+
+    // 3. For every type the user entered, create a label
+    for (Map.Entry<String, Integer> entry : counts.entrySet()) {
+        addTypeLabel(entry.getKey(), entry.getValue());
+    }
+
+    // 4. Refresh the UI to show the new labels
+    carTypeContainer.revalidate();
+    carTypeContainer.repaint();
+}
+    
+    private void addTypeLabel(String typeName, int count) {
+    // Create a new label for each type
+    javax.swing.JLabel typeLabel = new javax.swing.JLabel();
+    
+    // Format the text: "Sedan (5)"
+    typeLabel.setText(typeName + " (" + count + ")");
+    
+    // Style it to match your theme
+    typeLabel.setFont(new java.awt.Font("Segoe UI", 1, 18));
+    typeLabel.setForeground(java.awt.Color.WHITE);
+    typeLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+    
+    // Add it to the grid panel
+    carTypeContainer.add(typeLabel);
+}
+    
+    private void addDynamicBar(String typeName, int count, int totalCars) {
+    // 1. Create a wrapper panel (The Row)
+    javax.swing.JPanel row = new javax.swing.JPanel(new java.awt.BorderLayout(15, 0));
+    row.setOpaque(false);
+
+    // 2. The Name (Left)
+    javax.swing.JLabel name = new javax.swing.JLabel(typeName);
+    name.setForeground(java.awt.Color.WHITE);
+    name.setPreferredSize(new java.awt.Dimension(100, 25));
+
+    // 3. The Bar (Center)
+    javax.swing.JPanel bar = new javax.swing.JPanel();
+    bar.setBackground(new java.awt.Color(11, 213, 91));
+    int maxWidth = 150; 
+    int barWidth = (totalCars > 0) ? (int)((double)count / totalCars * maxWidth) : 0;
+    bar.setPreferredSize(new java.awt.Dimension(barWidth, 15));
+
+    // 4. THE NUMBER (Right) - Use JLabel here!
+    javax.swing.JLabel number = new javax.swing.JLabel(String.valueOf(count));
+    number.setForeground(new java.awt.Color(11, 213, 91)); // Matches the bar color
+    number.setFont(new java.awt.Font("Segoe UI", 1, 16));
+    number.setPreferredSize(new java.awt.Dimension(30, 25));
+
+    // 5. Assemble the Row
+    row.add(name, java.awt.BorderLayout.WEST);
+    row.add(bar, java.awt.BorderLayout.CENTER);
+    row.add(number, java.awt.BorderLayout.EAST); // Puts the number on the right
+    
+    carTypeContainer.add(row);
+}
+    
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -82,7 +149,6 @@ private java.util.List<carrentalsystem.models.Car> userCarList = new java.util.A
 
         TopBarPanel = new javax.swing.JPanel();
         CarRental = new javax.swing.JLabel();
-        HamburgerIcon = new javax.swing.JLabel();
         ProfileIcon = new javax.swing.JLabel();
         NotifyIcon = new javax.swing.JLabel();
         sideBarPanel = new javax.swing.JPanel();
@@ -111,7 +177,8 @@ private java.util.List<carrentalsystem.models.Car> userCarList = new java.util.A
         PendingApprovals = new carrentalsystem.ui.admin.StatCard();
         lblOverview = new javax.swing.JLabel();
         carTypeChart = new carrentalsystem.ui.admin.ListingChart();
-        jLabel1 = new javax.swing.JLabel();
+        ListingsByType = new javax.swing.JLabel();
+        carTypeContainer = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setBackground(new java.awt.Color(3, 33, 33));
@@ -122,9 +189,8 @@ private java.util.List<carrentalsystem.models.Car> userCarList = new java.util.A
 
         CarRental.setFont(new java.awt.Font("Segoe UI", 0, 36)); // NOI18N
         CarRental.setForeground(new java.awt.Color(255, 255, 255));
-        CarRental.setText("Rental Car Admin");
-        TopBarPanel.add(CarRental, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 20, -1, -1));
-        TopBarPanel.add(HamburgerIcon, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 10, 80, 70));
+        CarRental.setText("Rent A Car");
+        TopBarPanel.add(CarRental, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 20, -1, -1));
 
         ProfileIcon.setPreferredSize(new java.awt.Dimension(20, 90));
         TopBarPanel.add(ProfileIcon, new org.netbeans.lib.awtextra.AbsoluteConstraints(1220, 10, 80, 70));
@@ -254,9 +320,12 @@ private java.util.List<carrentalsystem.models.Car> userCarList = new java.util.A
 
         carTypeChart.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
 
-        jLabel1.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
-        jLabel1.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel1.setText("Listings by type");
+        ListingsByType.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
+        ListingsByType.setForeground(new java.awt.Color(255, 255, 255));
+        ListingsByType.setText("Listings by type");
+
+        carTypeContainer.setBackground(new java.awt.Color(38, 38, 36));
+        carTypeContainer.setLayout(new java.awt.GridLayout(0, 1, 20, 0));
 
         javax.swing.GroupLayout carTypeChartLayout = new javax.swing.GroupLayout(carTypeChart);
         carTypeChart.setLayout(carTypeChartLayout);
@@ -264,15 +333,21 @@ private java.util.List<carrentalsystem.models.Car> userCarList = new java.util.A
             carTypeChartLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(carTypeChartLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jLabel1)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGroup(carTypeChartLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(carTypeContainer, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(carTypeChartLayout.createSequentialGroup()
+                        .addComponent(ListingsByType)
+                        .addGap(0, 208, Short.MAX_VALUE)))
+                .addContainerGap())
         );
         carTypeChartLayout.setVerticalGroup(
             carTypeChartLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(carTypeChartLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jLabel1)
-                .addContainerGap(117, Short.MAX_VALUE))
+                .addComponent(ListingsByType)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(carTypeContainer, javax.swing.GroupLayout.DEFAULT_SIZE, 134, Short.MAX_VALUE)
+                .addContainerGap())
         );
 
         jPanel1.add(carTypeChart, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 235, -1, -1));
@@ -314,9 +389,9 @@ private java.util.List<carrentalsystem.models.Car> userCarList = new java.util.A
     private javax.swing.JLabel BookingsIcon1;
     private carrentalsystem.ui.admin.StatCard BookingsToday;
     private javax.swing.JLabel CarRental;
-    private javax.swing.JLabel HamburgerIcon;
     private javax.swing.JLabel Listing;
     private javax.swing.JLabel ListingIcon;
+    private javax.swing.JLabel ListingsByType;
     private javax.swing.JLabel Logout;
     private javax.swing.JLabel LogoutIcon;
     private javax.swing.JLabel Main1;
@@ -334,8 +409,8 @@ private java.util.List<carrentalsystem.models.Car> userCarList = new java.util.A
     private javax.swing.JLabel Users;
     private javax.swing.JLabel UsersIcon;
     private carrentalsystem.ui.admin.ListingChart carTypeChart;
+    private javax.swing.JPanel carTypeContainer;
     private javax.swing.JPanel cardContainer;
-    private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JLabel lblOverview;
