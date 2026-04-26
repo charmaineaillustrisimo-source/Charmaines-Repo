@@ -105,7 +105,7 @@ public class LoginFrame extends javax.swing.JFrame {
 
         }
         ;
-        btnSignUp = new javax.swing.JButton() {
+        btnLogin = new javax.swing.JButton() {
             @Override
             protected void paintComponent(java.awt.Graphics g) {
                 java.awt.Graphics2D g2 = (java.awt.Graphics2D) g.create();
@@ -196,20 +196,20 @@ public class LoginFrame extends javax.swing.JFrame {
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTH;
         pnlGlass.add(txtPassword, gridBagConstraints);
 
-        btnSignUp.setBackground(new java.awt.Color(68, 49, 38));
-        btnSignUp.setFont(new java.awt.Font("Helvetica Neue", 1, 24)); // NOI18N
-        btnSignUp.setForeground(new java.awt.Color(255, 255, 255));
-        btnSignUp.setText("Log In");
-        btnSignUp.setContentAreaFilled(false);
-        btnSignUp.setPreferredSize(new java.awt.Dimension(200, 50));
-        btnSignUp.addActionListener(this::btnSignUpActionPerformed);
+        btnLogin.setBackground(new java.awt.Color(68, 49, 38));
+        btnLogin.setFont(new java.awt.Font("Helvetica Neue", 1, 24)); // NOI18N
+        btnLogin.setForeground(new java.awt.Color(255, 255, 255));
+        btnLogin.setText("Log In");
+        btnLogin.setContentAreaFilled(false);
+        btnLogin.setPreferredSize(new java.awt.Dimension(200, 50));
+        btnLogin.addActionListener(this::btnLoginActionPerformed);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 11;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTH;
         gridBagConstraints.weighty = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(30, 50, 10, 20);
-        pnlGlass.add(btnSignUp, gridBagConstraints);
+        pnlGlass.add(btnLogin, gridBagConstraints);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -231,9 +231,73 @@ public class LoginFrame extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void btnSignUpActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSignUpActionPerformed
+    private int failedAttempts = 0;
+    private carrentalsystem.interfaces.IAuthService authService = new carrentalsystem.services.AuthService();
+
+    private void btnLoginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLoginActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_btnSignUpActionPerformed
+ 
+        String email = txtUsername.getText().trim();  // your field is txtUsername
+        String password = new String(txtPassword.getPassword());
+
+        // Basic empty check
+        if (email.isEmpty() || password.isEmpty()) {
+            JOptionPane.showMessageDialog(this,
+                    "Please fill in all fields.",
+                    "Missing Fields",
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        try {
+            carrentalsystem.models.User user = authService.login(email, password);
+
+            if (user == null) {
+                failedAttempts++;
+                if (failedAttempts >= 5) {
+                    authService.banUser(email);
+                    JOptionPane.showMessageDialog(this,
+                            "Too many failed attempts. Account locked.",
+                            "Account Locked",
+                            JOptionPane.ERROR_MESSAGE);
+                    System.exit(0);
+                    return;
+                }
+                JOptionPane.showMessageDialog(this,
+                        "Wrong email or password. Attempt "
+                        + failedAttempts + " of 5.",
+                        "Login Failed",
+                        JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            // Login successful — start session
+            carrentalsystem.core.SessionManager.startSession(user);
+            System.out.println("[LOGIN] Welcome " + user.getFullName()
+                    + " | Role: " + user.getRole());
+
+            // Route based on role
+            if ("ADMIN".equals(user.getRole())) {
+                JOptionPane.showMessageDialog(this,
+                        "Admin dashboard coming soon!\n"
+                        + "Logged in as: " + user.getFullName());
+                // TODO: new AdminDashboard().setVisible(true);
+            } else {
+                JOptionPane.showMessageDialog(this,
+                        "Main dashboard coming soon!\n"
+                        + "Logged in as: " + user.getFullName());
+                // TODO: new MainDashboard().setVisible(true);
+            }
+            this.dispose();
+
+        } catch (java.sql.SQLException e) {
+            JOptionPane.showMessageDialog(this,
+                    "Database error: " + e.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+    
+    }//GEN-LAST:event_btnLoginActionPerformed
 
     /**
      * @param args the command line arguments
@@ -283,7 +347,7 @@ public class LoginFrame extends javax.swing.JFrame {
     
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton btnSignUp;
+    private javax.swing.JButton btnLogin;
     private javax.swing.JLabel lblPassword;
     private javax.swing.JLabel lblTitle;
     private javax.swing.JLabel lblUsername;

@@ -103,9 +103,6 @@
                     <EmptyBorder bottom="1" left="20" right="20" top="1"/>
                   </Border>
                 </Property>
-                <Property name="dropTarget" type="java.awt.dnd.DropTarget" editor="org.netbeans.modules.form.ComponentChooserEditor">
-                  <ComponentRef name="default"/>
-                </Property>
                 <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
                   <Dimension value="[500, 50]"/>
                 </Property>
@@ -145,9 +142,6 @@
                     <EmptyBorder bottom="1" left="20" right="20" top="1"/>
                   </Border>
                 </Property>
-                <Property name="dropTarget" type="java.awt.dnd.DropTarget" editor="org.netbeans.modules.form.ComponentChooserEditor">
-                  <ComponentRef name="default"/>
-                </Property>
                 <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
                   <Dimension value="[500, 50]"/>
                 </Property>
@@ -186,9 +180,6 @@
                   <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
                     <EmptyBorder bottom="1" left="20" right="20" top="1"/>
                   </Border>
-                </Property>
-                <Property name="dropTarget" type="java.awt.dnd.DropTarget" editor="org.netbeans.modules.form.ComponentChooserEditor">
-                  <ComponentRef name="default"/>
                 </Property>
                 <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
                   <Dimension value="[500, 50]"/>
@@ -298,6 +289,9 @@
                   <Dimension value="[200, 50]"/>
                 </Property>
               </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnSignUpActionPerformed"/>
+              </Events>
               <AuxValues>
                 <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new javax.swing.JButton() {&#xa;    @Override&#xa;    protected void paintComponent(java.awt.Graphics g) {&#xa;        java.awt.Graphics2D g2 = (java.awt.Graphics2D) g.create();&#xa;        g2.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING, java.awt.RenderingHints.VALUE_ANTIALIAS_ON);&#xa;        &#xa;        // Change color slightly when hovering/clicking for a modern feel&#xa;        if (getModel().isPressed()) {&#xa;            g2.setColor(new java.awt.Color(50, 50, 50)); // Dark grey when clicked&#xa;        } else if (getModel().isRollover()) {&#xa;            g2.setColor(new java.awt.Color(30, 30, 30)); // Slightly lighter black on hover&#xa;        } else {&#xa;            g2.setColor(getBackground()); // Default Black&#xa;        }&#xa;        &#xa;        g2.fillRoundRect(0, 0, getWidth(), getHeight(), 30, 30);&#xa;        g2.dispose();&#xa;        &#xa;        super.paintComponent(g);&#xa;    }&#xa;    &#xa;    @Override&#xa;    public void setBorder(javax.swing.border.Border border) {&#xa;        // Prevents square border from appearing&#xa;    }&#xa;}&#xa;"/>
               </AuxValues>

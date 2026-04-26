@@ -12,16 +12,16 @@ public class User {
 
     
     private int userId;
-    private String username;      // ADDED — from signup form
+    private String username;
     private String fullName;
     private String email;
     private String password;
-    private String role;          // "ADMIN" or "USER"
-    private String tier;          // "FREE" or "PRO"
-    private String status;        // "ACTIVE", "BANNED", "DELETED"
+    private String role;
+    private String tier;
+    private String status;
     private boolean isVerified;
     private Timestamp lastLogin;
-    private Timestamp createdAt;
+    private Timestamp createdAt;;
 
     public User() {}
 

@@ -19,6 +19,8 @@ public class Booking {
     private double totalPrice;
     private String status; // "PENDING","CONFIRMED","SUCCESSFUL","REJECTED","CANCELLED"
     private Timestamp createdAt;
+    private String renterName;
+private String ownerName;
 
     // ── Extra fields populated via JOIN in BookingService (not in DB column) ──
     private String carBrand;
@@ -52,6 +54,8 @@ public class Booking {
     public String getCarBrand()         { return carBrand; }
     public String getCarModel()         { return carModel; }
     public int getOwnerId()             { return ownerId; }
+    public String getRenterName()       { return renterName; }
+    public String getOwnerName()        { return ownerName; }
 
     // ── Setters ──────────────────────────────────────────────
     public void setBookingId(int bookingId)           { this.bookingId = bookingId; }
@@ -65,6 +69,8 @@ public class Booking {
     public void setCarBrand(String carBrand)          { this.carBrand = carBrand; }
     public void setCarModel(String carModel)          { this.carModel = carModel; }
     public void setOwnerId(int ownerId)               { this.ownerId = ownerId; }
+    public void setRenterName(String name)            { this.renterName = name; }
+    public void setOwnerName(String name)             { this.ownerName = name; }
 
     @Override
     public String toString() {
