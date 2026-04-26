@@ -4,11 +4,16 @@
  */
 package carrentalsystem.ui.user;
 
+import javax.swing.JFrame;
+import carrentalsystem.ui.user.SidebarPanel;
+
 /**
  *
  * @author macbookairm1grey
  */
 public class MainDashboard extends javax.swing.JFrame {
+    
+    private SidebarPanel sideMenu;
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(MainDashboard.class.getName());
 
@@ -17,6 +22,22 @@ public class MainDashboard extends javax.swing.JFrame {
      */
     public MainDashboard() {
         initComponents();
+        
+        //Build SidebarMenu
+        sideMenu = new SidebarPanel();
+        
+        //Other setup style
+        setSize(1440,1024);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+        this.setExtendedState(JFrame.MAXIMIZED_BOTH);
+        
+        // POSITION IT (x=0, y=65 to be under the header, width=220, height=match frame)
+        this.getLayeredPane().add(sideMenu, javax.swing.JLayeredPane.POPUP_LAYER);
+        sideMenu.setBounds(0, 65, 220, this.getHeight());
+        sideMenu.setVisible(false);
+        
+        
     }
 
     /**
@@ -27,22 +48,173 @@ public class MainDashboard extends javax.swing.JFrame {
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+        java.awt.GridBagConstraints gridBagConstraints;
+
+        pnlHeader = new javax.swing.JPanel();
+        txtSearch = new javax.swing.JTextField() {
+            {
+                // 1. THIS IS THE INTERNAL PADDING (Top, Left, Bottom, Right)
+                // 20 pixels on the left will push the text away from the curve
+                setBorder(javax.swing.BorderFactory.createEmptyBorder(5, 20, 5, 20));
+                setOpaque(false);
+                setBackground(new java.awt.Color(0, 0, 0, 0));
+            }
+
+            @Override
+            protected void paintComponent(java.awt.Graphics g) {
+                java.awt.Graphics2D g2 = (java.awt.Graphics2D) g.create();
+                g2.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING, java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(java.awt.Color.WHITE);
+                g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 30, 30);
+                g2.dispose();
+                super.paintComponent(g);
+            }
+
+            // REMOVED the empty setBorder method that was blocking your changes
+        }
+        ;
+        btnBurgerMenu = new javax.swing.JButton();
+        btnNotifications = new javax.swing.JButton();
+        btnProfile = new javax.swing.JButton();
+        pnlMainContent = new javax.swing.JPanel();
+        pnlDiscovery = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("Rent A Car - Cebu, Philippines");
+        setBackground(new java.awt.Color(45, 36, 34));
+        setPreferredSize(new java.awt.Dimension(1440, 1024));
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
-        );
+        pnlHeader.setBackground(new java.awt.Color(45, 36, 34));
+        pnlHeader.setPreferredSize(new java.awt.Dimension(1440, 65));
+        pnlHeader.setLayout(new java.awt.GridBagLayout());
+
+        txtSearch.setFont(new java.awt.Font("Helvetica Neue", 0, 14)); // NOI18N
+        txtSearch.setForeground(new java.awt.Color(150, 150, 150));
+        txtSearch.setText("Search");
+        txtSearch.setPreferredSize(new java.awt.Dimension(400, 40));
+        txtSearch.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusGained(java.awt.event.FocusEvent evt) {
+                txtSearchFocusGained(evt);
+            }
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                txtSearchFocusLost(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.ipadx = 300;
+        gridBagConstraints.ipady = 16;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(13, 70, 12, 70);
+        pnlHeader.add(txtSearch, gridBagConstraints);
+
+        btnBurgerMenu.setBorderPainted(false);
+        btnBurgerMenu.setPreferredSize(new java.awt.Dimension(50, 51));
+        btnBurgerMenu.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                btnBurgerMenuMouseEntered(evt);
+            }
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                btnBurgerMenuMouseReleased(evt);
+            }
+        });
+        btnBurgerMenu.addActionListener(this::btnBurgerMenuActionPerformed);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridheight = 2;
+        gridBagConstraints.ipadx = 50;
+        gridBagConstraints.ipady = 40;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(10, 60, 10, 0);
+        pnlHeader.add(btnBurgerMenu, gridBagConstraints);
+
+        btnNotifications.setBorderPainted(false);
+        btnNotifications.setPreferredSize(new java.awt.Dimension(50, 51));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridheight = 2;
+        gridBagConstraints.ipadx = 50;
+        gridBagConstraints.ipady = 40;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(10, 300, 5, 0);
+        pnlHeader.add(btnNotifications, gridBagConstraints);
+
+        btnProfile.setBorderPainted(false);
+        btnProfile.setPreferredSize(new java.awt.Dimension(50, 51));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 4;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridheight = 2;
+        gridBagConstraints.ipadx = 50;
+        gridBagConstraints.ipady = 40;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(10, 30, 5, 52);
+        pnlHeader.add(btnProfile, gridBagConstraints);
+
+        getContentPane().add(pnlHeader, java.awt.BorderLayout.NORTH);
+
+        pnlMainContent.setBackground(new java.awt.Color(223, 208, 209));
+        pnlMainContent.setLayout(new java.awt.CardLayout());
+
+        pnlDiscovery.setBackground(new java.awt.Color(223, 208, 209));
+        pnlDiscovery.setOpaque(false);
+        pnlDiscovery.setLayout(new java.awt.BorderLayout());
+        pnlMainContent.add(pnlDiscovery, "card2");
+
+        getContentPane().add(pnlMainContent, java.awt.BorderLayout.CENTER);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void txtSearchFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_txtSearchFocusGained
+        // TODO add your handling code here:
+        if (txtSearch.getText().equals("Search")) {
+            txtSearch.setText("");
+            txtSearch.setForeground(new java.awt.Color(0, 0, 0)); // Change text to black when typing
+}
+    }//GEN-LAST:event_txtSearchFocusGained
+
+    private void txtSearchFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_txtSearchFocusLost
+        // TODO add your handling code here:
+        if (txtSearch.getText().isEmpty()) {
+            txtSearch.setForeground(new java.awt.Color(150, 150, 150)); // Gray color
+            txtSearch.setText("Search");
+}
+    }//GEN-LAST:event_txtSearchFocusLost
+
+    private void btnBurgerMenuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBurgerMenuActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_btnBurgerMenuActionPerformed
+
+    private void btnBurgerMenuMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnBurgerMenuMouseEntered
+        // TODO add your handling code here:
+        // Use 'sideMenu' (your variable), NOT 'SidebarPanel' (the class)
+        if (sideMenu != null) {
+            // 1. Force the height to match the current window height
+            // 2. Subtract the header height (65) so it doesn't overlap the top bar
+            int headerHeight = pnlHeader.getHeight();
+            int frameHeight = this.getHeight();
+
+            sideMenu.setBounds(0, headerHeight, 400, frameHeight - headerHeight);
+
+            // 2. Make it visible and force it to the front
+            sideMenu.setVisible(true);
+            this.getLayeredPane().setComponentZOrder(sideMenu, 0);
+
+            // 3. Refresh
+            this.getLayeredPane().revalidate();
+            this.getLayeredPane().repaint();
+        }
+    }//GEN-LAST:event_btnBurgerMenuMouseEntered
+
+    private void btnBurgerMenuMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnBurgerMenuMouseReleased
+        // TODO add your handling code here:
+        sideMenu.setVisible(false);
+    }//GEN-LAST:event_btnBurgerMenuMouseReleased
 
     /**
      * @param args the command line arguments
@@ -70,5 +242,12 @@ public class MainDashboard extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnBurgerMenu;
+    private javax.swing.JButton btnNotifications;
+    private javax.swing.JButton btnProfile;
+    private javax.swing.JPanel pnlDiscovery;
+    private javax.swing.JPanel pnlHeader;
+    private javax.swing.JPanel pnlMainContent;
+    private javax.swing.JTextField txtSearch;
     // End of variables declaration//GEN-END:variables
 }

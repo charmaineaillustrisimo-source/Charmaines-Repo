@@ -169,6 +169,7 @@ public class LoginFrame extends javax.swing.JFrame {
         txtUsername.setFont(new java.awt.Font("Helvetica Neue", 0, 15)); // NOI18N
         txtUsername.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 20, 1, 20));
         txtUsername.setPreferredSize(new java.awt.Dimension(500, 50));
+        txtUsername.addActionListener(this::txtUsernameActionPerformed);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 2;
@@ -298,6 +299,10 @@ public class LoginFrame extends javax.swing.JFrame {
         }
     
     }//GEN-LAST:event_btnLoginActionPerformed
+
+    private void txtUsernameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtUsernameActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtUsernameActionPerformed
 
     /**
      * @param args the command line arguments
