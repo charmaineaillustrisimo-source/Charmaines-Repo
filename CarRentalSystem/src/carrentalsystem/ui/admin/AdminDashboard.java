@@ -27,25 +27,31 @@ private java.util.List<carrentalsystem.models.Car> userCarList = new java.util.A
     public AdminDashboard() {
     initComponents();
     this.setExtendedState(javax.swing.JFrame.MAXIMIZED_BOTH);
+    
+    //Position Top Bar Icons
     TopBarPanel.add(ProfileIcon, new org.netbeans.lib.awtextra.AbsoluteConstraints(1210, 20, 50, 50));
     TopBarPanel.add(NotifyIcon, new org.netbeans.lib.awtextra.AbsoluteConstraints(1140, 20, 50, 50));
     
-    javax.swing.table.JTableHeader header = tableForBookings.getTableHeader();
-    header.setBackground(new java.awt.Color(48, 48, 46));
-    header.setForeground(java.awt.Color.WHITE);
-    
-    tableForBookings.getTableHeader().setBackground(new java.awt.Color(48, 48, 46)); // Match your panel color
-    tableForBookings.getTableHeader().setForeground(java.awt.Color.WHITE); // Header text color
-    tableForBookings.getTableHeader().setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 18)); // Change header font
-    tableForBookings.getTableHeader().setBorder(null);
-    
-    ((javax.swing.table.DefaultTableCellRenderer)header.getDefaultRenderer())
-    .setHorizontalAlignment(javax.swing.JLabel.CENTER);
-    header.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(60, 60, 60)));
+    tableForBookings.getTableHeader().setDefaultRenderer(new javax.swing.table.DefaultTableCellRenderer() {
+        @Override
+        public java.awt.Component getTableCellRendererComponent(javax.swing.JTable table, Object value,
+                boolean isSelected, boolean hasFocus, int row, int column) {
+            super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+            setBackground(new java.awt.Color(48, 48, 46)); // Background color
+            setForeground(java.awt.Color.WHITE);           // Text color
+            setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 18));
+            setHorizontalAlignment(javax.swing.JLabel.CENTER);
+            setBorder(javax.swing.BorderFactory.createMatteBorder(0, 0, 1, 1, new java.awt.Color(60, 60, 60)));
+            return this;
+        }
+    });
     
     jScrollPane1.getViewport().setBackground(new java.awt.Color(48, 48, 46));
     jScrollPane1.setBorder(javax.swing.BorderFactory.createEmptyBorder());
     
+    centerTableText();
+    applyStatusShaping();
+    tableForBookings.setRowHeight(40);
     loadRecentBookings();
     
     
@@ -191,8 +197,7 @@ private java.util.List<carrentalsystem.models.Car> userCarList = new java.util.A
     }
 }
     
-    private void centerTableText() {
-    // Create a renderer that centers text and sets the dark background
+private void centerTableText() {
     javax.swing.table.DefaultTableCellRenderer centerRenderer = new javax.swing.table.DefaultTableCellRenderer() {
         @Override
         public java.awt.Component getTableCellRendererComponent(javax.swing.JTable table, Object value, 
@@ -200,19 +205,23 @@ private java.util.List<carrentalsystem.models.Car> userCarList = new java.util.A
             
             java.awt.Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
             
-            // Set the background to match your dashboard
+            // Fix cell background and text color
             if (!isSelected) {
                 c.setBackground(new java.awt.Color(48, 48, 46));
+            } else {
+                c.setBackground(new java.awt.Color(60, 60, 60)); // Highlight color
             }
             c.setForeground(java.awt.Color.WHITE);
+            
+            // FIX THE FONT HERE
+            c.setFont(new java.awt.Font("Segoe UI", java.awt.Font.PLAIN, 16));
+            
             return c;
         }
     };
 
-    // Apply centering to the renderer
     centerRenderer.setHorizontalAlignment(javax.swing.JLabel.CENTER);
 
-    // Apply this renderer to every column in your table
     for (int i = 0; i < tableForBookings.getColumnCount(); i++) {
         tableForBookings.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
     }
@@ -228,41 +237,131 @@ private java.util.List<carrentalsystem.models.Car> userCarList = new java.util.A
     }
 }
     
-    /*private void addTicketToUI(String initials, String name, String issue, java.awt.Color themeColor) {
-    // 1. Create the Row Panel
-    javax.swing.JPanel row = new javax.swing.JPanel(new java.awt.BorderLayout(15, 0));
-    row.setOpaque(false);
-    row.setBorder(javax.swing.BorderFactory.createEmptyBorder(5, 10, 5, 10));
-
-    // 2. THE CIRCLE (Using a JLabel with a Custom Border)
-    javax.swing.JLabel circle = new javax.swing.JLabel(initials);
-    circle.setForeground(themeColor);
-    circle.setFont(new java.awt.Font("Segoe UI", 1, 14));
-    circle.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-    
-    // This custom border forces a perfect circle shape
-    circle.setBorder(new javax.swing.border.LineBorder(themeColor, 2, true) {
+    private void applyStatusShaping() {
+    // We target specifically the Status column (Index 3 in your model: Renter, Car, Dates, Status)
+    tableForBookings.getColumnModel().getColumn(3).setCellRenderer(new javax.swing.table.DefaultTableCellRenderer() {
         @Override
-        public void paintBorder(java.awt.Component c, java.awt.Graphics g, int x, int y, int width, int height) {
-            java.awt.Graphics2D g2 = (java.awt.Graphics2D) g;
+        public java.awt.Component getTableCellRendererComponent(javax.swing.JTable table, Object value,
+                boolean isSelected, boolean hasFocus, int row, int column) {
+            
+            super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+            
+            // 1. Basic Setup
+            setOpaque(false); // Make it false so our custom shape shows
+            setForeground(java.awt.Color.WHITE);
+            setHorizontalAlignment(javax.swing.JLabel.CENTER);
+            setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 14));
+            
+            return this;
+        }
+
+        @Override
+        protected void paintComponent(java.awt.Graphics g) {
+            java.awt.Graphics2D g2 = (java.awt.Graphics2D) g.create();
             g2.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING, java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
-            g2.setColor(getLineColor());
-            // Draw an oval that fits the square size to make a circle
-            g2.drawOval(x + 1, y + 1, width - 3, height - 3);
+
+            String status = getText().toLowerCase();
+            
+            // 2. Set color based on text
+            if (status.contains("active") || status.contains("completed")) {
+                g2.setColor(new java.awt.Color(11, 213, 91)); // Green
+            } else if (status.contains("pending")) {
+                g2.setColor(new java.awt.Color(255, 193, 7)); // Yellow
+            } else {
+                g2.setColor(new java.awt.Color(70, 70, 70)); // Default Grey
+            }
+
+            // 3. Draw the Rounded Rectangle (Badge style)
+            // Adjust the 5, 5, width-10, height-10 to change the padding
+            g2.fillRoundRect(10, 8, getWidth() - 20, getHeight() - 16, 20, 20);
+            
+            g2.dispose();
+            super.paintComponent(g);
         }
     });
-    circle.setPreferredSize(new java.awt.Dimension(40, 40));
+}
+    
+    public void updateListingStats() {
+    try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/car_rental", "root", "")) {
+        
+        // 1. Clear the panel so we don't duplicate bars on refresh
+        carTypeContainer.removeAll();
 
-    // 3. THE TEXT (User Info)
-    javax.swing.JLabel text = new javax.swing.JLabel("<html><b>" + name + "</b><br><font size='3' color='#AAAAAA'>" + issue + "</font></html>");
-    text.setForeground(java.awt.Color.WHITE);
+        // 2. Get total count for percentage math
+        ResultSet rsTotal = conn.createStatement().executeQuery("SELECT COUNT(*) FROM cars");
+        int totalCars = rsTotal.next() ? rsTotal.getInt(1) : 0;
+        if (totalCars == 0) return;
 
-    // 4. Assemble and Add to Container
-    row.add(circle, java.awt.BorderLayout.WEST);
-    row.add(text, java.awt.BorderLayout.CENTER);
+        // 3. Query dynamic types
+        String query = "SELECT type, COUNT(*) as count FROM cars GROUP BY type";
+        ResultSet rs = conn.createStatement().executeQuery(query);
 
-    supportTicketPanel.add(row);
-}*/
+        while(rs.next()) {
+            String typeName = rs.getString("type");
+            int count = rs.getInt("count");
+            int percentage = (int)((double)count / totalCars * 100);
+
+            // 4. Create UI components on the fly
+            javax.swing.JPanel row = new javax.swing.JPanel(new java.awt.BorderLayout(10, 0));
+            row.setOpaque(false); // Keeps your dashboard background visible
+
+            javax.swing.JLabel lblName = new javax.swing.JLabel(typeName);
+            lblName.setForeground(java.awt.Color.WHITE);
+            lblName.setPreferredSize(new java.awt.Dimension(80, 20));
+
+            javax.swing.JProgressBar bar = new javax.swing.JProgressBar(0, 100);
+            bar.setValue(percentage);
+            bar.setForeground(new java.awt.Color(52, 152, 219));
+            bar.setBackground(new java.awt.Color(60, 60, 60));
+            bar.setBorderPainted(false);
+            bar.setStringPainted(false);
+
+            javax.swing.JLabel lblCount = new javax.swing.JLabel(String.valueOf(count));
+            lblCount.setForeground(java.awt.Color.GRAY);
+
+            // 5. Assemble the row
+            row.add(lblName, java.awt.BorderLayout.WEST);
+            row.add(bar, java.awt.BorderLayout.CENTER);
+            row.add(lblCount, java.awt.BorderLayout.EAST);
+
+            // 6. Add to container
+            carTypeContainer.add(row);
+            carTypeContainer.add(javax.swing.Box.createVerticalStrut(10)); // Gap between bars
+        }
+
+        // 7. Tell Swing to redraw the new components
+        carTypeContainer.revalidate();
+        carTypeContainer.repaint();
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+}
+    
+    public void fetchTickets() {
+    try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/car_rental", "root", "")) {
+        supportTicketPanel.removeAll(); // Clear placeholder labels
+        
+        String query = "SELECT user_initials, subject, user_name, time_ago, priority FROM support_tickets";
+        ResultSet rs = conn.createStatement().executeQuery(query);
+
+        while(rs.next()) {
+            TicketRow row = new TicketRow();
+            row.setTicketInfo(
+                rs.getString("user_initials"),
+                rs.getString("subject"),
+                rs.getString("user_name") + " * " + rs.getString("time_ago"),
+                rs.getString("priority")
+            );
+            supportTicketPanel.add(row);
+        }
+        
+        supportTicketPanel.revalidate();
+        supportTicketPanel.repaint();
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+}
     
     
     
@@ -463,7 +562,7 @@ private java.util.List<carrentalsystem.models.Car> userCarList = new java.util.A
         ListingsByType.setText("Listings by type");
 
         carTypeContainer.setBackground(new java.awt.Color(38, 38, 36));
-        carTypeContainer.setLayout(new java.awt.GridLayout(0, 1, 20, 0));
+        carTypeContainer.setLayout(new javax.swing.BoxLayout(carTypeContainer, javax.swing.BoxLayout.LINE_AXIS));
 
         javax.swing.GroupLayout carTypeChartLayout = new javax.swing.GroupLayout(carTypeChart);
         carTypeChart.setLayout(carTypeChartLayout);
@@ -493,27 +592,15 @@ private java.util.List<carrentalsystem.models.Car> userCarList = new java.util.A
         supportTicketPanel.setBackground(new java.awt.Color(38, 38, 36));
         supportTicketPanel.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
         supportTicketPanel.setPreferredSize(new java.awt.Dimension(531, 200));
+        supportTicketPanel.setLayout(new javax.swing.BoxLayout(supportTicketPanel, javax.swing.BoxLayout.LINE_AXIS));
 
         openSourceTicketslbl.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
         openSourceTicketslbl.setForeground(new java.awt.Color(255, 255, 255));
         openSourceTicketslbl.setText("Open support tickets");
-
-        javax.swing.GroupLayout supportTicketPanelLayout = new javax.swing.GroupLayout(supportTicketPanel);
-        supportTicketPanel.setLayout(supportTicketPanelLayout);
-        supportTicketPanelLayout.setHorizontalGroup(
-            supportTicketPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(supportTicketPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(openSourceTicketslbl)
-                .addContainerGap(292, Short.MAX_VALUE))
-        );
-        supportTicketPanelLayout.setVerticalGroup(
-            supportTicketPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(supportTicketPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(openSourceTicketslbl)
-                .addContainerGap(151, Short.MAX_VALUE))
-        );
+        openSourceTicketslbl.setVerticalAlignment(javax.swing.SwingConstants.TOP);
+        openSourceTicketslbl.setAlignmentY(0.0F);
+        openSourceTicketslbl.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 10, 1, 1));
+        supportTicketPanel.add(openSourceTicketslbl);
 
         jPanel1.add(supportTicketPanel, new org.netbeans.lib.awtextra.AbsoluteConstraints(450, 236, -1, -1));
 
@@ -553,6 +640,7 @@ private java.util.List<carrentalsystem.models.Car> userCarList = new java.util.A
         tableForBookings.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_LAST_COLUMN);
         tableForBookings.setPreferredSize(new java.awt.Dimension(500, 64));
         tableForBookings.setSelectionBackground(new java.awt.Color(60, 60, 60));
+        tableForBookings.setShowHorizontalLines(false);
         tableForBookings.setShowVerticalLines(false);
         jScrollPane1.setViewportView(tableForBookings);
 
