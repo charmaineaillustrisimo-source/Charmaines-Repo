@@ -8,10 +8,14 @@ package carrentalsystem.ui.admin;
  *
  * @author macbookairm1grey
  */
+import java.awt.Color;
+import java.awt.Font;
 import javax.swing.ImageIcon;
 import java.awt.Image;
 import java.util.Map;
 import java.util.HashMap;
+import javax.swing.table.DefaultTableModel;
+import java.sql.*;
 public class AdminDashboard extends javax.swing.JFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(AdminDashboard.class.getName());
@@ -25,6 +29,25 @@ private java.util.List<carrentalsystem.models.Car> userCarList = new java.util.A
     this.setExtendedState(javax.swing.JFrame.MAXIMIZED_BOTH);
     TopBarPanel.add(ProfileIcon, new org.netbeans.lib.awtextra.AbsoluteConstraints(1210, 20, 50, 50));
     TopBarPanel.add(NotifyIcon, new org.netbeans.lib.awtextra.AbsoluteConstraints(1140, 20, 50, 50));
+    
+    javax.swing.table.JTableHeader header = tableForBookings.getTableHeader();
+    header.setBackground(new java.awt.Color(48, 48, 46));
+    header.setForeground(java.awt.Color.WHITE);
+    
+    tableForBookings.getTableHeader().setBackground(new java.awt.Color(48, 48, 46)); // Match your panel color
+    tableForBookings.getTableHeader().setForeground(java.awt.Color.WHITE); // Header text color
+    tableForBookings.getTableHeader().setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 18)); // Change header font
+    tableForBookings.getTableHeader().setBorder(null);
+    
+    ((javax.swing.table.DefaultTableCellRenderer)header.getDefaultRenderer())
+    .setHorizontalAlignment(javax.swing.JLabel.CENTER);
+    header.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(60, 60, 60)));
+    
+    jScrollPane1.getViewport().setBackground(new java.awt.Color(48, 48, 46));
+    jScrollPane1.setBorder(javax.swing.BorderFactory.createEmptyBorder());
+    
+    loadRecentBookings();
+    
     
     // Add this to your constructor after initComponents()
     this.addComponentListener(new java.awt.event.ComponentAdapter() {
@@ -137,6 +160,74 @@ private java.util.List<carrentalsystem.models.Car> userCarList = new java.util.A
     carTypeContainer.add(row);
 }
     
+    public void loadRecentBookings() {
+    // Get the table model and clear it
+    DefaultTableModel model = (DefaultTableModel) tableForBookings.getModel();
+    model.setRowCount(0); 
+
+    try {
+        // 1. Establish Connection
+        Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/car_rental", "root", "password");
+        Statement st = conn.createStatement();
+        
+        // 2. Execute Query
+        String query = "SELECT renter_name, car_name, booking_period, status FROM bookings";
+        ResultSet rs = st.executeQuery(query);
+
+        // 3. Loop through results and add rows
+        while(rs.next()) {
+            String renter = rs.getString("renter_name");
+            String car = rs.getString("car_name");
+            String dates = rs.getString("booking_period");
+            String status = rs.getString("status");
+            
+            // Add data to the table row
+            model.addRow(new Object[]{renter, car, dates, status});
+        }
+        
+        conn.close();
+    } catch (Exception e) {
+        System.out.println("Error: " + e.getMessage());
+    }
+}
+    
+    private void centerTableText() {
+    // Create a renderer that centers text and sets the dark background
+    javax.swing.table.DefaultTableCellRenderer centerRenderer = new javax.swing.table.DefaultTableCellRenderer() {
+        @Override
+        public java.awt.Component getTableCellRendererComponent(javax.swing.JTable table, Object value, 
+                boolean isSelected, boolean hasFocus, int row, int column) {
+            
+            java.awt.Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+            
+            // Set the background to match your dashboard
+            if (!isSelected) {
+                c.setBackground(new java.awt.Color(48, 48, 46));
+            }
+            c.setForeground(java.awt.Color.WHITE);
+            return c;
+        }
+    };
+
+    // Apply centering to the renderer
+    centerRenderer.setHorizontalAlignment(javax.swing.JLabel.CENTER);
+
+    // Apply this renderer to every column in your table
+    for (int i = 0; i < tableForBookings.getColumnCount(); i++) {
+        tableForBookings.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+    }
+}
+    
+    private void centerTableData() {
+    javax.swing.table.DefaultTableCellRenderer centerRenderer = new javax.swing.table.DefaultTableCellRenderer();
+    centerRenderer.setHorizontalAlignment(javax.swing.JLabel.CENTER);
+    
+    // Loop through every column and apply the center alignment
+    for (int i = 0; i < tableForBookings.getColumnCount(); i++) {
+        tableForBookings.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+    }
+}
+    
     /*private void addTicketToUI(String initials, String name, String issue, java.awt.Color themeColor) {
     // 1. Create the Row Panel
     javax.swing.JPanel row = new javax.swing.JPanel(new java.awt.BorderLayout(15, 0));
@@ -224,7 +315,7 @@ private java.util.List<carrentalsystem.models.Car> userCarList = new java.util.A
         jLabel1 = new javax.swing.JLabel();
         jPanel3 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
+        tableForBookings = new javax.swing.JTable();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setBackground(new java.awt.Color(3, 33, 33));
@@ -433,13 +524,14 @@ private java.util.List<carrentalsystem.models.Car> userCarList = new java.util.A
 
         jPanel3.setBackground(new java.awt.Color(48, 48, 46));
         jPanel3.setPreferredSize(new java.awt.Dimension(950, 150));
+        jPanel3.setLayout(new java.awt.BorderLayout());
 
         jScrollPane1.setBackground(new java.awt.Color(46, 46, 48));
 
-        jTable1.setBackground(new java.awt.Color(48, 48, 46));
-        jTable1.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
-        jTable1.setForeground(new java.awt.Color(48, 48, 46));
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        tableForBookings.setBackground(new java.awt.Color(48, 48, 46));
+        tableForBookings.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
+        tableForBookings.setForeground(new java.awt.Color(48, 48, 46));
+        tableForBookings.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null},
                 {null, null, null, null},
@@ -449,25 +541,22 @@ private java.util.List<carrentalsystem.models.Car> userCarList = new java.util.A
             new String [] {
                 "Renter", "Car", "Dates", "Status"
             }
-        ));
-        jTable1.setShowVerticalLines(false);
-        jScrollPane1.setViewportView(jTable1);
+        ) {
+            Class[] types = new Class [] {
+                java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.String.class
+            };
 
-        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
-        jPanel3.setLayout(jPanel3Layout);
-        jPanel3Layout.setHorizontalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel3Layout.createSequentialGroup()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 498, Short.MAX_VALUE))
-        );
-        jPanel3Layout.setVerticalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel3Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+        });
+        tableForBookings.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_LAST_COLUMN);
+        tableForBookings.setPreferredSize(new java.awt.Dimension(500, 64));
+        tableForBookings.setSelectionBackground(new java.awt.Color(60, 60, 60));
+        tableForBookings.setShowVerticalLines(false);
+        jScrollPane1.setViewportView(tableForBookings);
+
+        jPanel3.add(jScrollPane1, java.awt.BorderLayout.CENTER);
 
         jPanel1.add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 490, -1, -1));
 
@@ -535,10 +624,10 @@ private java.util.List<carrentalsystem.models.Car> userCarList = new java.util.A
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTable jTable1;
     private javax.swing.JLabel lblOverview;
     private javax.swing.JLabel openSourceTicketslbl;
     private javax.swing.JPanel sideBarPanel;
     private javax.swing.JPanel supportTicketPanel;
+    private javax.swing.JTable tableForBookings;
     // End of variables declaration//GEN-END:variables
 }
