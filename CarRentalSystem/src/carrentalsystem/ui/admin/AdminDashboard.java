@@ -518,7 +518,7 @@ private void centerTableText() {
         sideBarPanel.add(LogoutIcon, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 450, 35, 35));
 
         Logout.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
-        Logout.setForeground(new java.awt.Color(255, 0, 0));
+        Logout.setForeground(new java.awt.Color(255, 255, 255));
         Logout.setText("Logout");
         sideBarPanel.add(Logout, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 450, -1, -1));
 
