@@ -137,6 +137,46 @@ private java.util.List<carrentalsystem.models.Car> userCarList = new java.util.A
     carTypeContainer.add(row);
 }
     
+    /*private void addTicketToUI(String initials, String name, String issue, java.awt.Color themeColor) {
+    // 1. Create the Row Panel
+    javax.swing.JPanel row = new javax.swing.JPanel(new java.awt.BorderLayout(15, 0));
+    row.setOpaque(false);
+    row.setBorder(javax.swing.BorderFactory.createEmptyBorder(5, 10, 5, 10));
+
+    // 2. THE CIRCLE (Using a JLabel with a Custom Border)
+    javax.swing.JLabel circle = new javax.swing.JLabel(initials);
+    circle.setForeground(themeColor);
+    circle.setFont(new java.awt.Font("Segoe UI", 1, 14));
+    circle.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+    
+    // This custom border forces a perfect circle shape
+    circle.setBorder(new javax.swing.border.LineBorder(themeColor, 2, true) {
+        @Override
+        public void paintBorder(java.awt.Component c, java.awt.Graphics g, int x, int y, int width, int height) {
+            java.awt.Graphics2D g2 = (java.awt.Graphics2D) g;
+            g2.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING, java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setColor(getLineColor());
+            // Draw an oval that fits the square size to make a circle
+            g2.drawOval(x + 1, y + 1, width - 3, height - 3);
+        }
+    });
+    circle.setPreferredSize(new java.awt.Dimension(40, 40));
+
+    // 3. THE TEXT (User Info)
+    javax.swing.JLabel text = new javax.swing.JLabel("<html><b>" + name + "</b><br><font size='3' color='#AAAAAA'>" + issue + "</font></html>");
+    text.setForeground(java.awt.Color.WHITE);
+
+    // 4. Assemble and Add to Container
+    row.add(circle, java.awt.BorderLayout.WEST);
+    row.add(text, java.awt.BorderLayout.CENTER);
+
+    supportTicketPanel.add(row);
+}*/
+    
+    
+    
+    
+    
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -179,6 +219,15 @@ private java.util.List<carrentalsystem.models.Car> userCarList = new java.util.A
         carTypeChart = new carrentalsystem.ui.admin.ListingChart();
         ListingsByType = new javax.swing.JLabel();
         carTypeContainer = new javax.swing.JPanel();
+        supportTicketPanel = new javax.swing.JPanel();
+        openSourceTicketslbl = new javax.swing.JLabel();
+        jLabel1 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
+        jLabel4 = new javax.swing.JLabel();
+        jLabel5 = new javax.swing.JLabel();
+        jSeparator1 = new javax.swing.JSeparator();
+        jPanel3 = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setBackground(new java.awt.Color(3, 33, 33));
@@ -352,6 +401,79 @@ private java.util.List<carrentalsystem.models.Car> userCarList = new java.util.A
 
         jPanel1.add(carTypeChart, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 235, -1, -1));
 
+        supportTicketPanel.setBackground(new java.awt.Color(38, 38, 36));
+        supportTicketPanel.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        supportTicketPanel.setPreferredSize(new java.awt.Dimension(531, 200));
+
+        openSourceTicketslbl.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
+        openSourceTicketslbl.setForeground(new java.awt.Color(255, 255, 255));
+        openSourceTicketslbl.setText("Open support tickets");
+
+        javax.swing.GroupLayout supportTicketPanelLayout = new javax.swing.GroupLayout(supportTicketPanel);
+        supportTicketPanel.setLayout(supportTicketPanelLayout);
+        supportTicketPanelLayout.setHorizontalGroup(
+            supportTicketPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(supportTicketPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(openSourceTicketslbl)
+                .addContainerGap(292, Short.MAX_VALUE))
+        );
+        supportTicketPanelLayout.setVerticalGroup(
+            supportTicketPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(supportTicketPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(openSourceTicketslbl)
+                .addContainerGap(151, Short.MAX_VALUE))
+        );
+
+        jPanel1.add(supportTicketPanel, new org.netbeans.lib.awtextra.AbsoluteConstraints(450, 236, -1, -1));
+
+        jLabel1.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
+        jLabel1.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel1.setText("Recent Bookings");
+        jPanel1.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 450, -1, -1));
+
+        jLabel2.setFont(new java.awt.Font("Segoe UI Light", 0, 24)); // NOI18N
+        jLabel2.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel2.setText("Status");
+        jPanel1.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(800, 480, -1, -1));
+
+        jLabel3.setFont(new java.awt.Font("Segoe UI Light", 0, 24)); // NOI18N
+        jLabel3.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel3.setText("Renter");
+        jPanel1.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 480, -1, -1));
+
+        jLabel4.setFont(new java.awt.Font("Segoe UI Light", 0, 24)); // NOI18N
+        jLabel4.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel4.setText("Car");
+        jPanel1.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 480, -1, -1));
+
+        jLabel5.setFont(new java.awt.Font("Segoe UI Light", 0, 24)); // NOI18N
+        jLabel5.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel5.setText("Dates");
+        jPanel1.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(550, 480, -1, -1));
+
+        jSeparator1.setBackground(new java.awt.Color(121, 121, 121));
+        jSeparator1.setForeground(new java.awt.Color(121, 121, 121));
+        jSeparator1.setPreferredSize(new java.awt.Dimension(950, 10));
+        jPanel1.add(jSeparator1, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 520, -1, -1));
+
+        jPanel3.setBackground(new java.awt.Color(48, 48, 46));
+        jPanel3.setPreferredSize(new java.awt.Dimension(950, 150));
+
+        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
+        jPanel3.setLayout(jPanel3Layout);
+        jPanel3Layout.setHorizontalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 950, Short.MAX_VALUE)
+        );
+        jPanel3Layout.setVerticalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 150, Short.MAX_VALUE)
+        );
+
+        jPanel1.add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 530, -1, -1));
+
         getContentPane().add(jPanel1, java.awt.BorderLayout.CENTER);
 
         pack();
@@ -411,9 +533,18 @@ private java.util.List<carrentalsystem.models.Car> userCarList = new java.util.A
     private carrentalsystem.ui.admin.ListingChart carTypeChart;
     private javax.swing.JPanel carTypeContainer;
     private javax.swing.JPanel cardContainer;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
+    private javax.swing.JSeparator jSeparator1;
     private javax.swing.JLabel lblOverview;
+    private javax.swing.JLabel openSourceTicketslbl;
     private javax.swing.JPanel sideBarPanel;
+    private javax.swing.JPanel supportTicketPanel;
     // End of variables declaration//GEN-END:variables
 }
