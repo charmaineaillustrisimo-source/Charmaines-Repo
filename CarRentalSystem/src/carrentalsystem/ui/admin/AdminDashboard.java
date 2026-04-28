@@ -3,7 +3,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 package carrentalsystem.ui.admin;
-
+import carrentalsystem.auth.LoginFrame;
 /**
  *
  * @author macbookairm1grey
@@ -82,6 +82,14 @@ private java.util.List<carrentalsystem.models.Car> userCarList = new java.util.A
     //Top Bar Panel Icon
     setIcon(ProfileIcon, "/carrentalsystem/ui/admin/PIC/Profile.png", 50, 50);
     setIcon(NotifyIcon, "/carrentalsystem/ui/admin/PIC/bell.png", 50, 50);
+    
+    Logout.setText("Logout");
+    
+    Logout.addMouseListener(new java.awt.event.MouseAdapter() {
+        public void mouseClicked(java.awt.event.MouseEvent evt){
+            //logout_labelMouseClicked(evt);
+        }
+});
 }
     
     private void setIcon(javax.swing.JLabel label, String path, int width, int height) {
@@ -385,8 +393,8 @@ private void centerTableText() {
         Main1 = new javax.swing.JLabel();
         Admin = new javax.swing.JLabel();
         OverviewIcon = new javax.swing.JLabel();
-        Overview = new javax.swing.JLabel();
         jPanel2 = new javax.swing.JPanel();
+        jButton1 = new javax.swing.JButton();
         ListingIcon = new javax.swing.JLabel();
         Listing = new javax.swing.JLabel();
         UsersIcon = new javax.swing.JLabel();
@@ -454,22 +462,33 @@ private void centerTableText() {
         OverviewIcon.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         sideBarPanel.add(OverviewIcon, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 110, 35, 35));
 
-        Overview.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
-        Overview.setForeground(new java.awt.Color(255, 255, 255));
-        Overview.setText("Overview");
-        sideBarPanel.add(Overview, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 110, -1, -1));
-
         jPanel2.setBackground(new java.awt.Color(48, 48, 46));
+
+        jButton1.setBackground(new java.awt.Color(48, 48, 46));
+        jButton1.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
+        jButton1.setForeground(new java.awt.Color(255, 255, 255));
+        jButton1.setText("Overview");
+        jButton1.setBorder(null);
+        jButton1.setBorderPainted(false);
+        jButton1.setContentAreaFilled(false);
+        jButton1.setFocusPainted(false);
+        jButton1.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        jButton1.setPreferredSize(new java.awt.Dimension(270, 50));
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 360, Short.MAX_VALUE)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addGap(78, 78, 78)
+                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 50, Short.MAX_VALUE)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, Short.MAX_VALUE))
         );
 
         sideBarPanel.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 100, 360, 50));
@@ -692,7 +711,6 @@ private void centerTableText() {
     private javax.swing.JLabel LogoutIcon;
     private javax.swing.JLabel Main1;
     private javax.swing.JLabel NotifyIcon;
-    private javax.swing.JLabel Overview;
     private javax.swing.JLabel OverviewIcon;
     private carrentalsystem.ui.admin.StatCard PendingApprovals;
     private javax.swing.JLabel ProfileIcon;
@@ -707,6 +725,7 @@ private void centerTableText() {
     private carrentalsystem.ui.admin.ListingChart carTypeChart;
     private javax.swing.JPanel carTypeContainer;
     private javax.swing.JPanel cardContainer;
+    private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
