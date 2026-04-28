@@ -105,6 +105,8 @@ private java.util.List<carrentalsystem.models.Car> userCarList = new java.util.A
         LogoutButton = new javax.swing.JButton();
         jPanel1 = new javax.swing.JPanel();
         lblUserManagement = new javax.swing.JLabel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jTable1 = new javax.swing.JTable();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setBackground(new java.awt.Color(3, 33, 33));
@@ -272,6 +274,24 @@ private java.util.List<carrentalsystem.models.Car> userCarList = new java.util.A
         lblUserManagement.setText("User Management");
         jPanel1.add(lblUserManagement, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 10, -1, -1));
 
+        jScrollPane1.setPreferredSize(new java.awt.Dimension(500, 500));
+
+        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null}
+            },
+            new String [] {
+                "User", "Email", "Plan", "Listings", "Actions"
+            }
+        ));
+        jTable1.setPreferredSize(new java.awt.Dimension(610, 500));
+        jScrollPane1.setViewportView(jTable1);
+
+        jPanel1.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 70, 980, -1));
+
         getContentPane().add(jPanel1, java.awt.BorderLayout.CENTER);
 
         pack();
@@ -325,6 +345,8 @@ private java.util.List<carrentalsystem.models.Car> userCarList = new java.util.A
     private javax.swing.JLabel UsersIcon;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JTable jTable1;
     private javax.swing.JLabel lblUserManagement;
     private javax.swing.JPanel sideBarPanel;
     // End of variables declaration//GEN-END:variables
