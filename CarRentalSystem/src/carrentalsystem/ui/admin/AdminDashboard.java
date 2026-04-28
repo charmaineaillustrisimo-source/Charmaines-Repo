@@ -78,7 +78,7 @@ private java.util.List<carrentalsystem.models.Car> userCarList = new java.util.A
     setIcon(BookingsIcon1, "/carrentalsystem/ui/admin/PIC/Bookings.png", 35, 35);
     setIcon(SupportIcon, "/carrentalsystem/ui/admin/PIC/support.png", 35, 35);
     setIcon(SettingsIcon, "/carrentalsystem/ui/admin/PIC/setting (1).png", 35, 35);
-    setIcon(LogoutIcon, "/carrentalsystem/ui/admin/PIC/logout.png", 35, 35);
+    setIcon(LogoutIcon, "/carrentalsystem/ui/admin/PIC/logout-white.png", 35, 35);
     //Top Bar Panel Icon
     setIcon(ProfileIcon, "/carrentalsystem/ui/admin/PIC/Profile.png", 50, 50);
     setIcon(NotifyIcon, "/carrentalsystem/ui/admin/PIC/bell.png", 50, 50);
@@ -652,7 +652,7 @@ private void centerTableText() {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
+/**/
     /**
      * @param args the command line arguments
      */
