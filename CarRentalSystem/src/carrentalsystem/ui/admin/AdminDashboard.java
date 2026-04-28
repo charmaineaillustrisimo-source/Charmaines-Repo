@@ -574,7 +574,6 @@ private void centerTableText() {
         LogoutButton.setFocusPainted(false);
         LogoutButton.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         LogoutButton.setPreferredSize(new java.awt.Dimension(270, 50));
-        LogoutButton.addMouseListener();
         sideBarPanel.add(LogoutButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 440, -1, -1));
 
         getContentPane().add(sideBarPanel, java.awt.BorderLayout.WEST);
@@ -707,32 +706,6 @@ private void centerTableText() {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
-    private void LogoutButtonMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_LogoutButtonMousePressed
-        // TODO add your handling code here:
-        // 1. Change the text font color to red
-    LogoutButton.setForeground(java.awt.Color.RED);
-    
-    // 2. Change the Icon color (if it's a label) 
-    // Note: If the icon is a PNG, you'd need a separate red version of the image
-    LogoutIcon.setForeground(java.awt.Color.RED); 
-
-    // 3. Create the "Pop Out" confirmation
-    int confirm = javax.swing.JOptionPane.showConfirmDialog(this, 
-            "Are you sure you want to logout?", 
-            "Logout Confirmation", 
-            javax.swing.JOptionPane.YES_NO_OPTION);
-
-    if (confirm == javax.swing.JOptionPane.YES_OPTION) {
-        // Logic to switch screens
-        this.dispose(); // Close the current dashboard
-        // new LoginFrame().setVisible(true); // Open your login screen
-    } else {
-        // Reset colors if they click 'No'
-        LogoutButton.setForeground(java.awt.Color.WHITE);
-        LogoutIcon.setForeground(java.awt.Color.WHITE);
-    }
-    }//GEN-LAST:event_LogoutButtonMousePressed
 /**/
     /**
      * @param args the command line arguments
