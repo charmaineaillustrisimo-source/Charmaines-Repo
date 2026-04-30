@@ -12,6 +12,7 @@ import java.awt.Color;
 import java.awt.Font;
 import javax.swing.ImageIcon;
 import java.awt.Image;
+import java.awt.event.ActionListener;
 import java.util.Map;
 import java.util.HashMap;
 import javax.swing.table.DefaultTableModel;
@@ -341,7 +342,7 @@ private void centerTableText() {
     
     public void fetchTickets() {
     try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/car_rental", "root", "")) {
-        pnlSupportTicket.removeAll(); // Clear placeholder labels
+        pnlCarTypeContainer.removeAll(); // Clear placeholder labels
         
         String query = "SELECT user_initials, subject, user_name, time_ago, priority FROM support_tickets";
         ResultSet rs = conn.createStatement().executeQuery(query);
@@ -354,21 +355,15 @@ private void centerTableText() {
                 rs.getString("user_name") + " * " + rs.getString("time_ago"),
                 rs.getString("priority")
             );
-            pnlSupportTicket.add(row);
+            pnlCarTypeContainer.add(row);
         }
         
-        pnlSupportTicket.revalidate();
-        pnlSupportTicket.repaint();
+        pnlCarTypeContainer.revalidate();
+        pnlCarTypeContainer.repaint();
     } catch (Exception e) {
         e.printStackTrace();
     }
 }
-    
-    
-    
-    
-    
-
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -407,15 +402,14 @@ private void centerTableText() {
         BookingsToday = new carrentalsystem.ui.admin.StatCard();
         PendingApprovals = new carrentalsystem.ui.admin.StatCard();
         lblOverview = new javax.swing.JLabel();
-        carTypeChart = new carrentalsystem.ui.admin.ListingChart();
-        lblListingsByType = new javax.swing.JLabel();
         pnlCarTypeContainer = new javax.swing.JPanel();
-        pnlSupportTicket = new javax.swing.JPanel();
-        lblOpenSourceTickets = new javax.swing.JLabel();
+        lblListingsbytype = new javax.swing.JLabel();
         lblRecentBookings = new javax.swing.JLabel();
         pnlBookings = new javax.swing.JPanel();
         spBookings = new javax.swing.JScrollPane();
         tableForBookings = new javax.swing.JTable();
+        pnlSupportTicket1 = new javax.swing.JPanel();
+        lblOpenSourceTickets1 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setBackground(new java.awt.Color(3, 33, 33));
@@ -609,54 +603,20 @@ private void centerTableText() {
         lblOverview.setText("Overview");
         pnlMain.add(lblOverview, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 10, -1, -1));
 
-        carTypeChart.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
-
-        lblListingsByType.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
-        lblListingsByType.setForeground(new java.awt.Color(255, 255, 255));
-        lblListingsByType.setText("Listings by type");
-
         pnlCarTypeContainer.setBackground(new java.awt.Color(38, 38, 36));
+        pnlCarTypeContainer.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        pnlCarTypeContainer.setPreferredSize(new java.awt.Dimension(531, 200));
         pnlCarTypeContainer.setLayout(new javax.swing.BoxLayout(pnlCarTypeContainer, javax.swing.BoxLayout.LINE_AXIS));
 
-        javax.swing.GroupLayout carTypeChartLayout = new javax.swing.GroupLayout(carTypeChart);
-        carTypeChart.setLayout(carTypeChartLayout);
-        carTypeChartLayout.setHorizontalGroup(
-            carTypeChartLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(carTypeChartLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(carTypeChartLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(pnlCarTypeContainer, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(carTypeChartLayout.createSequentialGroup()
-                        .addComponent(lblListingsByType)
-                        .addGap(0, 208, Short.MAX_VALUE)))
-                .addContainerGap())
-        );
-        carTypeChartLayout.setVerticalGroup(
-            carTypeChartLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(carTypeChartLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(lblListingsByType)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(pnlCarTypeContainer, javax.swing.GroupLayout.DEFAULT_SIZE, 134, Short.MAX_VALUE)
-                .addContainerGap())
-        );
+        lblListingsbytype.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
+        lblListingsbytype.setForeground(new java.awt.Color(255, 255, 255));
+        lblListingsbytype.setText("Listings by type");
+        lblListingsbytype.setVerticalAlignment(javax.swing.SwingConstants.TOP);
+        lblListingsbytype.setAlignmentY(0.0F);
+        lblListingsbytype.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 10, 1, 1));
+        pnlCarTypeContainer.add(lblListingsbytype);
 
-        pnlMain.add(carTypeChart, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 235, -1, -1));
-
-        pnlSupportTicket.setBackground(new java.awt.Color(38, 38, 36));
-        pnlSupportTicket.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
-        pnlSupportTicket.setPreferredSize(new java.awt.Dimension(531, 200));
-        pnlSupportTicket.setLayout(new javax.swing.BoxLayout(pnlSupportTicket, javax.swing.BoxLayout.LINE_AXIS));
-
-        lblOpenSourceTickets.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
-        lblOpenSourceTickets.setForeground(new java.awt.Color(255, 255, 255));
-        lblOpenSourceTickets.setText("Open support tickets");
-        lblOpenSourceTickets.setVerticalAlignment(javax.swing.SwingConstants.TOP);
-        lblOpenSourceTickets.setAlignmentY(0.0F);
-        lblOpenSourceTickets.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 10, 1, 1));
-        pnlSupportTicket.add(lblOpenSourceTickets);
-
-        pnlMain.add(pnlSupportTicket, new org.netbeans.lib.awtextra.AbsoluteConstraints(450, 236, -1, -1));
+        pnlMain.add(pnlCarTypeContainer, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 236, 400, -1));
 
         lblRecentBookings.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
         lblRecentBookings.setForeground(new java.awt.Color(255, 255, 255));
@@ -702,6 +662,21 @@ private void centerTableText() {
 
         pnlMain.add(pnlBookings, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 490, -1, -1));
 
+        pnlSupportTicket1.setBackground(new java.awt.Color(38, 38, 36));
+        pnlSupportTicket1.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        pnlSupportTicket1.setPreferredSize(new java.awt.Dimension(531, 200));
+        pnlSupportTicket1.setLayout(new javax.swing.BoxLayout(pnlSupportTicket1, javax.swing.BoxLayout.LINE_AXIS));
+
+        lblOpenSourceTickets1.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
+        lblOpenSourceTickets1.setForeground(new java.awt.Color(255, 255, 255));
+        lblOpenSourceTickets1.setText("Open support tickets");
+        lblOpenSourceTickets1.setVerticalAlignment(javax.swing.SwingConstants.TOP);
+        lblOpenSourceTickets1.setAlignmentY(0.0F);
+        lblOpenSourceTickets1.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 10, 1, 1));
+        pnlSupportTicket1.add(lblOpenSourceTickets1);
+
+        pnlMain.add(pnlSupportTicket1, new org.netbeans.lib.awtextra.AbsoluteConstraints(450, 236, -1, -1));
+
         getContentPane().add(pnlMain, java.awt.BorderLayout.CENTER);
 
         pack();
@@ -730,7 +705,10 @@ private void centerTableText() {
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(() -> new AdminDashboard().setVisible(true));
+        
     }
+    
+    
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private carrentalsystem.ui.admin.StatCard ActiveListings;
@@ -744,16 +722,15 @@ private void centerTableText() {
     private javax.swing.JButton btnSettingsButton;
     private javax.swing.JButton btnSupportButton;
     private javax.swing.JButton btnUsersButton;
-    private carrentalsystem.ui.admin.ListingChart carTypeChart;
     private javax.swing.JLabel lblAdmin;
     private javax.swing.JLabel lblBookingsIcon1;
     private javax.swing.JLabel lblCarRental;
     private javax.swing.JLabel lblListingIcon;
-    private javax.swing.JLabel lblListingsByType;
+    private javax.swing.JLabel lblListingsbytype;
     private javax.swing.JLabel lblLogoutIcon;
     private javax.swing.JLabel lblMain;
     private javax.swing.JLabel lblNotifyIcon;
-    private javax.swing.JLabel lblOpenSourceTickets;
+    private javax.swing.JLabel lblOpenSourceTickets1;
     private javax.swing.JLabel lblOverview;
     private javax.swing.JLabel lblOverviewIcon;
     private javax.swing.JLabel lblProfileIcon;
@@ -767,7 +744,7 @@ private void centerTableText() {
     private javax.swing.JPanel pnlHighlight;
     private javax.swing.JPanel pnlMain;
     private javax.swing.JPanel pnlSideBar;
-    private javax.swing.JPanel pnlSupportTicket;
+    private javax.swing.JPanel pnlSupportTicket1;
     private javax.swing.JPanel pnlTopBar;
     private javax.swing.JScrollPane spBookings;
     private javax.swing.JTable tableForBookings;
