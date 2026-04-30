@@ -26,7 +26,7 @@
 
   <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout"/>
   <SubComponents>
-    <Container class="javax.swing.JPanel" name="TopBarPanel">
+    <Container class="javax.swing.JPanel" name="pnlTopBar">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="1e" green="1e" red="1e" type="rgb"/>
@@ -45,7 +45,7 @@
         <Property name="useNullLayout" type="boolean" value="false"/>
       </Layout>
       <SubComponents>
-        <Component class="javax.swing.JLabel" name="CarRental">
+        <Component class="javax.swing.JLabel" name="lblCarRental">
           <Properties>
             <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
               <Font name="Segoe UI" size="36" style="0"/>
@@ -61,7 +61,7 @@
             </Constraint>
           </Constraints>
         </Component>
-        <Component class="javax.swing.JLabel" name="ProfileIcon">
+        <Component class="javax.swing.JLabel" name="lblProfileIcon">
           <Properties>
             <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
               <Dimension value="[20, 90]"/>
@@ -73,7 +73,7 @@
             </Constraint>
           </Constraints>
         </Component>
-        <Component class="javax.swing.JLabel" name="NotifyIcon">
+        <Component class="javax.swing.JLabel" name="lblNotifyIcon">
           <Properties>
             <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
               <Dimension value="[20, 90]"/>
@@ -87,7 +87,7 @@
         </Component>
       </SubComponents>
     </Container>
-    <Container class="javax.swing.JPanel" name="sideBarPanel">
+    <Container class="javax.swing.JPanel" name="pnlSideBar">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="24" green="26" red="26" type="rgb"/>
@@ -109,7 +109,7 @@
         <Property name="useNullLayout" type="boolean" value="false"/>
       </Layout>
       <SubComponents>
-        <Component class="javax.swing.JLabel" name="Main1">
+        <Component class="javax.swing.JLabel" name="lblMain">
           <Properties>
             <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
               <Font name="Segoe UI" size="24" style="0"/>
@@ -125,7 +125,7 @@
             </Constraint>
           </Constraints>
         </Component>
-        <Component class="javax.swing.JLabel" name="Admin">
+        <Component class="javax.swing.JLabel" name="lblAdmin">
           <Properties>
             <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
               <Font name="Segoe UI" size="24" style="0"/>
@@ -141,7 +141,7 @@
             </Constraint>
           </Constraints>
         </Component>
-        <Component class="javax.swing.JLabel" name="OverviewIcon">
+        <Component class="javax.swing.JLabel" name="lblOverviewIcon">
           <Properties>
             <Property name="horizontalAlignment" type="int" value="0"/>
           </Properties>
@@ -151,7 +151,7 @@
             </Constraint>
           </Constraints>
         </Component>
-        <Container class="javax.swing.JPanel" name="jPanel2">
+        <Container class="javax.swing.JPanel" name="pnlHighlight">
           <Properties>
             <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
               <Color blue="2e" green="30" red="30" type="rgb"/>
@@ -168,7 +168,7 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace min="-2" pref="78" max="-2" attributes="0"/>
-                      <Component id="OverviewButton" min="-2" max="-2" attributes="0"/>
+                      <Component id="btnOverviewButton" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="32767" attributes="0"/>
                   </Group>
               </Group>
@@ -176,14 +176,14 @@
             <DimensionLayout dim="1">
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="0" attributes="0">
-                      <Component id="OverviewButton" min="-2" max="-2" attributes="0"/>
+                      <Component id="btnOverviewButton" min="-2" max="-2" attributes="0"/>
                       <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
           </Layout>
           <SubComponents>
-            <Component class="javax.swing.JButton" name="OverviewButton">
+            <Component class="javax.swing.JButton" name="btnOverviewButton">
               <Properties>
                 <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
                   <Color blue="2e" green="30" red="30" type="rgb"/>
@@ -209,7 +209,7 @@
             </Component>
           </SubComponents>
         </Container>
-        <Component class="javax.swing.JLabel" name="ListingIcon">
+        <Component class="javax.swing.JLabel" name="lblListingIcon">
           <Properties>
             <Property name="horizontalAlignment" type="int" value="0"/>
           </Properties>
@@ -219,7 +219,7 @@
             </Constraint>
           </Constraints>
         </Component>
-        <Component class="javax.swing.JButton" name="ListingButton">
+        <Component class="javax.swing.JButton" name="btnListingButton">
           <Properties>
             <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
               <Color blue="2e" green="30" red="30" type="rgb"/>
@@ -248,7 +248,7 @@
             </Constraint>
           </Constraints>
         </Component>
-        <Component class="javax.swing.JLabel" name="UsersIcon">
+        <Component class="javax.swing.JLabel" name="lblUsersIcon">
           <Properties>
             <Property name="horizontalAlignment" type="int" value="0"/>
           </Properties>
@@ -258,7 +258,7 @@
             </Constraint>
           </Constraints>
         </Component>
-        <Component class="javax.swing.JButton" name="UsersButton">
+        <Component class="javax.swing.JButton" name="btnUsersButton">
           <Properties>
             <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
               <Color blue="2e" green="30" red="30" type="rgb"/>
@@ -287,7 +287,7 @@
             </Constraint>
           </Constraints>
         </Component>
-        <Component class="javax.swing.JLabel" name="BookingsIcon1">
+        <Component class="javax.swing.JLabel" name="lblBookingsIcon1">
           <Properties>
             <Property name="horizontalAlignment" type="int" value="0"/>
           </Properties>
@@ -297,7 +297,7 @@
             </Constraint>
           </Constraints>
         </Component>
-        <Component class="javax.swing.JButton" name="BookingsButton">
+        <Component class="javax.swing.JButton" name="btnBookingsButton">
           <Properties>
             <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
               <Color blue="2e" green="30" red="30" type="rgb"/>
@@ -326,7 +326,7 @@
             </Constraint>
           </Constraints>
         </Component>
-        <Component class="javax.swing.JLabel" name="SupportIcon">
+        <Component class="javax.swing.JLabel" name="lblSupportIcon">
           <Properties>
             <Property name="horizontalAlignment" type="int" value="0"/>
           </Properties>
@@ -336,7 +336,7 @@
             </Constraint>
           </Constraints>
         </Component>
-        <Component class="javax.swing.JButton" name="SupportButton">
+        <Component class="javax.swing.JButton" name="btnSupportButton">
           <Properties>
             <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
               <Color blue="2e" green="30" red="30" type="rgb"/>
@@ -365,7 +365,7 @@
             </Constraint>
           </Constraints>
         </Component>
-        <Component class="javax.swing.JLabel" name="SettingsIcon">
+        <Component class="javax.swing.JLabel" name="lblSettingsIcon">
           <Properties>
             <Property name="horizontalAlignment" type="int" value="0"/>
           </Properties>
@@ -375,7 +375,7 @@
             </Constraint>
           </Constraints>
         </Component>
-        <Component class="javax.swing.JButton" name="SettingsButton">
+        <Component class="javax.swing.JButton" name="btnSettingsButton">
           <Properties>
             <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
               <Color blue="2e" green="30" red="30" type="rgb"/>
@@ -404,7 +404,7 @@
             </Constraint>
           </Constraints>
         </Component>
-        <Component class="javax.swing.JLabel" name="LogoutIcon">
+        <Component class="javax.swing.JLabel" name="lblLogoutIcon">
           <Properties>
             <Property name="horizontalAlignment" type="int" value="0"/>
           </Properties>
@@ -414,7 +414,7 @@
             </Constraint>
           </Constraints>
         </Component>
-        <Component class="javax.swing.JButton" name="LogoutButton">
+        <Component class="javax.swing.JButton" name="btnLogoutButton">
           <Properties>
             <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
               <Color blue="2e" green="30" red="30" type="rgb"/>
@@ -445,7 +445,7 @@
         </Component>
       </SubComponents>
     </Container>
-    <Container class="javax.swing.JPanel" name="jPanel1">
+    <Container class="javax.swing.JPanel" name="pnlMain">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="2e" green="30" red="30" type="rgb"/>
@@ -464,7 +464,7 @@
         <Property name="useNullLayout" type="boolean" value="false"/>
       </Layout>
       <SubComponents>
-        <Container class="javax.swing.JPanel" name="cardContainer">
+        <Container class="javax.swing.JPanel" name="pnlCardContainer">
           <Properties>
             <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
               <Color blue="24" green="26" red="26" type="rgb"/>
@@ -569,9 +569,9 @@
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="carTypeContainer" max="32767" attributes="0"/>
+                          <Component id="pnlCarTypeContainer" max="32767" attributes="0"/>
                           <Group type="102" attributes="0">
-                              <Component id="ListingsByType" min="-2" max="-2" attributes="0"/>
+                              <Component id="lblListingsByType" min="-2" max="-2" attributes="0"/>
                               <EmptySpace min="0" pref="208" max="32767" attributes="0"/>
                           </Group>
                       </Group>
@@ -583,16 +583,16 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="ListingsByType" min="-2" max="-2" attributes="0"/>
+                      <Component id="lblListingsByType" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="carTypeContainer" pref="134" max="32767" attributes="0"/>
+                      <Component id="pnlCarTypeContainer" pref="134" max="32767" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
           </Layout>
           <SubComponents>
-            <Component class="javax.swing.JLabel" name="ListingsByType">
+            <Component class="javax.swing.JLabel" name="lblListingsByType">
               <Properties>
                 <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
                   <Font name="Segoe UI" size="24" style="0"/>
@@ -603,7 +603,7 @@
                 <Property name="text" type="java.lang.String" value="Listings by type"/>
               </Properties>
             </Component>
-            <Container class="javax.swing.JPanel" name="carTypeContainer">
+            <Container class="javax.swing.JPanel" name="pnlCarTypeContainer">
               <Properties>
                 <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
                   <Color blue="24" green="26" red="26" type="rgb"/>
@@ -614,7 +614,7 @@
             </Container>
           </SubComponents>
         </Container>
-        <Container class="javax.swing.JPanel" name="supportTicketPanel">
+        <Container class="javax.swing.JPanel" name="pnlSupportTicket">
           <Properties>
             <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
               <Color blue="24" green="26" red="26" type="rgb"/>
@@ -636,7 +636,7 @@
 
           <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBoxLayout"/>
           <SubComponents>
-            <Component class="javax.swing.JLabel" name="openSourceTicketslbl">
+            <Component class="javax.swing.JLabel" name="lblOpenSourceTickets">
               <Properties>
                 <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
                   <Font name="Segoe UI" size="24" style="0"/>
@@ -656,7 +656,7 @@
             </Component>
           </SubComponents>
         </Container>
-        <Component class="javax.swing.JLabel" name="jLabel1">
+        <Component class="javax.swing.JLabel" name="lblRecentBookings">
           <Properties>
             <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
               <Font name="Segoe UI" size="24" style="0"/>
@@ -672,7 +672,7 @@
             </Constraint>
           </Constraints>
         </Component>
-        <Container class="javax.swing.JPanel" name="jPanel3">
+        <Container class="javax.swing.JPanel" name="pnlBookings">
           <Properties>
             <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
               <Color blue="2e" green="30" red="30" type="rgb"/>
@@ -689,7 +689,7 @@
 
           <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout"/>
           <SubComponents>
-            <Container class="javax.swing.JScrollPane" name="jScrollPane1">
+            <Container class="javax.swing.JScrollPane" name="spBookings">
               <Properties>
                 <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
                   <Color blue="30" green="2e" red="2e" type="rgb"/>
