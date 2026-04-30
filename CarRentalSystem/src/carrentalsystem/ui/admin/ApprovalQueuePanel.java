@@ -43,31 +43,31 @@ public class ApprovalQueuePanel extends javax.swing.JFrame {
         tableUsers.setIntercellSpacing(new java.awt.Dimension(0, 0));
 
         //Position Top Bar Icons
-        TopBarPanel.add(ProfileIcon, new org.netbeans.lib.awtextra.AbsoluteConstraints(1210, 20, 50, 50));
-        TopBarPanel.add(NotifyIcon, new org.netbeans.lib.awtextra.AbsoluteConstraints(1140, 20, 50, 50));
+        pnlTopBar.add(lblProfileIcon, new org.netbeans.lib.awtextra.AbsoluteConstraints(1210, 20, 50, 50));
+        pnlTopBar.add(lblNotifyIcon, new org.netbeans.lib.awtextra.AbsoluteConstraints(1140, 20, 50, 50));
 
         // Add this to your constructor after initComponents()
         this.addComponentListener(new java.awt.event.ComponentAdapter() {
             public void componentResized(java.awt.event.ComponentEvent evt) {
                 int width = getWidth();
                 // Position Profile 70 pixels from the right edge
-                ProfileIcon.setLocation(width - 90, ProfileIcon.getY());
+                lblProfileIcon.setLocation(width - 90, lblProfileIcon.getY());
                 // Position Notify 140 pixels from the right edge
-                NotifyIcon.setLocation(width - 160, NotifyIcon.getY());
+                lblNotifyIcon.setLocation(width - 160, lblNotifyIcon.getY());
             }
         });
 
         // The "Easy Way" - One line per icon
-        setIcon(OverviewIcon, "/carrentalsystem/ui/admin/PIC/four-squares.png", 35, 35);
-        setIcon(ListingIcon, "/carrentalsystem/ui/admin/PIC/Listing.png", 35, 35);
-        setIcon(UsersIcon, "/carrentalsystem/ui/admin/PIC/Users.png", 35, 35);
-        setIcon(BookingsIcon1, "/carrentalsystem/ui/admin/PIC/Bookings.png", 35, 35);
-        setIcon(SupportIcon, "/carrentalsystem/ui/admin/PIC/support.png", 35, 35);
-        setIcon(SettingsIcon, "/carrentalsystem/ui/admin/PIC/setting (1).png", 35, 35);
-        setIcon(LogoutIcon, "/carrentalsystem/ui/admin/PIC/logout-white.png", 35, 35);
+        setIcon(lblOverviewIcon, "/carrentalsystem/ui/admin/PIC/four-squares.png", 35, 35);
+        setIcon(lblListingIcon, "/carrentalsystem/ui/admin/PIC/Listing.png", 35, 35);
+        setIcon(lblUsersIcon, "/carrentalsystem/ui/admin/PIC/Users.png", 35, 35);
+        setIcon(lblBookingsIcon, "/carrentalsystem/ui/admin/PIC/Bookings.png", 35, 35);
+        setIcon(lblSupportIcon, "/carrentalsystem/ui/admin/PIC/support.png", 35, 35);
+        setIcon(lblSettingsIcon, "/carrentalsystem/ui/admin/PIC/setting (1).png", 35, 35);
+        setIcon(lblLogoutIcon, "/carrentalsystem/ui/admin/PIC/logout-white.png", 35, 35);
         //Top Bar Panel Icon
-        setIcon(ProfileIcon, "/carrentalsystem/ui/admin/PIC/Profile.png", 50, 50);
-        setIcon(NotifyIcon, "/carrentalsystem/ui/admin/PIC/bell.png", 50, 50);
+        setIcon(lblProfileIcon, "/carrentalsystem/ui/admin/PIC/Profile.png", 50, 50);
+        setIcon(lblNotifyIcon, "/carrentalsystem/ui/admin/PIC/bell.png", 50, 50);
     }
 
     private void setIcon(javax.swing.JLabel label, String path, int width, int height) {
@@ -127,11 +127,11 @@ public class ApprovalQueuePanel extends javax.swing.JFrame {
     tableUsers.setBorder(null);
     tableUsers.setIntercellSpacing(new java.awt.Dimension(0, 0));
 
-        jScrollPane1.setBackground(panelColor); 
-        jScrollPane1.getViewport().setBackground(panelColor);
-        jScrollPane1.setBorder(javax.swing.BorderFactory.createEmptyBorder());
-        jScrollPane1.setBorder(null);
-        jScrollPane1.setViewportBorder(null);
+        spUser.setBackground(panelColor); 
+        spUser.getViewport().setBackground(panelColor);
+        spUser.setBorder(javax.swing.BorderFactory.createEmptyBorder());
+        spUser.setBorder(null);
+        spUser.setViewportBorder(null);
         
         addRowSeparators();
         applyRowStyles();
@@ -139,16 +139,16 @@ public class ApprovalQueuePanel extends javax.swing.JFrame {
         tableUsers.setBackground(panelColor);
         tableUsers.setFillsViewportHeight(true);
         
-        jScrollPane1.getVerticalScrollBar().setBackground(panelColor);
-        jScrollPane1.getVerticalScrollBar().setPreferredSize(new java.awt.Dimension(8, 0)); // Thinner scrollbar
-        jScrollPane1.getVerticalScrollBar().setBorder(null);
+        spUser.getVerticalScrollBar().setBackground(panelColor);
+        spUser.getVerticalScrollBar().setPreferredSize(new java.awt.Dimension(8, 0)); // Thinner scrollbar
+        spUser.getVerticalScrollBar().setBorder(null);
         
-        jScrollPane1.setCorner(javax.swing.JScrollPane.UPPER_RIGHT_CORNER, new javax.swing.JPanel() {{
+        spUser.setCorner(javax.swing.JScrollPane.UPPER_RIGHT_CORNER, new javax.swing.JPanel() {{
         setBackground(panelColor);
     }});
 
     // 4. Apply the invisible scrollbar UI
-    makeScrollBarInvisible(jScrollPane1);
+    makeScrollBarInvisible(spUser);
         
         applyInvisibleHeaderStyle();
 
@@ -386,201 +386,201 @@ tableUsers.getColumnModel().getColumn(4).setCellEditor(new TableButtonEditor(new
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        TopBarPanel = new javax.swing.JPanel();
-        CarRental = new javax.swing.JLabel();
-        ProfileIcon = new javax.swing.JLabel();
-        NotifyIcon = new javax.swing.JLabel();
-        sideBarPanel = new javax.swing.JPanel();
-        Main1 = new javax.swing.JLabel();
-        Admin = new javax.swing.JLabel();
-        OverviewIcon = new javax.swing.JLabel();
-        OverviewButton = new javax.swing.JButton();
-        ListingIcon = new javax.swing.JLabel();
-        ListingButton = new javax.swing.JButton();
-        UsersIcon = new javax.swing.JLabel();
-        UsersButton = new javax.swing.JButton();
-        jPanel2 = new javax.swing.JPanel();
-        BookingsIcon1 = new javax.swing.JLabel();
-        BookingsButton = new javax.swing.JButton();
-        SupportIcon = new javax.swing.JLabel();
-        SupportButton = new javax.swing.JButton();
-        SettingsIcon = new javax.swing.JLabel();
-        SettingsButton = new javax.swing.JButton();
-        LogoutIcon = new javax.swing.JLabel();
-        LogoutButton = new javax.swing.JButton();
-        jPanel1 = new javax.swing.JPanel();
+        pnlTopBar = new javax.swing.JPanel();
+        lblCarRental = new javax.swing.JLabel();
+        lblProfileIcon = new javax.swing.JLabel();
+        lblNotifyIcon = new javax.swing.JLabel();
+        pnlSideBar = new javax.swing.JPanel();
+        lblMain = new javax.swing.JLabel();
+        lblAdmin = new javax.swing.JLabel();
+        lblOverviewIcon = new javax.swing.JLabel();
+        btnOverviewButton = new javax.swing.JButton();
+        lblListingIcon = new javax.swing.JLabel();
+        btnListingButton = new javax.swing.JButton();
+        lblUsersIcon = new javax.swing.JLabel();
+        btnUsersButton = new javax.swing.JButton();
+        pnlHighlight = new javax.swing.JPanel();
+        lblBookingsIcon = new javax.swing.JLabel();
+        btnBookingsButton = new javax.swing.JButton();
+        lblSupportIcon = new javax.swing.JLabel();
+        btnSupportButton = new javax.swing.JButton();
+        lblSettingsIcon = new javax.swing.JLabel();
+        btnSettingsButton = new javax.swing.JButton();
+        lblLogoutIcon = new javax.swing.JLabel();
+        btnLogoutButton = new javax.swing.JButton();
+        pnlMain = new javax.swing.JPanel();
         lblUserManagement = new javax.swing.JLabel();
-        jScrollPane1 = new javax.swing.JScrollPane();
+        spUser = new javax.swing.JScrollPane();
         tableUsers = new javax.swing.JTable();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setBackground(new java.awt.Color(3, 33, 33));
 
-        TopBarPanel.setBackground(new java.awt.Color(30, 30, 30));
-        TopBarPanel.setPreferredSize(new java.awt.Dimension(1290, 90));
-        TopBarPanel.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+        pnlTopBar.setBackground(new java.awt.Color(30, 30, 30));
+        pnlTopBar.setPreferredSize(new java.awt.Dimension(1290, 90));
+        pnlTopBar.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        CarRental.setFont(new java.awt.Font("Segoe UI", 0, 36)); // NOI18N
-        CarRental.setForeground(new java.awt.Color(255, 255, 255));
-        CarRental.setText("Rent A Car");
-        TopBarPanel.add(CarRental, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 20, -1, -1));
+        lblCarRental.setFont(new java.awt.Font("Segoe UI", 0, 36)); // NOI18N
+        lblCarRental.setForeground(new java.awt.Color(255, 255, 255));
+        lblCarRental.setText("Rent A Car");
+        pnlTopBar.add(lblCarRental, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 20, -1, -1));
 
-        ProfileIcon.setPreferredSize(new java.awt.Dimension(20, 90));
-        TopBarPanel.add(ProfileIcon, new org.netbeans.lib.awtextra.AbsoluteConstraints(1220, 10, 80, 70));
+        lblProfileIcon.setPreferredSize(new java.awt.Dimension(20, 90));
+        pnlTopBar.add(lblProfileIcon, new org.netbeans.lib.awtextra.AbsoluteConstraints(1220, 10, 80, 70));
 
-        NotifyIcon.setPreferredSize(new java.awt.Dimension(20, 90));
-        TopBarPanel.add(NotifyIcon, new org.netbeans.lib.awtextra.AbsoluteConstraints(1080, 20, 90, 60));
+        lblNotifyIcon.setPreferredSize(new java.awt.Dimension(20, 90));
+        pnlTopBar.add(lblNotifyIcon, new org.netbeans.lib.awtextra.AbsoluteConstraints(1080, 20, 90, 60));
 
-        getContentPane().add(TopBarPanel, java.awt.BorderLayout.NORTH);
+        getContentPane().add(pnlTopBar, java.awt.BorderLayout.NORTH);
 
-        sideBarPanel.setBackground(new java.awt.Color(38, 38, 36));
-        sideBarPanel.setMinimumSize(new java.awt.Dimension(300, 485));
-        sideBarPanel.setPreferredSize(new java.awt.Dimension(353, 700));
-        sideBarPanel.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+        pnlSideBar.setBackground(new java.awt.Color(38, 38, 36));
+        pnlSideBar.setMinimumSize(new java.awt.Dimension(300, 485));
+        pnlSideBar.setPreferredSize(new java.awt.Dimension(353, 700));
+        pnlSideBar.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        Main1.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
-        Main1.setForeground(new java.awt.Color(255, 255, 255));
-        Main1.setText("MAIN");
-        sideBarPanel.add(Main1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 70, -1, -1));
+        lblMain.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
+        lblMain.setForeground(new java.awt.Color(255, 255, 255));
+        lblMain.setText("MAIN");
+        pnlSideBar.add(lblMain, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 70, -1, -1));
 
-        Admin.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
-        Admin.setForeground(new java.awt.Color(255, 255, 255));
-        Admin.setText("ADMIN");
-        sideBarPanel.add(Admin, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 310, -1, -1));
+        lblAdmin.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
+        lblAdmin.setForeground(new java.awt.Color(255, 255, 255));
+        lblAdmin.setText("ADMIN");
+        pnlSideBar.add(lblAdmin, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 310, -1, -1));
 
-        OverviewIcon.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        sideBarPanel.add(OverviewIcon, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 110, 35, 35));
+        lblOverviewIcon.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        pnlSideBar.add(lblOverviewIcon, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 110, 35, 35));
 
-        OverviewButton.setBackground(new java.awt.Color(38, 38, 36));
-        OverviewButton.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
-        OverviewButton.setForeground(new java.awt.Color(255, 255, 255));
-        OverviewButton.setText("Overview");
-        OverviewButton.setBorder(null);
-        OverviewButton.setBorderPainted(false);
-        OverviewButton.setContentAreaFilled(false);
-        OverviewButton.setFocusPainted(false);
-        OverviewButton.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-        OverviewButton.setPreferredSize(new java.awt.Dimension(270, 50));
-        sideBarPanel.add(OverviewButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 100, -1, -1));
+        btnOverviewButton.setBackground(new java.awt.Color(38, 38, 36));
+        btnOverviewButton.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
+        btnOverviewButton.setForeground(new java.awt.Color(255, 255, 255));
+        btnOverviewButton.setText("Overview");
+        btnOverviewButton.setBorder(null);
+        btnOverviewButton.setBorderPainted(false);
+        btnOverviewButton.setContentAreaFilled(false);
+        btnOverviewButton.setFocusPainted(false);
+        btnOverviewButton.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        btnOverviewButton.setPreferredSize(new java.awt.Dimension(270, 50));
+        pnlSideBar.add(btnOverviewButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 100, -1, -1));
 
-        ListingIcon.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        sideBarPanel.add(ListingIcon, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 160, 35, 35));
+        lblListingIcon.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        pnlSideBar.add(lblListingIcon, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 160, 35, 35));
 
-        ListingButton.setBackground(new java.awt.Color(48, 48, 46));
-        ListingButton.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
-        ListingButton.setForeground(new java.awt.Color(255, 255, 255));
-        ListingButton.setText("Listing");
-        ListingButton.setBorder(null);
-        ListingButton.setBorderPainted(false);
-        ListingButton.setContentAreaFilled(false);
-        ListingButton.setFocusPainted(false);
-        ListingButton.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-        ListingButton.setPreferredSize(new java.awt.Dimension(270, 50));
-        sideBarPanel.add(ListingButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 150, -1, -1));
+        btnListingButton.setBackground(new java.awt.Color(48, 48, 46));
+        btnListingButton.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
+        btnListingButton.setForeground(new java.awt.Color(255, 255, 255));
+        btnListingButton.setText("Listing");
+        btnListingButton.setBorder(null);
+        btnListingButton.setBorderPainted(false);
+        btnListingButton.setContentAreaFilled(false);
+        btnListingButton.setFocusPainted(false);
+        btnListingButton.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        btnListingButton.setPreferredSize(new java.awt.Dimension(270, 50));
+        pnlSideBar.add(btnListingButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 150, -1, -1));
 
-        UsersIcon.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        sideBarPanel.add(UsersIcon, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 210, 35, 35));
+        lblUsersIcon.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        pnlSideBar.add(lblUsersIcon, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 210, 35, 35));
 
-        UsersButton.setBackground(new java.awt.Color(48, 48, 46));
-        UsersButton.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
-        UsersButton.setForeground(new java.awt.Color(255, 255, 255));
-        UsersButton.setText("Users");
-        UsersButton.setBorder(null);
-        UsersButton.setBorderPainted(false);
-        UsersButton.setContentAreaFilled(false);
-        UsersButton.setFocusPainted(false);
-        UsersButton.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-        UsersButton.setPreferredSize(new java.awt.Dimension(270, 50));
-        sideBarPanel.add(UsersButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 200, -1, -1));
+        btnUsersButton.setBackground(new java.awt.Color(48, 48, 46));
+        btnUsersButton.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
+        btnUsersButton.setForeground(new java.awt.Color(255, 255, 255));
+        btnUsersButton.setText("Users");
+        btnUsersButton.setBorder(null);
+        btnUsersButton.setBorderPainted(false);
+        btnUsersButton.setContentAreaFilled(false);
+        btnUsersButton.setFocusPainted(false);
+        btnUsersButton.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        btnUsersButton.setPreferredSize(new java.awt.Dimension(270, 50));
+        pnlSideBar.add(btnUsersButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 200, -1, -1));
 
-        jPanel2.setBackground(new java.awt.Color(48, 48, 46));
+        pnlHighlight.setBackground(new java.awt.Color(48, 48, 46));
 
-        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
-        jPanel2.setLayout(jPanel2Layout);
-        jPanel2Layout.setHorizontalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+        javax.swing.GroupLayout pnlHighlightLayout = new javax.swing.GroupLayout(pnlHighlight);
+        pnlHighlight.setLayout(pnlHighlightLayout);
+        pnlHighlightLayout.setHorizontalGroup(
+            pnlHighlightLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGap(0, 360, Short.MAX_VALUE)
         );
-        jPanel2Layout.setVerticalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+        pnlHighlightLayout.setVerticalGroup(
+            pnlHighlightLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGap(0, 50, Short.MAX_VALUE)
         );
 
-        sideBarPanel.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 200, 360, 50));
+        pnlSideBar.add(pnlHighlight, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 200, 360, 50));
 
-        BookingsIcon1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        sideBarPanel.add(BookingsIcon1, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 260, 35, 35));
+        lblBookingsIcon.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        pnlSideBar.add(lblBookingsIcon, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 260, 35, 35));
 
-        BookingsButton.setBackground(new java.awt.Color(48, 48, 46));
-        BookingsButton.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
-        BookingsButton.setForeground(new java.awt.Color(255, 255, 255));
-        BookingsButton.setText("Bookings");
-        BookingsButton.setBorder(null);
-        BookingsButton.setBorderPainted(false);
-        BookingsButton.setContentAreaFilled(false);
-        BookingsButton.setFocusPainted(false);
-        BookingsButton.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-        BookingsButton.setPreferredSize(new java.awt.Dimension(270, 50));
-        sideBarPanel.add(BookingsButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 250, 270, -1));
+        btnBookingsButton.setBackground(new java.awt.Color(48, 48, 46));
+        btnBookingsButton.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
+        btnBookingsButton.setForeground(new java.awt.Color(255, 255, 255));
+        btnBookingsButton.setText("Bookings");
+        btnBookingsButton.setBorder(null);
+        btnBookingsButton.setBorderPainted(false);
+        btnBookingsButton.setContentAreaFilled(false);
+        btnBookingsButton.setFocusPainted(false);
+        btnBookingsButton.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        btnBookingsButton.setPreferredSize(new java.awt.Dimension(270, 50));
+        pnlSideBar.add(btnBookingsButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 250, 270, -1));
 
-        SupportIcon.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        sideBarPanel.add(SupportIcon, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 350, 35, 35));
+        lblSupportIcon.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        pnlSideBar.add(lblSupportIcon, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 350, 35, 35));
 
-        SupportButton.setBackground(new java.awt.Color(48, 48, 46));
-        SupportButton.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
-        SupportButton.setForeground(new java.awt.Color(255, 255, 255));
-        SupportButton.setText("Support");
-        SupportButton.setBorder(null);
-        SupportButton.setBorderPainted(false);
-        SupportButton.setContentAreaFilled(false);
-        SupportButton.setFocusPainted(false);
-        SupportButton.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-        SupportButton.setPreferredSize(new java.awt.Dimension(270, 50));
-        sideBarPanel.add(SupportButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 340, -1, -1));
+        btnSupportButton.setBackground(new java.awt.Color(48, 48, 46));
+        btnSupportButton.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
+        btnSupportButton.setForeground(new java.awt.Color(255, 255, 255));
+        btnSupportButton.setText("Support");
+        btnSupportButton.setBorder(null);
+        btnSupportButton.setBorderPainted(false);
+        btnSupportButton.setContentAreaFilled(false);
+        btnSupportButton.setFocusPainted(false);
+        btnSupportButton.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        btnSupportButton.setPreferredSize(new java.awt.Dimension(270, 50));
+        pnlSideBar.add(btnSupportButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 340, -1, -1));
 
-        SettingsIcon.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        sideBarPanel.add(SettingsIcon, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 400, 35, 35));
+        lblSettingsIcon.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        pnlSideBar.add(lblSettingsIcon, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 400, 35, 35));
 
-        SettingsButton.setBackground(new java.awt.Color(48, 48, 46));
-        SettingsButton.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
-        SettingsButton.setForeground(new java.awt.Color(255, 255, 255));
-        SettingsButton.setText("Settings");
-        SettingsButton.setBorder(null);
-        SettingsButton.setBorderPainted(false);
-        SettingsButton.setContentAreaFilled(false);
-        SettingsButton.setFocusPainted(false);
-        SettingsButton.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-        SettingsButton.setPreferredSize(new java.awt.Dimension(270, 50));
-        sideBarPanel.add(SettingsButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 390, -1, -1));
+        btnSettingsButton.setBackground(new java.awt.Color(48, 48, 46));
+        btnSettingsButton.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
+        btnSettingsButton.setForeground(new java.awt.Color(255, 255, 255));
+        btnSettingsButton.setText("Settings");
+        btnSettingsButton.setBorder(null);
+        btnSettingsButton.setBorderPainted(false);
+        btnSettingsButton.setContentAreaFilled(false);
+        btnSettingsButton.setFocusPainted(false);
+        btnSettingsButton.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        btnSettingsButton.setPreferredSize(new java.awt.Dimension(270, 50));
+        pnlSideBar.add(btnSettingsButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 390, -1, -1));
 
-        LogoutIcon.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        sideBarPanel.add(LogoutIcon, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 450, 35, 35));
+        lblLogoutIcon.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        pnlSideBar.add(lblLogoutIcon, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 450, 35, 35));
 
-        LogoutButton.setBackground(new java.awt.Color(48, 48, 46));
-        LogoutButton.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
-        LogoutButton.setForeground(new java.awt.Color(255, 255, 255));
-        LogoutButton.setText("Logout");
-        LogoutButton.setBorder(null);
-        LogoutButton.setBorderPainted(false);
-        LogoutButton.setContentAreaFilled(false);
-        LogoutButton.setFocusPainted(false);
-        LogoutButton.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-        LogoutButton.setPreferredSize(new java.awt.Dimension(270, 50));
-        sideBarPanel.add(LogoutButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 440, -1, -1));
+        btnLogoutButton.setBackground(new java.awt.Color(48, 48, 46));
+        btnLogoutButton.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
+        btnLogoutButton.setForeground(new java.awt.Color(255, 255, 255));
+        btnLogoutButton.setText("Logout");
+        btnLogoutButton.setBorder(null);
+        btnLogoutButton.setBorderPainted(false);
+        btnLogoutButton.setContentAreaFilled(false);
+        btnLogoutButton.setFocusPainted(false);
+        btnLogoutButton.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        btnLogoutButton.setPreferredSize(new java.awt.Dimension(270, 50));
+        pnlSideBar.add(btnLogoutButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 440, -1, -1));
 
-        getContentPane().add(sideBarPanel, java.awt.BorderLayout.WEST);
+        getContentPane().add(pnlSideBar, java.awt.BorderLayout.WEST);
 
-        jPanel1.setBackground(new java.awt.Color(48, 48, 46));
-        jPanel1.setForeground(new java.awt.Color(255, 255, 255));
-        jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+        pnlMain.setBackground(new java.awt.Color(48, 48, 46));
+        pnlMain.setForeground(new java.awt.Color(255, 255, 255));
+        pnlMain.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         lblUserManagement.setFont(new java.awt.Font("Segoe UI", 0, 32)); // NOI18N
         lblUserManagement.setForeground(new java.awt.Color(255, 255, 255));
         lblUserManagement.setText("User Management");
-        jPanel1.add(lblUserManagement, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 10, -1, -1));
+        pnlMain.add(lblUserManagement, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 10, -1, -1));
 
-        jScrollPane1.setBorder(null);
-        jScrollPane1.setPreferredSize(new java.awt.Dimension(500, 500));
+        spUser.setBorder(null);
+        spUser.setPreferredSize(new java.awt.Dimension(500, 500));
 
         tableUsers.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
         tableUsers.setForeground(new java.awt.Color(48, 48, 46));
@@ -597,11 +597,11 @@ tableUsers.getColumnModel().getColumn(4).setCellEditor(new TableButtonEditor(new
         ));
         tableUsers.setPreferredSize(new java.awt.Dimension(610, 500));
         tableUsers.setShowVerticalLines(false);
-        jScrollPane1.setViewportView(tableUsers);
+        spUser.setViewportView(tableUsers);
 
-        jPanel1.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 70, 980, -1));
+        pnlMain.add(spUser, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 70, 980, -1));
 
-        getContentPane().add(jPanel1, java.awt.BorderLayout.CENTER);
+        getContentPane().add(pnlMain, java.awt.BorderLayout.CENTER);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -632,31 +632,31 @@ tableUsers.getColumnModel().getColumn(4).setCellEditor(new TableButtonEditor(new
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel Admin;
-    private javax.swing.JButton BookingsButton;
-    private javax.swing.JLabel BookingsIcon1;
-    private javax.swing.JLabel CarRental;
-    private javax.swing.JButton ListingButton;
-    private javax.swing.JLabel ListingIcon;
-    private javax.swing.JButton LogoutButton;
-    private javax.swing.JLabel LogoutIcon;
-    private javax.swing.JLabel Main1;
-    private javax.swing.JLabel NotifyIcon;
-    private javax.swing.JButton OverviewButton;
-    private javax.swing.JLabel OverviewIcon;
-    private javax.swing.JLabel ProfileIcon;
-    private javax.swing.JButton SettingsButton;
-    private javax.swing.JLabel SettingsIcon;
-    private javax.swing.JButton SupportButton;
-    private javax.swing.JLabel SupportIcon;
-    private javax.swing.JPanel TopBarPanel;
-    private javax.swing.JButton UsersButton;
-    private javax.swing.JLabel UsersIcon;
-    private javax.swing.JPanel jPanel1;
-    private javax.swing.JPanel jPanel2;
-    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JButton btnBookingsButton;
+    private javax.swing.JButton btnListingButton;
+    private javax.swing.JButton btnLogoutButton;
+    private javax.swing.JButton btnOverviewButton;
+    private javax.swing.JButton btnSettingsButton;
+    private javax.swing.JButton btnSupportButton;
+    private javax.swing.JButton btnUsersButton;
+    private javax.swing.JLabel lblAdmin;
+    private javax.swing.JLabel lblBookingsIcon;
+    private javax.swing.JLabel lblCarRental;
+    private javax.swing.JLabel lblListingIcon;
+    private javax.swing.JLabel lblLogoutIcon;
+    private javax.swing.JLabel lblMain;
+    private javax.swing.JLabel lblNotifyIcon;
+    private javax.swing.JLabel lblOverviewIcon;
+    private javax.swing.JLabel lblProfileIcon;
+    private javax.swing.JLabel lblSettingsIcon;
+    private javax.swing.JLabel lblSupportIcon;
     private javax.swing.JLabel lblUserManagement;
-    private javax.swing.JPanel sideBarPanel;
+    private javax.swing.JLabel lblUsersIcon;
+    private javax.swing.JPanel pnlHighlight;
+    private javax.swing.JPanel pnlMain;
+    private javax.swing.JPanel pnlSideBar;
+    private javax.swing.JPanel pnlTopBar;
+    private javax.swing.JScrollPane spUser;
     private javax.swing.JTable tableUsers;
     // End of variables declaration//GEN-END:variables
 }
