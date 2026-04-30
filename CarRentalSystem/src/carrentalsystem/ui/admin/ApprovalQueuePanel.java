@@ -89,7 +89,8 @@ public class ApprovalQueuePanel extends javax.swing.JFrame {
         DefaultTableModel model = (DefaultTableModel) tableUsers.getModel();
         model.setRowCount(0);
 
-        String url = "jdbc:mysql://localhost:3306/car_rental";
+        String url = "jdbc:mysql://localhost:3306/car_rental_db?useSSL=false&serverTimezone=UTC";
+                //"jdbc:mysql://localhost:3306/car_rental";
         String user = "root";
         String password = ""; // Leave empty if you don't have one
 
@@ -396,9 +397,9 @@ tableUsers.getColumnModel().getColumn(4).setCellEditor(new TableButtonEditor(new
         OverviewButton = new javax.swing.JButton();
         ListingIcon = new javax.swing.JLabel();
         ListingButton = new javax.swing.JButton();
-        jPanel2 = new javax.swing.JPanel();
         UsersIcon = new javax.swing.JLabel();
         UsersButton = new javax.swing.JButton();
+        jPanel2 = new javax.swing.JPanel();
         BookingsIcon1 = new javax.swing.JLabel();
         BookingsButton = new javax.swing.JButton();
         SupportIcon = new javax.swing.JLabel();
@@ -477,21 +478,6 @@ tableUsers.getColumnModel().getColumn(4).setCellEditor(new TableButtonEditor(new
         ListingButton.setPreferredSize(new java.awt.Dimension(270, 50));
         sideBarPanel.add(ListingButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 150, -1, -1));
 
-        jPanel2.setBackground(new java.awt.Color(48, 48, 46));
-
-        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
-        jPanel2.setLayout(jPanel2Layout);
-        jPanel2Layout.setHorizontalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 360, Short.MAX_VALUE)
-        );
-        jPanel2Layout.setVerticalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 50, Short.MAX_VALUE)
-        );
-
-        sideBarPanel.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 150, 360, 50));
-
         UsersIcon.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         sideBarPanel.add(UsersIcon, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 210, 35, 35));
 
@@ -506,6 +492,21 @@ tableUsers.getColumnModel().getColumn(4).setCellEditor(new TableButtonEditor(new
         UsersButton.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         UsersButton.setPreferredSize(new java.awt.Dimension(270, 50));
         sideBarPanel.add(UsersButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 200, -1, -1));
+
+        jPanel2.setBackground(new java.awt.Color(48, 48, 46));
+
+        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+        jPanel2.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 360, Short.MAX_VALUE)
+        );
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 50, Short.MAX_VALUE)
+        );
+
+        sideBarPanel.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 200, 360, 50));
 
         BookingsIcon1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         sideBarPanel.add(BookingsIcon1, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 260, 35, 35));

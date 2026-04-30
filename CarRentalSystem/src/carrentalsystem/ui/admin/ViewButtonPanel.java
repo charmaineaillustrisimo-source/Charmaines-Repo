@@ -9,32 +9,29 @@ import carrentalsystem.auth.LoginFrame;
  *
  * @author macbookairm1grey
  */
+import java.awt.Color;
+import java.awt.Font;
 import javax.swing.ImageIcon;
 import java.awt.Image;
+import java.util.Map;
+import java.util.HashMap;
+import javax.swing.table.DefaultTableModel;
+import java.sql.*;
+import java.util.Vector;
+import javax.swing.JTextField;
 
 public class ViewButtonPanel extends javax.swing.JFrame {
-    
-    private ApprovalQueuePanel approvalPanel = new ApprovalQueuePanel();
 
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(ViewButtonPanel.class.getName());
     // Add this at the top of your class variables
     private java.util.List<carrentalsystem.models.Car> userCarList = new java.util.ArrayList<>();
-    private String planStatus = "Free";
+    private String planStatus = "False";
 
     /**
      * Creates new form AdminDashboard
      */
     public ViewButtonPanel() {
         initComponents();
-        jPanel1.add(approvalPanel);
-        approvalPanel.setBounds(50, 250, 800, 400); // Adjust X, Y, W, H to fit your design
-        approvalPanel.setVisible(false); // Hide it by default
-        btnProfileInfo.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-        switchPanel(evt);
-    }
-});
-        
         this.setExtendedState(javax.swing.JFrame.MAXIMIZED_BOTH);
 
         //Position Top Bar Icons
@@ -79,12 +76,26 @@ public class ViewButtonPanel extends javax.swing.JFrame {
         }
     }
     
-    public void updateSubscriptionBadge(String plan) {
-    // If jPanel3 is created as an anonymous class, you may need a field 
-    // to store the status and then call repaint()
-    this.planStatus = plan; 
-    Membershiplbl.repaint();
+    public void updateSubscriptionBadge(String status) {
+    this.planStatus = status;
+    
+    if ("Free".equalsIgnoreCase(status)) {
+        lblStatusText.setText("Free");
+        lblStatusText.setForeground(new java.awt.Color(120, 100, 0)); // Brown
+    } else {
+        lblStatusText.setText("Pro");
+        lblStatusText.setForeground(new java.awt.Color(0, 50, 150)); // Dark Blue
+    }
+    
+    membershipBagde.repaint(); // Force the background to redraw
 }
+    // Your classmate can use this method to update the count dynamically
+    public void updateActiveListingCount(int count) {
+    lblListingCount.setText("(" + count + ")");
+}
+    
+    
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -103,7 +114,9 @@ public class ViewButtonPanel extends javax.swing.JFrame {
         Admin = new javax.swing.JLabel();
         OverviewIcon = new javax.swing.JLabel();
         OverviewButton = new javax.swing.JButton();
+        buttonArchiveUser = new javax.swing.JButton();
         ListingIcon = new javax.swing.JLabel();
+        ListingButton = new javax.swing.JButton();
         UsersIcon = new javax.swing.JLabel();
         UsersButton = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
@@ -115,149 +128,135 @@ public class ViewButtonPanel extends javax.swing.JFrame {
         SettingsButton = new javax.swing.JButton();
         LogoutIcon = new javax.swing.JLabel();
         LogoutButton = new javax.swing.JButton();
-        ListingButton = new javax.swing.JButton();
         jPanel1 = new javax.swing.JPanel();
         lblUserDetails = new javax.swing.JLabel();
-        usersNamelbl = new javax.swing.JLabel();
-        Membershiplbl = new javax.swing.JPanel() {
+        lblUser = new javax.swing.JLabel();
+        membershipBagde = // Corrected initialization
+        membershipBagde = new javax.swing.JPanel() {
             @Override
             protected void paintComponent(java.awt.Graphics g) {
-                // Ensure the panel itself doesn't draw a background square
-                super.paintComponent(g); 
-
+                super.paintComponent(g); // Call super
                 java.awt.Graphics2D g2 = (java.awt.Graphics2D) g.create();
-                g2.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING, java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING, 
+                    java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
 
                 int w = getWidth();
                 int h = getHeight();
 
-                // 1. DYNAMIC COLOR: Changes based on planStatus
-                if (planStatus.equalsIgnoreCase("Free")) {
+                // Check the data from your planStatus variable
+                if ("Free".equalsIgnoreCase(planStatus)) {
                     g2.setColor(new java.awt.Color(255, 245, 200)); // Light Yellow
-                } else {
+                    lblStatusText.setText("Free");
+                    lblStatusText.setForeground(new java.awt.Color(120, 100, 0)); // Brown
+                } else if ("Pro".equalsIgnoreCase(planStatus)) {
                     g2.setColor(new java.awt.Color(200, 230, 255)); // Light Blue
+                    lblStatusText.setText("Pro");
+                    lblStatusText.setForeground(new java.awt.Color(0, 50, 150)); // Dark Blue
                 }
 
-                // 2. DRAW PILL SHAPE
                 g2.fillRoundRect(0, 0, w, h, h, h);
-
-                // 3. TEXT SETTINGS: Increased to 14pt Bold
-                g2.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 14));
-
-                if (planStatus.equalsIgnoreCase("Free")) {
-                    g2.setColor(new java.awt.Color(139, 128, 0)); // Dark Gold/Brown text
-                    drawCenteredString(g2, "Free", w, h);
-                } else {
-                    g2.setColor(new java.awt.Color(0, 102, 204)); // Dark Blue text
-                    drawCenteredString(g2, "Pro", w, h);
-                }
-
                 g2.dispose();
             }
-
-            // Helper method to keep text perfectly centered regardless of font size
-            private void drawCenteredString(java.awt.Graphics2D g2, String text, int w, int h) {
-                java.awt.FontMetrics fm = g2.getFontMetrics();
-                int x = (w - fm.stringWidth(text)) / 2;
-                int y = ((h - fm.getHeight()) / 2) + fm.getAscent();
-                g2.drawString(text, x, y);
-            }
         };
-        btnSaveChanges = new javax.swing.JButton() {
-            // Variable to track click state
-            private boolean isPressed = false;
-
-            {
-                // Add listeners so the button "reacts" to you
-                addMouseListener(new java.awt.event.MouseAdapter() {
-                    public void mousePressed(java.awt.event.MouseEvent e) { isPressed = true; repaint(); }
-                    public void mouseReleased(java.awt.event.MouseEvent e) { isPressed = false; repaint(); }
-                });
-            }
+        // Set to transparent so the rounded corners show correctly
+        membershipBagde.setOpaque(false);
+        lblStatusText = new javax.swing.JLabel();
+        buttonSaveChanges1 = // Set the drop-down to "Custom Creation"
+        buttonArchiveUser = new javax.swing.JButton() {
+            private int shadowGap = 3;
 
             @Override
             protected void paintComponent(java.awt.Graphics g) {
                 java.awt.Graphics2D g2 = (java.awt.Graphics2D) g.create();
-                g2.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING, java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING, 
+                    java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
 
                 int w = getWidth();
-                int h = getHeight();
-                int round = 15;
+                int h = getHeight() - shadowGap;
 
-                // 1. THE OUTER SHADOW (Drawn first)
-                // We shift this down by 4 pixels to make it look like it's floating
+                // 1. Draw Solid Shadow (Darker than background)
                 g2.setColor(new java.awt.Color(0, 0, 0, 60)); 
-                g2.fillRoundRect(3, 5, w - 6, h - 8, round, round);
+                g2.fillRoundRect(0, shadowGap, w, h, 10, 10);
 
-                // 2. THE BUTTON BODY (Solid Color)
-                // If pressed, we make it slightly darker to give a "click" feel
-                if (isPressed) {
-                    g2.setColor(new java.awt.Color(45, 45, 45)); // Darker when clicked
+                // 2. Draw Solid Button Body
+                if (getModel().isPressed()) {
+                    g2.setColor(new java.awt.Color(90, 90, 90)); // Pressed color
+                    g2.fillRoundRect(0, shadowGap, w, h, 10, 10); // Shift body down
                 } else {
-                    g2.setColor(new java.awt.Color(70, 70, 70)); // Normal solid grey
+                    g2.setColor(new java.awt.Color(110, 110, 110)); // Normal solid color
+                    g2.fillRoundRect(0, 0, w, h, 10, 10);
                 }
 
-                // We draw the body slightly higher than the shadow
-                g2.fillRoundRect(2, 2, w - 6, h - 8, round, round);
-
-                // 3. THE TEXT
+                // 3. Draw Text Manually (to ensure it stays centered)
                 g2.setColor(java.awt.Color.WHITE);
-                g2.setFont(new java.awt.Font("Segoe UI", java.awt.Font.PLAIN, 18));
+                g2.setFont(getFont());
                 java.awt.FontMetrics fm = g2.getFontMetrics();
-                int x = ((w - 6) - fm.stringWidth(getText())) / 2 + 2;
-                int y = ((h - 8) + fm.getAscent() - fm.getDescent()) / 2 + 2;
+                int textX = (w - fm.stringWidth(getText())) / 2;
+                int textY = (h - fm.getHeight()) / 2 + fm.getAscent() + (getModel().isPressed() ? shadowGap : 0);
+                g2.drawString(getText(), textX, textY);
 
-                g2.drawString(getText(), x, y);
                 g2.dispose();
             }
         };
-        btnArchiveUser = new javax.swing.JButton() {
-            private boolean isPressed = false;
-
-            {
-                // Maintains the clickable interaction
-                addMouseListener(new java.awt.event.MouseAdapter() {
-                    @Override
-                    public void mousePressed(java.awt.event.MouseEvent e) { isPressed = true; repaint(); }
-                    @Override
-                    public void mouseReleased(java.awt.event.MouseEvent e) { isPressed = false; repaint(); }
-                });
-            }
+        activeListingHeader = new javax.swing.JPanel();
+        lblActiveListing = new javax.swing.JLabel();
+        lblListingCount = new javax.swing.JLabel();
+        jSeparator1 = new javax.swing.JSeparator();
+        pnlCarCard = pnlCarCard = new javax.swing.JPanel() {
+            private int cornerRadius = 20; // Adjust for smoothness [cite: 1]
+            private java.awt.Color borderColor = new java.awt.Color(204, 204, 204); // Lighter gray for border [cite: 9]
 
             @Override
             protected void paintComponent(java.awt.Graphics g) {
+                super.paintComponent(g); // Call super to ensure children are painted correctly
                 java.awt.Graphics2D g2 = (java.awt.Graphics2D) g.create();
-                g2.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING, java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING, 
+                    java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
 
                 int w = getWidth();
                 int h = getHeight();
-                int round = 15;
 
-                // 1. CLICK FEEDBACK (Optional)
-                // If you want a subtle hint that it's being pressed, we can draw a 
-                // very faint tint. If you want it TOTALY transparent, delete these 3 lines.
-                if (isPressed) {
-                    g2.setColor(new java.awt.Color(255, 255, 255, 10)); // Ultra-faint white tint
-                    g2.fillRoundRect(2, 2, w - 5, h - 5, round, round);
-                }
+                // Fill background with card color (overrides standard background) [cite: 9]
+                g2.setColor(getBackground());
+                g2.fillRoundRect(0, 0, w, h, cornerRadius, cornerRadius);
 
-                // 2. BORDER (Solid Grey 153, 153, 153)
-                g2.setColor(new java.awt.Color(153, 153, 153));
-                g2.setStroke(new java.awt.BasicStroke(1.2f));
-                g2.drawRoundRect(2, 2, w - 5, h - 5, round, round);
+                // Draw the thin, light gray rounded border [cite: 9]
+                g2.setColor(borderColor);
+                g2.setStroke(new java.awt.BasicStroke(1f)); // Thin border [cite: 9]
+                g2.drawRoundRect(0, 0, w - 1, h - 1, cornerRadius, cornerRadius);
 
-                // 3. TEXT
-                g2.setColor(new java.awt.Color(230, 230, 230));
-                g2.setFont(new java.awt.Font("Segoe UI", java.awt.Font.PLAIN, 18));
-                java.awt.FontMetrics fm = g2.getFontMetrics();
-                int x = ((w - 5) - fm.stringWidth(getText())) / 2 + 2;
-                int y = ((h - 5) + fm.getAscent() - fm.getDescent()) / 2 + 2;
-
-                g2.drawString(getText(), x, y);
                 g2.dispose();
             }
         };
-        jSeparator1 = new javax.swing.JSeparator();
+        // Critical setup after creation
+        pnlCarCard.setOpaque(false); // Let the custom drawing handle the background [cite: 1];
+        pnlCarImageContainer = new javax.swing.JPanel();
+        lblCarImage = lblCarImage = new javax.swing.JLabel() {
+            @Override
+            protected void paintComponent(java.awt.Graphics g) {
+                java.awt.Graphics2D g2 = (java.awt.Graphics2D) g.create();
+                g2.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING, 
+                    java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
+
+                // Create a rounded clip area
+                java.awt.geom.RoundRectangle2D roundedRect = new java.awt.geom.RoundRectangle2D.Float(
+                    0, 0, getWidth(), getHeight(), 20, 20); // 20 is the corner radius
+                g2.clip(roundedRect);
+
+                super.paintComponent(g2);
+                g2.dispose();
+            }
+        };
+        pnlCarTextDetails = new javax.swing.JPanel();
+        lblCarName = new javax.swing.JLabel();
+        CurrentLocation = new javax.swing.JLabel();
+        lblCarLocation = new javax.swing.JLabel();
+        CurrentStatus = new javax.swing.JLabel();
+        lblCarStatus = new javax.swing.JLabel();
+        jLabel1 = new javax.swing.JLabel();
+        jSeparator2 = new javax.swing.JSeparator();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        tblPreviousBookings = new javax.swing.JTable();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setBackground(new java.awt.Color(3, 33, 33));
@@ -309,8 +308,37 @@ public class ViewButtonPanel extends javax.swing.JFrame {
         OverviewButton.setPreferredSize(new java.awt.Dimension(270, 50));
         sideBarPanel.add(OverviewButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 100, -1, -1));
 
+        buttonArchiveUser.setBackground(new java.awt.Color(48, 48, 46));
+
+        buttonArchiveUser.setFont(new java.awt.Font("Segoe UI", 0, 18));
+
+        buttonArchiveUser.setForeground(new java.awt.Color(204, 204, 204));
+
+        buttonArchiveUser.setText("Archive User");
+
+        buttonArchiveUser.setBorderPainted(false);
+
+        buttonArchiveUser.setContentAreaFilled(false);
+
+        buttonArchiveUser.setFocusPainted(false);
+
+        buttonArchiveUser.setPreferredSize(new java.awt.Dimension(150, 43));
+        sideBarPanel.add(buttonArchiveUser, new org.netbeans.lib.awtextra.AbsoluteConstraints(790, 90, -1, -1));
+
         ListingIcon.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         sideBarPanel.add(ListingIcon, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 160, 35, 35));
+
+        ListingButton.setBackground(new java.awt.Color(48, 48, 46));
+        ListingButton.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
+        ListingButton.setForeground(new java.awt.Color(255, 255, 255));
+        ListingButton.setText("Listing");
+        ListingButton.setBorder(null);
+        ListingButton.setBorderPainted(false);
+        ListingButton.setContentAreaFilled(false);
+        ListingButton.setFocusPainted(false);
+        ListingButton.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        ListingButton.setPreferredSize(new java.awt.Dimension(270, 50));
+        sideBarPanel.add(ListingButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 150, -1, -1));
 
         UsersIcon.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         sideBarPanel.add(UsersIcon, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 210, 35, 35));
@@ -402,82 +430,276 @@ public class ViewButtonPanel extends javax.swing.JFrame {
         LogoutButton.setPreferredSize(new java.awt.Dimension(270, 50));
         sideBarPanel.add(LogoutButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 440, -1, -1));
 
-        ListingButton.setBackground(new java.awt.Color(48, 48, 46));
-        ListingButton.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
-        ListingButton.setForeground(new java.awt.Color(255, 255, 255));
-        ListingButton.setText("Listing");
-        ListingButton.setBorder(null);
-        ListingButton.setBorderPainted(false);
-        ListingButton.setContentAreaFilled(false);
-        ListingButton.setFocusPainted(false);
-        ListingButton.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-        ListingButton.setPreferredSize(new java.awt.Dimension(270, 50));
-        sideBarPanel.add(ListingButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 150, -1, -1));
-
         getContentPane().add(sideBarPanel, java.awt.BorderLayout.WEST);
 
         jPanel1.setBackground(new java.awt.Color(48, 48, 46));
-        jPanel1.setForeground(new java.awt.Color(153, 153, 153));
+        jPanel1.setForeground(new java.awt.Color(255, 255, 255));
         jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         lblUserDetails.setFont(new java.awt.Font("Segoe UI", 0, 32)); // NOI18N
         lblUserDetails.setForeground(new java.awt.Color(255, 255, 255));
         lblUserDetails.setText("User Details");
-        jPanel1.add(lblUserDetails, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 20, -1, -1));
+        jPanel1.add(lblUserDetails, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 30, -1, -1));
 
-        usersNamelbl.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
-        usersNamelbl.setForeground(new java.awt.Color(204, 204, 204));
-        usersNamelbl.setPreferredSize(new java.awt.Dimension(400, 32));
-        jPanel1.add(usersNamelbl, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 90, -1, -1));
+        lblUser.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
+        lblUser.setForeground(new java.awt.Color(255, 255, 255));
+        lblUser.setPreferredSize(new java.awt.Dimension(500, 43));
+        jPanel1.add(lblUser, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 100, -1, -1));
 
-        Membershiplbl.setBackground(new java.awt.Color(48, 48, 46));
-        Membershiplbl.setForeground(new java.awt.Color(48, 48, 46));
-        Membershiplbl.setOpaque(false);
-        Membershiplbl.setPreferredSize(new java.awt.Dimension(100, 30));
+        membershipBagde.setOpaque(false);
+        membershipBagde.setPreferredSize(new java.awt.Dimension(100, 35));
 
-        javax.swing.GroupLayout MembershiplblLayout = new javax.swing.GroupLayout(Membershiplbl);
-        Membershiplbl.setLayout(MembershiplblLayout);
-        MembershiplblLayout.setHorizontalGroup(
-            MembershiplblLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 0, Short.MAX_VALUE)
+        lblStatusText.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+
+        javax.swing.GroupLayout membershipBagdeLayout = new javax.swing.GroupLayout(membershipBagde);
+        membershipBagde.setLayout(membershipBagdeLayout);
+        membershipBagdeLayout.setHorizontalGroup(
+            membershipBagdeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(membershipBagdeLayout.createSequentialGroup()
+                .addGap(19, 19, 19)
+                .addComponent(lblStatusText, javax.swing.GroupLayout.PREFERRED_SIZE, 62, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(19, Short.MAX_VALUE))
         );
-        MembershiplblLayout.setVerticalGroup(
-            MembershiplblLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 0, Short.MAX_VALUE)
+        membershipBagdeLayout.setVerticalGroup(
+            membershipBagdeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, membershipBagdeLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(lblStatusText, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
         );
 
-        jPanel1.add(Membershiplbl, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 130, -1, -1));
+        jPanel1.add(membershipBagde, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 150, -1, -1));
 
-        btnSaveChanges.setBackground(new java.awt.Color(48, 48, 46));
-        btnSaveChanges.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
-        btnSaveChanges.setForeground(new java.awt.Color(255, 255, 255));
-        btnSaveChanges.setText("Save Changes");
-        btnSaveChanges.setBorderPainted(false);
-        btnSaveChanges.setContentAreaFilled(false);
-        btnSaveChanges.setFocusPainted(false);
-        btnSaveChanges.setPreferredSize(new java.awt.Dimension(163, 53));
-        jPanel1.add(btnSaveChanges, new org.netbeans.lib.awtextra.AbsoluteConstraints(810, 20, -1, -1));
+        buttonSaveChanges1.setBackground(new java.awt.Color(48, 48, 46));
+        buttonSaveChanges1.setFont(new java.awt.Font("Segoe UI", 0, 20)); // NOI18N
+        buttonSaveChanges1.setForeground(new java.awt.Color(255, 255, 255));
+        buttonSaveChanges1.setText("Save Changes");
+        buttonSaveChanges1.setBorderPainted(false);
+        buttonSaveChanges1.setContentAreaFilled(false);
+        buttonSaveChanges1.setFocusPainted(false);
+        buttonSaveChanges1.setPreferredSize(new java.awt.Dimension(200, 43));
+        jPanel1.add(buttonSaveChanges1, new org.netbeans.lib.awtextra.AbsoluteConstraints(790, 30, -1, -1));
 
-        btnArchiveUser.setBackground(new java.awt.Color(48, 48, 46));
-        btnArchiveUser.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
-        btnArchiveUser.setForeground(new java.awt.Color(153, 153, 153));
-        btnArchiveUser.setText("Archive User");
-        btnArchiveUser.setBorder(null);
-        btnArchiveUser.setBorderPainted(false);
-        btnArchiveUser.setContentAreaFilled(false);
-        btnArchiveUser.setOpaque(false);
-        btnArchiveUser.setPreferredSize(new java.awt.Dimension(120, 45));
-        jPanel1.add(btnArchiveUser, new org.netbeans.lib.awtextra.AbsoluteConstraints(850, 90, -1, -1));
+        activeListingHeader.setBackground(new java.awt.Color(48, 48, 46));
+        activeListingHeader.setOpaque(false);
+        activeListingHeader.setPreferredSize(new java.awt.Dimension(215, 43));
+        activeListingHeader.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT));
 
-        jSeparator1.setPreferredSize(new java.awt.Dimension(950, 10));
-        jPanel1.add(jSeparator1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 260, -1, -1));
+        lblActiveListing.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
+        lblActiveListing.setForeground(new java.awt.Color(255, 255, 255));
+        lblActiveListing.setText("Active Listings");
+        activeListingHeader.add(lblActiveListing);
+
+        lblListingCount.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
+        lblListingCount.setForeground(new java.awt.Color(255, 255, 255));
+        lblListingCount.setText("( )");
+        lblListingCount.setPreferredSize(new java.awt.Dimension(50, 32));
+        activeListingHeader.add(lblListingCount);
+
+        jPanel1.add(activeListingHeader, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 200, -1, -1));
+
+        jSeparator1.setBorder(javax.swing.BorderFactory.createMatteBorder(2, 2, 2, 2, new java.awt.Color(204, 204, 204)));
+        jSeparator1.setPreferredSize(new java.awt.Dimension(960, 2));
+        jPanel1.add(jSeparator1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 240, -1, -1));
+
+        pnlCarCard.setBackground(new java.awt.Color(46, 46, 46));
+        pnlCarCard.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        pnlCarImageContainer.setOpaque(false);
+        pnlCarImageContainer.setPreferredSize(new java.awt.Dimension(150, 100));
+        pnlCarImageContainer.setLayout(new java.awt.GridBagLayout());
+
+        lblCarImage.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lblCarImage.setPreferredSize(new java.awt.Dimension(150, 100));
+        pnlCarImageContainer.add(lblCarImage, new java.awt.GridBagConstraints());
+
+        pnlCarCard.add(pnlCarImageContainer, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 10, -1, 110));
+
+        pnlCarTextDetails.setOpaque(false);
+        pnlCarTextDetails.setPreferredSize(new java.awt.Dimension(300, 100));
+        pnlCarTextDetails.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        lblCarName.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
+        lblCarName.setForeground(new java.awt.Color(255, 255, 255));
+        lblCarName.setPreferredSize(new java.awt.Dimension(127, 32));
+        pnlCarTextDetails.add(lblCarName, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 10, 280, -1));
+
+        CurrentLocation.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        CurrentLocation.setForeground(new java.awt.Color(204, 204, 204));
+        CurrentLocation.setText("Current Location:");
+        pnlCarTextDetails.add(CurrentLocation, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 45, -1, -1));
+
+        lblCarLocation.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        lblCarLocation.setForeground(new java.awt.Color(255, 255, 255));
+        lblCarLocation.setPreferredSize(new java.awt.Dimension(135, 25));
+        pnlCarTextDetails.add(lblCarLocation, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 45, -1, -1));
+
+        CurrentStatus.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        CurrentStatus.setForeground(new java.awt.Color(204, 204, 204));
+        CurrentStatus.setText("Current Status:");
+        pnlCarTextDetails.add(CurrentStatus, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 70, -1, -1));
+
+        lblCarStatus.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        lblCarStatus.setForeground(new java.awt.Color(255, 255, 255));
+        lblCarStatus.setPreferredSize(new java.awt.Dimension(135, 25));
+        pnlCarTextDetails.add(lblCarStatus, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 70, -1, -1));
+
+        pnlCarCard.add(pnlCarTextDetails, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 10, 320, 110));
+
+        jPanel1.add(pnlCarCard, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 260, 500, 130));
+
+        jLabel1.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
+        jLabel1.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel1.setText("Previous Bookings");
+        jPanel1.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 420, -1, -1));
+
+        jSeparator2.setBorder(javax.swing.BorderFactory.createMatteBorder(2, 2, 2, 2, new java.awt.Color(255, 255, 255)));
+        jSeparator2.setPreferredSize(new java.awt.Dimension(960, 2));
+        jPanel1.add(jSeparator2, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 455, -1, -1));
+
+        jScrollPane1.setBorder(null);
+        jScrollPane1.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        jScrollPane1.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+        jScrollPane1.setOpaque(false);
+        jScrollPane1.setPreferredSize(new java.awt.Dimension(910, 200));
+        // 1. Hide the background and the track of the scrollbar
+        jScrollPane1.getVerticalScrollBar().setOpaque(false);
+        jScrollPane1.getVerticalScrollBar().setBackground(new java.awt.Color(0, 0, 0, 0));
+
+        // 2. Remove the border of the scrollbar itself
+        jScrollPane1.getVerticalScrollBar().setBorder(null);
+        jScrollPane1.getVerticalScrollBar().setPreferredSize(new java.awt.Dimension(0, 0));
+
+        // 3. Make the "buttons" (the arrows at top/bottom) invisible or match background
+        jScrollPane1.getVerticalScrollBar().setUI(new javax.swing.plaf.basic.BasicScrollBarUI() {
+            @Override
+            protected void configureScrollBarColors() {
+                this.thumbColor = new java.awt.Color(100, 100, 100, 100); // Semi-transparent thumb
+                this.trackColor = new java.awt.Color(0, 0, 0, 0);         // Fully transparent track
+            }
+
+            @Override
+            protected javax.swing.JButton createDecreaseButton(int orientation) {
+                return createZeroButton();
+            }
+
+            @Override
+            protected javax.swing.JButton createIncreaseButton(int orientation) {
+                return createZeroButton();
+            }
+
+            private javax.swing.JButton createZeroButton() {
+                javax.swing.JButton jbutton = new javax.swing.JButton();
+                jbutton.setPreferredSize(new java.awt.Dimension(0, 0));
+                jbutton.setMinimumSize(new java.awt.Dimension(0, 0));
+                jbutton.setMaximumSize(new java.awt.Dimension(0, 0));
+                return jbutton;
+            }
+        });
+
+        tblPreviousBookings.setBackground(new java.awt.Color(48, 48, 46));
+        tblPreviousBookings.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
+        tblPreviousBookings.setForeground(new java.awt.Color(255, 255, 255));
+        tblPreviousBookings.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null}
+            },
+            new String [] {
+                "Listing", "Dates", "Duration", "Total", "Payment Status"
+            }
+        ));
+        tblPreviousBookings.setFillsViewportHeight(true);
+        tblPreviousBookings.setGridColor(new java.awt.Color(255, 255, 255));
+        tblPreviousBookings.setIntercellSpacing(new java.awt.Dimension(0, 0));
+        tblPreviousBookings.setOpaque(false);
+        tblPreviousBookings.setPreferredSize(new java.awt.Dimension(375, 64));
+        tblPreviousBookings.setRowHeight(20);
+        tblPreviousBookings.setShowVerticalLines(false);
+        // 1. Set the Header background to your specific color (48, 48, 46)
+        tblPreviousBookings.getTableHeader().setBackground(new java.awt.Color(48, 48, 46));
+        tblPreviousBookings.getTableHeader().setOpaque(true); // Must be true to show the solid color
+
+        // 2. Center-align the Header Text and set Font
+        tblPreviousBookings.getTableHeader().setDefaultRenderer(new javax.swing.table.DefaultTableCellRenderer() {
+            @Override
+            public java.awt.Component getTableCellRendererComponent(javax.swing.JTable table, Object value,
+                boolean isSelected, boolean hasFocus, int row, int column) {
+
+                javax.swing.JLabel label = (javax.swing.JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+
+                label.setHorizontalAlignment(javax.swing.JLabel.CENTER); // Center the text
+                label.setBackground(new java.awt.Color(48, 48, 46));     // Apply your color here too
+                label.setForeground(java.awt.Color.WHITE);              // Text color
+                label.setFont(new java.awt.Font("Segoe UI", java.awt.Font.PLAIN, 18));
+                label.setBorder(javax.swing.BorderFactory.createMatteBorder(0, 0, 1, 0, java.awt.Color.WHITE));
+
+                return label;
+            }
+        });
+
+        // 3. Fix the Header Height
+        tblPreviousBookings.getTableHeader().setPreferredSize(new java.awt.Dimension(0, 40));
+
+        // 1. Create a renderer that centers text AND sets the background color
+        javax.swing.table.DefaultTableCellRenderer customRenderer = new javax.swing.table.DefaultTableCellRenderer() {
+            @Override
+            public java.awt.Component getTableCellRendererComponent(javax.swing.JTable table, Object value,
+                boolean isSelected, boolean hasFocus, int row, int column) {
+
+                java.awt.Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+
+                // Center the text
+                ((javax.swing.JLabel)c).setHorizontalAlignment(javax.swing.JLabel.CENTER);
+
+                // If the row is NOT selected, use your custom background
+                if (!isSelected) {
+                    c.setBackground(new java.awt.Color(48, 48, 46));
+                }
+
+                c.setForeground(java.awt.Color.WHITE);
+                return c;
+            }
+        };
+
+        // 2. Apply the renderer to all columns
+        for (int i = 0; i < tblPreviousBookings.getColumnCount(); i++) {
+            tblPreviousBookings.getColumnModel().getColumn(i).setCellRenderer(customRenderer);
+        }
+
+        // 3. Set the horizontal divider lines
+        tblPreviousBookings.setShowHorizontalLines(true);
+        tblPreviousBookings.setShowVerticalLines(false); // Clean list look
+        tblPreviousBookings.setGridColor(new java.awt.Color(255, 255, 255, 50)); // Semi-transparent white line
+        tblPreviousBookings.setRowHeight(40);
+        tblPreviousBookings.setFillsViewportHeight(true);
+        jScrollPane1.setViewportView(tblPreviousBookings);
+
+        jPanel1.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 470, 960, 300));
 
         getContentPane().add(jPanel1, java.awt.BorderLayout.CENTER);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
-    /**/
+/**/
     /**
      * @param args the command line arguments
      */
@@ -508,12 +730,13 @@ public class ViewButtonPanel extends javax.swing.JFrame {
     private javax.swing.JButton BookingsButton;
     private javax.swing.JLabel BookingsIcon1;
     private javax.swing.JLabel CarRental;
+    private javax.swing.JLabel CurrentLocation;
+    private javax.swing.JLabel CurrentStatus;
     private javax.swing.JButton ListingButton;
     private javax.swing.JLabel ListingIcon;
     private javax.swing.JButton LogoutButton;
     private javax.swing.JLabel LogoutIcon;
     private javax.swing.JLabel Main1;
-    private javax.swing.JPanel Membershiplbl;
     private javax.swing.JLabel NotifyIcon;
     private javax.swing.JButton OverviewButton;
     private javax.swing.JLabel OverviewIcon;
@@ -525,13 +748,29 @@ public class ViewButtonPanel extends javax.swing.JFrame {
     private javax.swing.JPanel TopBarPanel;
     private javax.swing.JButton UsersButton;
     private javax.swing.JLabel UsersIcon;
-    private javax.swing.JButton btnArchiveUser;
-    private javax.swing.JButton btnSaveChanges;
+    private javax.swing.JPanel activeListingHeader;
+    private javax.swing.JButton buttonArchiveUser;
+    private javax.swing.JButton buttonSaveChanges1;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JSeparator jSeparator1;
+    private javax.swing.JSeparator jSeparator2;
+    private javax.swing.JLabel lblActiveListing;
+    private javax.swing.JLabel lblCarImage;
+    private javax.swing.JLabel lblCarLocation;
+    private javax.swing.JLabel lblCarName;
+    private javax.swing.JLabel lblCarStatus;
+    private javax.swing.JLabel lblListingCount;
+    private javax.swing.JLabel lblStatusText;
+    private javax.swing.JLabel lblUser;
     private javax.swing.JLabel lblUserDetails;
+    private javax.swing.JPanel membershipBagde;
+    private javax.swing.JPanel pnlCarCard;
+    private javax.swing.JPanel pnlCarImageContainer;
+    private javax.swing.JPanel pnlCarTextDetails;
     private javax.swing.JPanel sideBarPanel;
-    private javax.swing.JLabel usersNamelbl;
+    private javax.swing.JTable tblPreviousBookings;
     // End of variables declaration//GEN-END:variables
 }
