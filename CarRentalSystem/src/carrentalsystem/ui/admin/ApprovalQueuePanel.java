@@ -19,6 +19,8 @@ import javax.swing.table.DefaultTableModel;
 import java.sql.*;
 import java.util.Vector;
 import javax.swing.JTextField;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 
 public class ApprovalQueuePanel extends javax.swing.JFrame {
 
@@ -34,6 +36,13 @@ public class ApprovalQueuePanel extends javax.swing.JFrame {
         styleUserTable();
         centerTableData();
         loadUsersFromDatabase();
+        
+        btnUsersButton.addActionListener(e -> {
+            ApprovalQueuePanel approval = new ApprovalQueuePanel();
+        approval.setVisible(true);
+        this.dispose();
+        });
+        
         this.setExtendedState(javax.swing.JFrame.MAXIMIZED_BOTH);
         
         tableUsers.repaint();

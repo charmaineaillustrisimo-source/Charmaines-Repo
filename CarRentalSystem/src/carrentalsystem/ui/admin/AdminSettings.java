@@ -23,19 +23,36 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.*;
 import java.awt.geom.*;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 
 public class AdminSettings extends javax.swing.JFrame {
 
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(AdminSettings.class.getName());
     // Add this at the top of your class variables
-    private java.util.List<carrentalsystem.models.Car> userCarList = new java.util.ArrayList<>();
+    //private java.util.List<carrentalsystem.models.Car> userCarList = new java.util.ArrayList<>();
 
     /**
      * Creates new form AdminDashboard
      */
     public AdminSettings() {
         initComponents();
+        //btnUsersButton.addActionListener(evt -> btnUsersButtonActionPerformed(evt));
+        btnUsersButton.addActionListener(e -> {
+            try {
+            ApprovalQueuePanel approval = new ApprovalQueuePanel();
+        approval.setVisible(true);
+        this.dispose();
+            } catch (Exception ex){
+                ex.printStackTrace();
+            }
+        });
+            
+        
+        
         this.setExtendedState(javax.swing.JFrame.MAXIMIZED_BOTH);
+
+        
 
         //Position Top Bar Icons
         pnlTopBar.add(lblProfileIcon, new org.netbeans.lib.awtextra.AbsoluteConstraints(1210, 20, 50, 50));
@@ -80,6 +97,8 @@ public class AdminSettings extends javax.swing.JFrame {
             System.err.println("Could not load image: " + path);
         }
     }
+    
+    
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -100,9 +119,8 @@ public class AdminSettings extends javax.swing.JFrame {
         lblOverviewIcon = new javax.swing.JLabel();
         btnOverviewButton = new javax.swing.JButton();
         lblListingIcon = new javax.swing.JLabel();
-        btnListingButton = new javax.swing.JButton();
-        lblUsersIcon = new javax.swing.JLabel();
         btnUsersButton = new javax.swing.JButton();
+        lblUsersIcon = new javax.swing.JLabel();
         lblBookingsIcon = new javax.swing.JLabel();
         btnBookingsButton = new javax.swing.JButton();
         lblSettingsIcon = new javax.swing.JLabel();
@@ -112,6 +130,7 @@ public class AdminSettings extends javax.swing.JFrame {
         btnSupportButton = new javax.swing.JButton();
         lblLogoutIcon = new javax.swing.JLabel();
         btnLogoutButton = new javax.swing.JButton();
+        btnListingButton = new javax.swing.JButton();
         pnlMainPanel = new javax.swing.JPanel();
         lblSystemSettings = new javax.swing.JLabel();
         pnlFirst1 = new javax.swing.JPanel();
@@ -201,21 +220,6 @@ public class AdminSettings extends javax.swing.JFrame {
         lblListingIcon.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         pnlSideBar.add(lblListingIcon, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 160, 35, 35));
 
-        btnListingButton.setBackground(new java.awt.Color(48, 48, 46));
-        btnListingButton.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
-        btnListingButton.setForeground(new java.awt.Color(255, 255, 255));
-        btnListingButton.setText("Listing");
-        btnListingButton.setBorder(null);
-        btnListingButton.setBorderPainted(false);
-        btnListingButton.setContentAreaFilled(false);
-        btnListingButton.setFocusPainted(false);
-        btnListingButton.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-        btnListingButton.setPreferredSize(new java.awt.Dimension(270, 50));
-        pnlSideBar.add(btnListingButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 150, -1, -1));
-
-        lblUsersIcon.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        pnlSideBar.add(lblUsersIcon, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 210, 35, 35));
-
         btnUsersButton.setBackground(new java.awt.Color(48, 48, 46));
         btnUsersButton.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
         btnUsersButton.setForeground(new java.awt.Color(255, 255, 255));
@@ -227,6 +231,9 @@ public class AdminSettings extends javax.swing.JFrame {
         btnUsersButton.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         btnUsersButton.setPreferredSize(new java.awt.Dimension(270, 50));
         pnlSideBar.add(btnUsersButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 200, -1, -1));
+
+        lblUsersIcon.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        pnlSideBar.add(lblUsersIcon, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 210, 35, 35));
 
         lblBookingsIcon.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         pnlSideBar.add(lblBookingsIcon, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 260, 35, 35));
@@ -302,6 +309,18 @@ public class AdminSettings extends javax.swing.JFrame {
         btnLogoutButton.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         btnLogoutButton.setPreferredSize(new java.awt.Dimension(270, 50));
         pnlSideBar.add(btnLogoutButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 440, -1, -1));
+
+        btnListingButton.setBackground(new java.awt.Color(48, 48, 46));
+        btnListingButton.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
+        btnListingButton.setForeground(new java.awt.Color(255, 255, 255));
+        btnListingButton.setText("Listing");
+        btnListingButton.setBorder(null);
+        btnListingButton.setBorderPainted(false);
+        btnListingButton.setContentAreaFilled(false);
+        btnListingButton.setFocusPainted(false);
+        btnListingButton.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        btnListingButton.setPreferredSize(new java.awt.Dimension(270, 50));
+        pnlSideBar.add(btnListingButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 150, -1, -1));
 
         getContentPane().add(pnlSideBar, java.awt.BorderLayout.WEST);
 
@@ -490,7 +509,8 @@ public class AdminSettings extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-/**/
+
+    /**/
     /**
      * @param args the command line arguments
      */
