@@ -16,6 +16,63 @@ public class SupportUiAdmin extends javax.swing.JPanel {
      */
     public SupportUiAdmin() {
         initComponents();
+        
+        // 1. Set the background of the table body
+TableContent.setBackground(new java.awt.Color(48, 48, 46));
+TableContent.setFillsViewportHeight(true); // Ensures the color covers the entire area
+
+// 2. Set the background of the scroll pane's viewport
+jScrollPane1.getViewport().setBackground(new java.awt.Color(48, 48, 46));
+
+// 3. Ensure text remains readable (White)
+TableContent.setForeground(java.awt.Color.WHITE);
+
+// 4. (Optional) Remove the grid lines or change their color to blend in
+TableContent.setGridColor(new java.awt.Color(60, 60, 60)); 
+TableContent.setShowGrid(true);
+
+// 1. Remove the border from the ScrollPane itself
+jScrollPane1.setBorder(javax.swing.BorderFactory.createEmptyBorder());
+
+// 2. Remove the border from the Viewport (the area holding the table)
+jScrollPane1.setViewportBorder(null);
+
+// 3. Just to be safe, remove any border from the Table
+TableContent.setBorder(null);
+
+// Create a custom renderer for the header
+// Create a custom renderer for the header
+javax.swing.table.DefaultTableCellRenderer headerRenderer = new javax.swing.table.DefaultTableCellRenderer() {
+    @Override
+    public java.awt.Component getTableCellRendererComponent(javax.swing.JTable table, Object value,
+            boolean isSelected, boolean hasFocus, int row, int column) {
+        
+        super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+        
+        // 1. SET FONT HERE - This is the missing piece
+        setFont(new java.awt.Font("Segoe UI", java.awt.Font.PLAIN, 24));
+        
+        // Maintain your dark theme
+        setBackground(new java.awt.Color(48, 48, 46));
+        setForeground(java.awt.Color.WHITE);
+        
+        // Center the text
+        setHorizontalAlignment(javax.swing.JLabel.CENTER);
+        
+        // Remove borders
+        //setBorder(javax.swing.BorderFactory.createMatteBorder(0, 0, 1, 1, new java.awt.Color(60, 60, 60)));
+        setBorder(null);
+        
+        return this;
+    }
+};
+
+// Apply the Segoe UI 24 Plain font and the custom renderer to the header
+TableContent.getTableHeader().setFont(new java.awt.Font("Segoe UI", java.awt.Font.PLAIN, 24));
+TableContent.getTableHeader().setDefaultRenderer(headerRenderer);
+
+// Set header height to accommodate the larger 24pt font
+TableContent.getTableHeader().setPreferredSize(new java.awt.Dimension(100, 50));
     }
 
     /**

@@ -19,29 +19,25 @@ import javax.swing.table.DefaultTableModel;
 import java.sql.*;
 import java.util.Vector;
 import javax.swing.JTextField;
-import javax.swing.*;
-import javax.swing.table.DefaultTableCellRenderer;
-import java.awt.*;
-import java.awt.geom.*;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
-public class AdminListingPanel extends javax.swing.JFrame {
+public class AdminSupportPanel extends javax.swing.JFrame {
 
-    private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(AdminListingPanel.class.getName());
+    private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(AdminSupportPanel.class.getName());
     // Add this at the top of your class variables
     private java.util.List<carrentalsystem.models.Car> userCarList = new java.util.ArrayList<>();
 
     /**
      * Creates new form AdminDashboard
      */
-    public AdminListingPanel() {
+    public AdminSupportPanel() {
         initComponents();
         
-        Listing listingView = new Listing();
+        SupportUiAdmin support = new SupportUiAdmin();
         
         pnlMainContent.removeAll();
-        pnlMainContent.add(listingView, java.awt.BorderLayout.CENTER);
+        pnlMainContent.add(support, java.awt.BorderLayout.CENTER);
         
         pnlMainContent.revalidate();
         pnlMainContent.repaint();
@@ -57,17 +53,28 @@ public class AdminListingPanel extends javax.swing.JFrame {
             }
         });
         
-    btnUsersButton.addActionListener(e -> {
-            try {
-            ApprovalQueuePanel approval = new ApprovalQueuePanel();
-        approval.setVisible(true);
+        btnListingButton.addActionListener (e -> {
+        try {
+            AdminListingPanel listing = new AdminListingPanel();
+        listing.setVisible(true);
         this.dispose();
             } catch (Exception ex){
                 ex.printStackTrace();
-            }
-        });
-    
-    btnSettingsButton.addActionListener (e -> {
+        }
+    });
+
+        
+        btnBookingsButton.addActionListener (e -> {
+        try {
+            AdminBookingPanel booking = new AdminBookingPanel();
+        booking.setVisible(true);
+        this.dispose();
+            } catch (Exception ex){
+                ex.printStackTrace();
+        }
+    });
+        
+        btnSettingsButton.addActionListener (e -> {
         try {
             AdminSettings settings = new AdminSettings();
         settings.setVisible(true);
@@ -76,8 +83,8 @@ public class AdminListingPanel extends javax.swing.JFrame {
                 ex.printStackTrace();
         }
     });
-    
-    String message = "<html>" +
+        
+        String message = "<html>" +
                      "<b style='font-size: 14pt; color: white;'>Are you sure you want to log out?</b><br/>" +
                      "<span style='color: white;'>Logging out will end your current session.</span><br/>" +
                      "<span style='color: white;'>All unsaved work will be lost.</span>" +
@@ -152,14 +159,10 @@ public class AdminListingPanel extends javax.swing.JFrame {
 });
         
         this.setExtendedState(javax.swing.JFrame.MAXIMIZED_BOTH);
-        
-        SeparatorCellRenderer separatorRenderer = new SeparatorCellRenderer();
 
         //Position Top Bar Icons
         pnlTopBar.add(lblProfileIcon, new org.netbeans.lib.awtextra.AbsoluteConstraints(1210, 20, 50, 50));
         pnlTopBar.add(lblNotifyIcon, new org.netbeans.lib.awtextra.AbsoluteConstraints(1140, 20, 50, 50));
-        
-        
 
         // Add this to your constructor after initComponents()
         this.addComponentListener(new java.awt.event.ComponentAdapter() {
@@ -183,7 +186,6 @@ public class AdminListingPanel extends javax.swing.JFrame {
         //Top Bar Panel Icon
         setIcon(lblProfileIcon, "/carrentalsystem/ui/admin/PIC/Profile.png", 50, 50);
         setIcon(lblNotifyIcon, "/carrentalsystem/ui/admin/PIC/bell.png", 50, 50);
-
     }
 
     private void setIcon(javax.swing.JLabel label, String path, int width, int height) {
@@ -221,16 +223,16 @@ public class AdminListingPanel extends javax.swing.JFrame {
         lblListingIcon = new javax.swing.JLabel();
         btnListingButton = new javax.swing.JButton();
         lblUsersIcon = new javax.swing.JLabel();
-        btnUsersButton = new javax.swing.JButton();
-        lblBookingsIcon = new javax.swing.JLabel();
         pnlHighlight = new javax.swing.JPanel();
-        lblSupportIcon = new javax.swing.JLabel();
         btnSupportButton = new javax.swing.JButton();
+        lblSupportIcon = new javax.swing.JLabel();
+        lblBookingsIcon = new javax.swing.JLabel();
+        btnBookingsButton = new javax.swing.JButton();
         lblSettingsIcon = new javax.swing.JLabel();
         btnSettingsButton = new javax.swing.JButton();
         lblLogoutIcon = new javax.swing.JLabel();
         btnLogoutButton = new javax.swing.JButton();
-        btnBookingsButton = new javax.swing.JButton();
+        btnUsersButton = new javax.swing.JButton();
         pnlMainContent = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -301,38 +303,7 @@ public class AdminListingPanel extends javax.swing.JFrame {
         lblUsersIcon.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         pnlSideBar.add(lblUsersIcon, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 210, 35, 35));
 
-        btnUsersButton.setBackground(new java.awt.Color(48, 48, 46));
-        btnUsersButton.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
-        btnUsersButton.setForeground(new java.awt.Color(255, 255, 255));
-        btnUsersButton.setText("Users");
-        btnUsersButton.setBorder(null);
-        btnUsersButton.setBorderPainted(false);
-        btnUsersButton.setContentAreaFilled(false);
-        btnUsersButton.setFocusPainted(false);
-        btnUsersButton.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-        btnUsersButton.setPreferredSize(new java.awt.Dimension(270, 50));
-        pnlSideBar.add(btnUsersButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 200, -1, -1));
-
-        lblBookingsIcon.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        pnlSideBar.add(lblBookingsIcon, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 260, 35, 35));
-
         pnlHighlight.setBackground(new java.awt.Color(48, 48, 46));
-
-        javax.swing.GroupLayout pnlHighlightLayout = new javax.swing.GroupLayout(pnlHighlight);
-        pnlHighlight.setLayout(pnlHighlightLayout);
-        pnlHighlightLayout.setHorizontalGroup(
-            pnlHighlightLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 360, Short.MAX_VALUE)
-        );
-        pnlHighlightLayout.setVerticalGroup(
-            pnlHighlightLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 50, Short.MAX_VALUE)
-        );
-
-        pnlSideBar.add(pnlHighlight, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 150, 360, 50));
-
-        lblSupportIcon.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        pnlSideBar.add(lblSupportIcon, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 350, 35, 35));
 
         btnSupportButton.setBackground(new java.awt.Color(48, 48, 46));
         btnSupportButton.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
@@ -344,7 +315,47 @@ public class AdminListingPanel extends javax.swing.JFrame {
         btnSupportButton.setFocusPainted(false);
         btnSupportButton.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         btnSupportButton.setPreferredSize(new java.awt.Dimension(270, 50));
-        pnlSideBar.add(btnSupportButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 340, -1, -1));
+
+        lblSupportIcon.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+
+        javax.swing.GroupLayout pnlHighlightLayout = new javax.swing.GroupLayout(pnlHighlight);
+        pnlHighlight.setLayout(pnlHighlightLayout);
+        pnlHighlightLayout.setHorizontalGroup(
+            pnlHighlightLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlHighlightLayout.createSequentialGroup()
+                .addGap(0, 45, Short.MAX_VALUE)
+                .addComponent(lblSupportIcon, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btnSupportButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(6, 6, 6))
+        );
+        pnlHighlightLayout.setVerticalGroup(
+            pnlHighlightLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnlHighlightLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(lblSupportIcon, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(pnlHighlightLayout.createSequentialGroup()
+                .addComponent(btnSupportButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 11, Short.MAX_VALUE))
+        );
+
+        pnlSideBar.add(pnlHighlight, new org.netbeans.lib.awtextra.AbsoluteConstraints(-10, 350, 360, 50));
+
+        lblBookingsIcon.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        pnlSideBar.add(lblBookingsIcon, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 260, 35, 35));
+
+        btnBookingsButton.setBackground(new java.awt.Color(48, 48, 46));
+        btnBookingsButton.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
+        btnBookingsButton.setForeground(new java.awt.Color(255, 255, 255));
+        btnBookingsButton.setText("Bookings");
+        btnBookingsButton.setBorder(null);
+        btnBookingsButton.setBorderPainted(false);
+        btnBookingsButton.setContentAreaFilled(false);
+        btnBookingsButton.setFocusPainted(false);
+        btnBookingsButton.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        btnBookingsButton.setPreferredSize(new java.awt.Dimension(270, 50));
+        pnlSideBar.add(btnBookingsButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 250, 270, -1));
 
         lblSettingsIcon.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         pnlSideBar.add(lblSettingsIcon, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 400, 35, 35));
@@ -376,17 +387,17 @@ public class AdminListingPanel extends javax.swing.JFrame {
         btnLogoutButton.setPreferredSize(new java.awt.Dimension(270, 50));
         pnlSideBar.add(btnLogoutButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 440, -1, -1));
 
-        btnBookingsButton.setBackground(new java.awt.Color(48, 48, 46));
-        btnBookingsButton.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
-        btnBookingsButton.setForeground(new java.awt.Color(255, 255, 255));
-        btnBookingsButton.setText("Bookings");
-        btnBookingsButton.setBorder(null);
-        btnBookingsButton.setBorderPainted(false);
-        btnBookingsButton.setContentAreaFilled(false);
-        btnBookingsButton.setFocusPainted(false);
-        btnBookingsButton.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-        btnBookingsButton.setPreferredSize(new java.awt.Dimension(270, 50));
-        pnlSideBar.add(btnBookingsButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, -70, 1155, 700));
+        btnUsersButton.setBackground(new java.awt.Color(48, 48, 46));
+        btnUsersButton.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
+        btnUsersButton.setForeground(new java.awt.Color(255, 255, 255));
+        btnUsersButton.setText("Users");
+        btnUsersButton.setBorder(null);
+        btnUsersButton.setBorderPainted(false);
+        btnUsersButton.setContentAreaFilled(false);
+        btnUsersButton.setFocusPainted(false);
+        btnUsersButton.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        btnUsersButton.setPreferredSize(new java.awt.Dimension(270, 50));
+        pnlSideBar.add(btnUsersButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, -120, 1155, 700));
 
         getContentPane().add(pnlSideBar, java.awt.BorderLayout.WEST);
 
@@ -420,7 +431,7 @@ public class AdminListingPanel extends javax.swing.JFrame {
         //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(() -> new AdminListingPanel().setVisible(true));
+        java.awt.EventQueue.invokeLater(() -> new AdminSupportPanel().setVisible(true));
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
