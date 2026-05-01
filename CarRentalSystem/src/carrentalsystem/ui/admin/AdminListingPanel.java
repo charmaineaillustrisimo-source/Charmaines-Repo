@@ -26,19 +26,25 @@ import java.awt.geom.*;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
-public class AdminBookingPanel extends javax.swing.JFrame {
+public class AdminListingPanel extends javax.swing.JFrame {
 
-    private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(AdminBookingPanel.class.getName());
+    private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(AdminListingPanel.class.getName());
     // Add this at the top of your class variables
     private java.util.List<carrentalsystem.models.Car> userCarList = new java.util.ArrayList<>();
 
     /**
      * Creates new form AdminDashboard
      */
-    public AdminBookingPanel() {
+    public AdminListingPanel() {
         initComponents();
-        styleUserTable();
-        centerTableData();
+        
+        Listing listingView = new Listing();
+        
+        pnlMainContent.removeAll();
+        pnlMainContent.add(listingView, java.awt.BorderLayout.CENTER);
+        
+        pnlMainContent.revalidate();
+        pnlMainContent.repaint();
         
         //Button Events
         btnOverviewButton.addActionListener(e -> {
@@ -50,17 +56,6 @@ public class AdminBookingPanel extends javax.swing.JFrame {
                 ex.printStackTrace();
             }
         });
-        
-        btnListingButton.addActionListener (e -> {
-        try {
-            AdminListingPanel listing = new AdminListingPanel();
-        listing.setVisible(true);
-        this.dispose();
-            } catch (Exception ex){
-                ex.printStackTrace();
-        }
-    });
-
         
     btnUsersButton.addActionListener(e -> {
             try {
@@ -159,16 +154,6 @@ public class AdminBookingPanel extends javax.swing.JFrame {
         this.setExtendedState(javax.swing.JFrame.MAXIMIZED_BOTH);
         
         SeparatorCellRenderer separatorRenderer = new SeparatorCellRenderer();
-        tableBookings.setDefaultRenderer(Object.class, separatorRenderer);
-        tableBookings.setShowHorizontalLines(false);
-        tableBookings.setShowVerticalLines(false); // If you want a perfectly seamless list
-        tableBookings.setGridColor(tableBookings.getBackground());
-        
-        tableBookings.repaint();
-        tableBookings.revalidate();
-        
-        tableBookings.setShowGrid(false);
-        tableBookings.setIntercellSpacing(new java.awt.Dimension(0, 0));
 
         //Position Top Bar Icons
         pnlTopBar.add(lblProfileIcon, new org.netbeans.lib.awtextra.AbsoluteConstraints(1210, 20, 50, 50));
@@ -198,67 +183,6 @@ public class AdminBookingPanel extends javax.swing.JFrame {
         //Top Bar Panel Icon
         setIcon(lblProfileIcon, "/carrentalsystem/ui/admin/PIC/Profile.png", 50, 50);
         setIcon(lblNotifyIcon, "/carrentalsystem/ui/admin/PIC/bell.png", 50, 50);
-        
-// 1. Set the color for the horizontal separator lines
-final Color lineColor = new Color(80, 80, 80); 
-
-// 2. Apply the Badge Renderer to the 5th column (Index 4)
-tableBookings.getColumnModel().getColumn(4).setCellRenderer(new DefaultTableCellRenderer() {
-    @Override
-    public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
-                                                   boolean hasFocus, int row, int column) {
-        super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-        setOpaque(false); // Required for the rounded background to show
-        setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, lineColor));
-        return this;
-    }
-
-    @Override
-    protected void paintComponent(Graphics g) {
-        Graphics2D g2 = (Graphics2D) g.create();
-        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-        if (getText() != null && !getText().isEmpty()) {
-            // Pick badge color based on status text
-            String status = getText().toLowerCase();
-            if (status.contains("active")) g2.setColor(new Color(60, 100, 60)); 
-            else if (status.contains("awaiting")) g2.setColor(new Color(110, 100, 80));
-            else if (status.contains("completed")) g2.setColor(new Color(80, 90, 80));
-            else g2.setColor(new Color(100, 70, 70)); 
-
-            // Calculate capsule dimensions
-            int h = getHeight() - 12; // Height of the badge
-            int w = g2.getFontMetrics().stringWidth(getText()) + 24; // Width based on text
-            int x = (getWidth() - w) / 2;
-            int y = (getHeight() - h) / 2;
-
-            // Draw the pill/capsule shape
-            g2.fillRoundRect(x, y, w, h, h, h);
-
-            // Draw the white text on top
-            g2.setColor(Color.WHITE);
-            FontMetrics fm = g2.getFontMetrics();
-            int textX = (getWidth() - fm.stringWidth(getText())) / 2;
-            int textY = (getHeight() - fm.getHeight()) / 2 + fm.getAscent();
-            g2.drawString(getText(), textX, textY);
-        }
-        g2.dispose();
-    }
-});
-
-// 3. Apply the horizontal line renderer to all OTHER columns
-for (int i = 0; i < tableBookings.getColumnCount(); i++) {
-    if (i == 4) continue; // Skip the status column we just customized
-    tableBookings.getColumnModel().getColumn(i).setCellRenderer(new DefaultTableCellRenderer() {
-        @Override
-        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
-                                                       boolean hasFocus, int row, int column) {
-            super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-            setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, lineColor));
-            return this;
-        }
-    });
-}
 
     }
 
@@ -275,261 +199,6 @@ for (int i = 0; i < tableBookings.getColumnCount(); i++) {
             System.err.println("Could not load image: " + path);
         }
     }
-
-    private void styleUserTable() {
-        java.awt.Color panelColor = new java.awt.Color(48, 48, 46);
-        
-    tableBookings.setBackground(panelColor);
-    tableBookings.setFillsViewportHeight(true);
-    tableBookings.setRowHeight(50);
-    tableBookings.setShowGrid(false); // Remove grid lines
-    tableBookings.setBorder(null);
-    tableBookings.setIntercellSpacing(new java.awt.Dimension(0, 0));
-
-        spForTable.setBackground(panelColor); 
-        spForTable.getViewport().setBackground(panelColor);
-        spForTable.setBorder(javax.swing.BorderFactory.createEmptyBorder());
-        spForTable.setBorder(null);
-        spForTable.setViewportBorder(null);
-        
-        addRowSeparators();
-        applyRowStyles();
-        
-        tableBookings.setBackground(panelColor);
-        tableBookings.setFillsViewportHeight(true);
-        
-        spForTable.getVerticalScrollBar().setBackground(panelColor);
-        spForTable.getVerticalScrollBar().setPreferredSize(new java.awt.Dimension(8, 0)); // Thinner scrollbar
-        spForTable.getVerticalScrollBar().setBorder(null);
-        
-        spForTable.setCorner(javax.swing.JScrollPane.UPPER_RIGHT_CORNER, new javax.swing.JPanel() {{
-        setBackground(panelColor);
-    }});
-
-    // 4. Apply the invisible scrollbar UI
-    makeScrollBarInvisible(spForTable);
-        
-        applyInvisibleHeaderStyle();
-
-    // 3. Style the Header to match the "Users" image
-    javax.swing.table.JTableHeader header = tableBookings.getTableHeader();
-    header.setBackground(panelColor);
-    header.setForeground(new java.awt.Color(200, 200, 200)); // Slightly dimmed white for headers
-    header.setFont(new java.awt.Font("Segoe UI", java.awt.Font.PLAIN, 18));
-    
-    header.setBorder(javax.swing.BorderFactory.createMatteBorder(0, 0, 1, 0, new java.awt.Color(80, 80, 80)));
-    
-    // Check that this is exactly column 2
-tableBookings.getColumnModel().getColumn(2).setCellRenderer(new BadgeRenderer());
-tableBookings.getColumnModel().getColumn(4).setCellEditor(new TableButtonEditor(new JTextField()));
-    }
-    
-    private void centerTableText() {
-    java.awt.Color bg = new java.awt.Color(48, 48, 46);
-    java.awt.Color line = new java.awt.Color(80, 80, 80);
-
-    javax.swing.table.DefaultTableCellRenderer customRenderer = new javax.swing.table.DefaultTableCellRenderer() {
-        @Override
-        public java.awt.Component getTableCellRendererComponent(javax.swing.JTable table, Object value,
-                boolean isSelected, boolean hasFocus, int row, int column) {
-            
-            // Get the default component (usually a JLabel)
-            javax.swing.JLabel c = (javax.swing.JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-            
-            // 1. Set Background to match jPanel1
-            c.setBackground(isSelected ? table.getSelectionBackground() : bg);
-            
-            // 2. Set Text Color to White
-            c.setForeground(java.awt.Color.WHITE);
-            
-            // 3. Set Alignment (LEFT looks best for 'User' and 'Email')
-            c.setHorizontalAlignment(javax.swing.JLabel.LEFT);
-            
-            // 4. Add the thin bottom line separator from your reference image
-            c.setBorder(javax.swing.BorderFactory.createCompoundBorder(
-                javax.swing.BorderFactory.createMatteBorder(0, 0, 1, 0, line), // Bottom line
-                javax.swing.BorderFactory.createEmptyBorder(0, 15, 0, 0)       // Left padding
-            ));
-
-            return c;
-        }
-    };
-
-    // Apply this to every column in your table
-    for (int i = 0; i < tableBookings.getColumnCount(); i++) {
-        tableBookings.getColumnModel().getColumn(i).setCellRenderer(customRenderer);
-    }
-}
-    
-    private void styleCells() {
-    java.awt.Color panelColor = new java.awt.Color(48, 48, 46);
-    java.awt.Color separatorColor = new java.awt.Color(80, 80, 80); // The gray line color
-
-    javax.swing.table.DefaultTableCellRenderer renderer = new javax.swing.table.DefaultTableCellRenderer() {
-        @Override
-        public java.awt.Component getTableCellRendererComponent(javax.swing.JTable table, Object value,
-                boolean isSelected, boolean hasFocus, int row, int column) {
-            
-            javax.swing.JLabel c = (javax.swing.JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-            
-            // Set background and text
-            c.setBackground(isSelected ? new java.awt.Color(60, 60, 60) : panelColor);
-            c.setForeground(java.awt.Color.WHITE);
-            c.setFont(new java.awt.Font("Segoe UI", java.awt.Font.PLAIN, 16));
-            
-            // Create the thin bottom line (separator)
-            c.setBorder(javax.swing.BorderFactory.createMatteBorder(0, 0, 1, 0, separatorColor));
-            
-            // Adjust padding so text isn't touching the line
-            c.setBorder(javax.swing.BorderFactory.createCompoundBorder(
-                c.getBorder(), 
-                javax.swing.BorderFactory.createEmptyBorder(0, 15, 0, 0)
-            ));
-
-            return c;
-        }
-    };
-
-    // Apply to all columns
-    for (int i = 0; i < tableBookings.getColumnCount(); i++) {
-        tableBookings.getColumnModel().getColumn(i).setCellRenderer(renderer);
-    }
-}
-
-    private void centerTableData() {
-        javax.swing.table.DefaultTableCellRenderer centerRenderer = new javax.swing.table.DefaultTableCellRenderer();
-        centerRenderer.setHorizontalAlignment(javax.swing.JLabel.CENTER);
-
-        // Loop through every column and apply the center alignment
-        for (int i = 0; i < tableBookings.getColumnCount(); i++) {
-            tableBookings.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
-        }
-    }
-    
-    private void applyInvisibleHeaderStyle() {
-    java.awt.Color panelBg = new java.awt.Color(48, 48, 46);
-    
-    // Get the header of your table
-    javax.swing.table.JTableHeader header = tableBookings.getTableHeader();
-    
-    // Create a renderer to handle the white text and alignment
-    header.setDefaultRenderer(new javax.swing.table.DefaultTableCellRenderer() {
-        @Override
-        public java.awt.Component getTableCellRendererComponent(javax.swing.JTable table, Object value,
-                boolean isSelected, boolean hasFocus, int row, int column) {
-            
-            javax.swing.JLabel label = (javax.swing.JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-            
-            // 1. Text Properties: White and Centered
-            label.setForeground(java.awt.Color.WHITE);
-            label.setHorizontalAlignment(javax.swing.JLabel.CENTER);
-            label.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 16));
-            
-            // 2. Background: Match the panel exactly
-            label.setBackground(panelBg);
-            
-            // 3. Remove the default 'button' borders of the header
-            label.setBorder(javax.swing.BorderFactory.createMatteBorder(0, 0, 1, 0, new java.awt.Color(80, 80, 80)));
-            
-            return label;
-        }
-    });
-}
-    
-    private void makeScrollBarInvisible(javax.swing.JScrollPane scrollPane) {
-    java.awt.Color panelBg = new java.awt.Color(48, 48, 46); // Your preferred background
-    
-    // Set the scrollbar's track color
-    scrollPane.getVerticalScrollBar().setBackground(panelBg);
-    scrollPane.getVerticalScrollBar().setUnitIncrement(16); // Smoother scrolling
-    
-    // Remove the buttons (the up/down arrows) to make it look cleaner
-    scrollPane.getVerticalScrollBar().setUI(new javax.swing.plaf.basic.BasicScrollBarUI() {
-        @Override
-        protected void configureScrollBarColors() {
-            this.thumbColor = new java.awt.Color(60, 60, 60); // Subtle thumb color
-            this.trackColor = panelBg; // Match the panel background
-        }
-
-        @Override
-        protected javax.swing.JButton createDecreaseButton(int orientation) {
-            return createZeroButton();
-        }
-
-        @Override
-        protected javax.swing.JButton createIncreaseButton(int orientation) {
-            return createZeroButton();
-        }
-
-        private javax.swing.JButton createZeroButton() {
-            javax.swing.JButton jbutton = new javax.swing.JButton();
-            jbutton.setPreferredSize(new java.awt.Dimension(0, 0));
-            jbutton.setMinimumSize(new java.awt.Dimension(0, 0));
-            jbutton.setMaximumSize(new java.awt.Dimension(0, 0));
-            return jbutton;
-        }
-    });
-}
-    
-    private void addRowSeparators() {
-    java.awt.Color panelBg = new java.awt.Color(48, 48, 46); // Your background color
-    java.awt.Color separatorColor = new java.awt.Color(80, 80, 80); // Subtle gray for the line
-
-    javax.swing.table.DefaultTableCellRenderer rowRenderer = new javax.swing.table.DefaultTableCellRenderer() {
-        @Override
-        public java.awt.Component getTableCellRendererComponent(javax.swing.JTable table, Object value,
-                boolean isSelected, boolean hasFocus, int row, int column) {
-            
-            javax.swing.JLabel c = (javax.swing.JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-            
-            // 1. Maintain the "Invisible" background and white text
-            c.setBackground(isSelected ? new java.awt.Color(60, 60, 60) : panelBg);
-            c.setForeground(java.awt.Color.WHITE);
-            c.setHorizontalAlignment(javax.swing.JLabel.CENTER);
-            
-            // 2. The Horizontal Line: MatteBorder(top, left, bottom, right, color)
-            // We only set the 'bottom' to 1 pixel.
-            c.setBorder(javax.swing.BorderFactory.createMatteBorder(0, 0, 1, 0, separatorColor));
-            
-            return c;
-        }
-    };
-
-    // Apply this renderer to every column
-    for (int i = 0; i < tableBookings.getColumnCount(); i++) {
-        tableBookings.getColumnModel().getColumn(i).setCellRenderer(rowRenderer);
-    }
-}
-    
-    private void applyRowStyles() {
-    java.awt.Color panelBg = new java.awt.Color(48, 48, 46); // Your background color
-    java.awt.Color lineGray = new java.awt.Color(80, 80, 80); // The color of the line
-
-    javax.swing.table.DefaultTableCellRenderer rowRenderer = new javax.swing.table.DefaultTableCellRenderer() {
-        @Override
-        public java.awt.Component getTableCellRendererComponent(javax.swing.JTable table, Object value,
-                boolean isSelected, boolean hasFocus, int row, int column) {
-            
-            javax.swing.JLabel c = (javax.swing.JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-            
-            // Background and Text
-            c.setBackground(isSelected ? new java.awt.Color(60, 60, 60) : panelBg);
-            c.setForeground(java.awt.Color.WHITE);
-            c.setHorizontalAlignment(javax.swing.JLabel.CENTER);
-            
-            // THE FIX: Draw only the bottom border line
-            // MatteBorder(top, left, bottom, right, color)
-            c.setBorder(javax.swing.BorderFactory.createMatteBorder(0, 0, 1, 0, lineGray));
-            
-            return c;
-        }
-    };
-
-    // Apply this to every column in your table
-    for (int i = 0; i < tableBookings.getColumnCount(); i++) {
-        tableBookings.getColumnModel().getColumn(i).setCellRenderer(rowRenderer);
-    }
-}
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -562,10 +231,7 @@ tableBookings.getColumnModel().getColumn(4).setCellEditor(new TableButtonEditor(
         btnSettingsButton = new javax.swing.JButton();
         lblLogoutIcon = new javax.swing.JLabel();
         btnLogoutButton = new javax.swing.JButton();
-        pnlMainPanel = new javax.swing.JPanel();
-        lblAllBookings = new javax.swing.JLabel();
-        spForTable = new javax.swing.JScrollPane();
-        tableBookings = new javax.swing.JTable();
+        pnlMainContent = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setBackground(new java.awt.Color(3, 33, 33));
@@ -724,38 +390,10 @@ tableBookings.getColumnModel().getColumn(4).setCellEditor(new TableButtonEditor(
 
         getContentPane().add(pnlSideBar, java.awt.BorderLayout.WEST);
 
-        pnlMainPanel.setBackground(new java.awt.Color(48, 48, 46));
-        pnlMainPanel.setForeground(new java.awt.Color(255, 255, 255));
-        pnlMainPanel.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-
-        lblAllBookings.setFont(new java.awt.Font("Segoe UI", 0, 32)); // NOI18N
-        lblAllBookings.setForeground(new java.awt.Color(255, 255, 255));
-        lblAllBookings.setText("All Bookings");
-        pnlMainPanel.add(lblAllBookings, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 10, -1, -1));
-
-        spForTable.setBorder(null);
-        spForTable.setPreferredSize(new java.awt.Dimension(500, 500));
-
-        tableBookings.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
-        tableBookings.setForeground(new java.awt.Color(48, 48, 46));
-        tableBookings.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null}
-            },
-            new String [] {
-                "Renter", "Owner", "Car", "Dates", "Status"
-            }
-        ));
-        tableBookings.setPreferredSize(new java.awt.Dimension(610, 500));
-        tableBookings.setShowVerticalLines(false);
-        spForTable.setViewportView(tableBookings);
-
-        pnlMainPanel.add(spForTable, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 70, 980, -1));
-
-        getContentPane().add(pnlMainPanel, java.awt.BorderLayout.CENTER);
+        pnlMainContent.setBackground(new java.awt.Color(48, 48, 46));
+        pnlMainContent.setForeground(new java.awt.Color(255, 255, 255));
+        pnlMainContent.setLayout(new java.awt.BorderLayout());
+        getContentPane().add(pnlMainContent, java.awt.BorderLayout.CENTER);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -782,7 +420,7 @@ tableBookings.getColumnModel().getColumn(4).setCellEditor(new TableButtonEditor(
         //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(() -> new AdminBookingPanel().setVisible(true));
+        java.awt.EventQueue.invokeLater(() -> new AdminListingPanel().setVisible(true));
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -794,7 +432,6 @@ tableBookings.getColumnModel().getColumn(4).setCellEditor(new TableButtonEditor(
     private javax.swing.JButton btnSupportButton;
     private javax.swing.JButton btnUsersButton;
     private javax.swing.JLabel lblAdmin;
-    private javax.swing.JLabel lblAllBookings;
     private javax.swing.JLabel lblBookingsIcon;
     private javax.swing.JLabel lblCarRental;
     private javax.swing.JLabel lblListingIcon;
@@ -807,10 +444,8 @@ tableBookings.getColumnModel().getColumn(4).setCellEditor(new TableButtonEditor(
     private javax.swing.JLabel lblSupportIcon;
     private javax.swing.JLabel lblUsersIcon;
     private javax.swing.JPanel pnlHighlight;
-    private javax.swing.JPanel pnlMainPanel;
+    private javax.swing.JPanel pnlMainContent;
     private javax.swing.JPanel pnlSideBar;
     private javax.swing.JPanel pnlTopBar;
-    private javax.swing.JScrollPane spForTable;
-    private javax.swing.JTable tableBookings;
     // End of variables declaration//GEN-END:variables
 }

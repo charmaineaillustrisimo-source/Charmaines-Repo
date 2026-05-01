@@ -49,6 +49,17 @@ public class AdminSettings extends javax.swing.JFrame {
             }
         });
         
+        btnListingButton.addActionListener (e -> {
+        try {
+            AdminListingPanel listing = new AdminListingPanel();
+        listing.setVisible(true);
+        this.dispose();
+            } catch (Exception ex){
+                ex.printStackTrace();
+        }
+    });
+
+        
         btnUsersButton.addActionListener(e -> {
             try {
             ApprovalQueuePanel approval = new ApprovalQueuePanel();

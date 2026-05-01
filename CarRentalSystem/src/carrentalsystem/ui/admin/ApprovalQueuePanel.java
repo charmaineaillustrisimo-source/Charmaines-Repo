@@ -48,6 +48,17 @@ public class ApprovalQueuePanel extends javax.swing.JFrame {
             }
         });
         
+        btnListingButton.addActionListener (e -> {
+        try {
+            AdminListingPanel listing = new AdminListingPanel();
+        listing.setVisible(true);
+        this.dispose();
+            } catch (Exception ex){
+                ex.printStackTrace();
+        }
+    });
+
+        
         btnBookingsButton.addActionListener (e -> {
         try {
             AdminBookingPanel booking = new AdminBookingPanel();
