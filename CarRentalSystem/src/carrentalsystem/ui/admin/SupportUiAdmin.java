@@ -18,6 +18,7 @@ public class SupportUiAdmin extends javax.swing.JPanel {
         initComponents();
         
         java.awt.Color themeColor = new java.awt.Color(48, 48, 46);
+        java.awt.Color thumbColor = new java.awt.Color(100, 100, 100);
     
     // 1. Sync all background colors
     this.setBackground(themeColor); 
@@ -36,6 +37,7 @@ public class SupportUiAdmin extends javax.swing.JPanel {
     // 3. Remove ScrollPane borders completely
     jScrollPane1.setBorder(javax.swing.BorderFactory.createEmptyBorder());
     jScrollPane1.setViewportBorder(null);
+    
 
 // Create a custom renderer for the header
 // Create a custom renderer for the header
@@ -70,6 +72,34 @@ TableContent.getTableHeader().setDefaultRenderer(headerRenderer);
 
 // Set header height to accommodate the larger 24pt font
 TableContent.getTableHeader().setPreferredSize(new java.awt.Dimension(100, 50));
+
+        jScrollPane1.getVerticalScrollBar().setUI(new javax.swing.plaf.basic.BasicScrollBarUI() {
+    @Override
+    protected void configureScrollBarColors() {
+        // This sets the color of the dragging handle
+        this.thumbColor = new java.awt.Color(100, 100, 100);
+        // This sets the background color of the bar to match your panel
+        this.trackColor = new java.awt.Color(48, 48, 46);
+    }
+
+    @Override
+    protected javax.swing.JButton createDecreaseButton(int orientation) {
+        return createZeroButton(); // Removes the top arrow
+    }
+
+    @Override
+    protected javax.swing.JButton createIncreaseButton(int orientation) {
+        return createZeroButton(); // Removes the bottom arrow
+    }
+
+    private javax.swing.JButton createZeroButton() {
+        javax.swing.JButton jbutton = new javax.swing.JButton();
+        jbutton.setPreferredSize(new java.awt.Dimension(0, 0));
+        jbutton.setMinimumSize(new java.awt.Dimension(0, 0));
+        jbutton.setMaximumSize(new java.awt.Dimension(0, 0));
+        return jbutton;
+    }
+});
     }
 
     /**
