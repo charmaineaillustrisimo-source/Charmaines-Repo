@@ -17,28 +17,25 @@ public class SupportUiAdmin extends javax.swing.JPanel {
     public SupportUiAdmin() {
         initComponents();
         
-        // 1. Set the background of the table body
-TableContent.setBackground(new java.awt.Color(48, 48, 46));
-TableContent.setFillsViewportHeight(true); // Ensures the color covers the entire area
+        java.awt.Color themeColor = new java.awt.Color(48, 48, 46);
+    
+    // 1. Sync all background colors
+    this.setBackground(themeColor); 
+    HeaderPanel.setBackground(themeColor); 
+    jScrollPane1.setBackground(themeColor);
+    jScrollPane1.getViewport().setBackground(themeColor);
+    TableContent.setBackground(themeColor);
+    
+    // 2. Table behavior and borders
+    TableContent.setFillsViewportHeight(true); 
+    TableContent.setForeground(java.awt.Color.WHITE);
+    TableContent.setGridColor(new java.awt.Color(60, 60, 60)); 
+    TableContent.setShowGrid(true);
+    TableContent.setBorder(null);
 
-// 2. Set the background of the scroll pane's viewport
-jScrollPane1.getViewport().setBackground(new java.awt.Color(48, 48, 46));
-
-// 3. Ensure text remains readable (White)
-TableContent.setForeground(java.awt.Color.WHITE);
-
-// 4. (Optional) Remove the grid lines or change their color to blend in
-TableContent.setGridColor(new java.awt.Color(60, 60, 60)); 
-TableContent.setShowGrid(true);
-
-// 1. Remove the border from the ScrollPane itself
-jScrollPane1.setBorder(javax.swing.BorderFactory.createEmptyBorder());
-
-// 2. Remove the border from the Viewport (the area holding the table)
-jScrollPane1.setViewportBorder(null);
-
-// 3. Just to be safe, remove any border from the Table
-TableContent.setBorder(null);
+    // 3. Remove ScrollPane borders completely
+    jScrollPane1.setBorder(javax.swing.BorderFactory.createEmptyBorder());
+    jScrollPane1.setViewportBorder(null);
 
 // Create a custom renderer for the header
 // Create a custom renderer for the header
@@ -135,7 +132,7 @@ TableContent.getTableHeader().setPreferredSize(new java.awt.Dimension(100, 50));
 
         add(HeaderPanel, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1000, 100));
 
-        jScrollPane1.setBackground(new java.awt.Color(43, 43, 43));
+        jScrollPane1.setBackground(new java.awt.Color(48, 48, 46));
         jScrollPane1.setForeground(new java.awt.Color(43, 43, 43));
         jScrollPane1.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         jScrollPane1.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
