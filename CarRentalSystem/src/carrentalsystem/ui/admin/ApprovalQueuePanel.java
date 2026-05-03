@@ -33,7 +33,13 @@ public class ApprovalQueuePanel extends javax.swing.JFrame {
      */
     public ApprovalQueuePanel() {
         initComponents();
+        
+        loadUsersFromDatabase();
         styleUserTable();
+        applyRowStyles();
+        
+        tableUsers.repaint();
+    tableUsers.revalidate();
         
         tableUsers.addMouseListener(new java.awt.event.MouseAdapter() {
     @Override
@@ -64,7 +70,7 @@ public class ApprovalQueuePanel extends javax.swing.JFrame {
     }
 });
         
-        centerTableData();
+        //centerTableData();
         loadUsersFromDatabase();
         
         //Button Events
@@ -289,6 +295,9 @@ tableUsers.setFocusable(false);
 // Optional: Ensure the grid and viewport match your dark theme
 tableUsers.setGridColor(new java.awt.Color(60, 60, 60));
 tableUsers.setShowGrid(true);
+
+         tableUsers.revalidate();
+         tableUsers.repaint();
     }
 
     private void styleUserTable() {
@@ -307,7 +316,6 @@ tableUsers.setShowGrid(true);
         spUser.setBorder(null);
         spUser.setViewportBorder(null);
         
-        addRowSeparators();
         applyRowStyles();
         
         tableUsers.setBackground(panelColor);
@@ -319,6 +327,17 @@ tableUsers.setShowGrid(true);
         
         spUser.setCorner(javax.swing.JScrollPane.UPPER_RIGHT_CORNER, new javax.swing.JPanel() {{
         setBackground(panelColor);
+        
+        tableUsers.setModel(new DefaultTableModel(
+    new Object [][] { },
+    new String [] { "User", "Email", "Plan", "Listings", "Actions" }
+) {
+    @Override
+    public boolean isCellEditable(int row, int column) {
+        // This prevents the "white box" from appearing when you click
+        return false; 
+    }
+});
     }});
 
     // 4. Apply the invisible scrollbar UI
@@ -337,94 +356,53 @@ tableUsers.setShowGrid(true);
     // Check that this is exactly column 2
 tableUsers.getColumnModel().getColumn(2).setCellRenderer(new BadgeRenderer());
 tableUsers.getColumnModel().getColumn(4).setCellEditor(new TableButtonEditor(new JTextField()));
+
+//applyActionColumnRenderer();
+
+// 1. Define your standard table background color (Matches User/Email cells)
+java.awt.Color transparentBg = new java.awt.Color(48, 48, 46);
+
+// Define the colors
+java.awt.Color tableBg = new java.awt.Color(48, 48, 46);
+java.awt.Color clickEffectColor = new java.awt.Color(80, 80, 80); // Slightly lighter for the click
+
+tableUsers.getColumnModel().getColumn(4).setCellRenderer(new javax.swing.table.DefaultTableCellRenderer() {
+    @Override
+    public java.awt.Component getTableCellRendererComponent(javax.swing.JTable table, Object value,
+            boolean isSelected, boolean hasFocus, int row, int column) {
+        
+        javax.swing.JLabel label = new javax.swing.JLabel("View");
+        label.setOpaque(true);
+        label.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        label.setForeground(java.awt.Color.WHITE);
+        label.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 13));
+
+        // 1. MAKE IT SMALLER: The EmptyBorder adds "invisible padding" around the text
+        // (top, left, bottom, right) -> Adjust 10 and 30 to make it smaller/larger
+        label.setBorder(javax.swing.BorderFactory.createCompoundBorder(
+            javax.swing.BorderFactory.createEmptyBorder(10, 30, 10, 30), 
+            javax.swing.BorderFactory.createLineBorder(new java.awt.Color(100, 100, 100), 1)
+        ));
+
+        // 2. THE CLICK EFFECT: 
+        // hasFocus is true the moment the user clicks the cell
+        if (hasFocus) {
+            label.setBackground(clickEffectColor);
+        } else if (isSelected) {
+            label.setBackground(new java.awt.Color(65, 65, 63)); // Slightly different for selected row
+        } else {
+            label.setBackground(tableBg); // Transparent/Match Table
+        }
+
+        return label;
+    }
+});
     }
     
     private void applyBadgeStyle() {
     // Assuming "Plan" is the 3rd column (index 2)
     tableUsers.getColumnModel().getColumn(2).setCellRenderer(new BadgeRenderer());
 }
-    
-    private void centerTableText() {
-    java.awt.Color bg = new java.awt.Color(48, 48, 46);
-    java.awt.Color line = new java.awt.Color(80, 80, 80);
-
-    javax.swing.table.DefaultTableCellRenderer customRenderer = new javax.swing.table.DefaultTableCellRenderer() {
-        @Override
-        public java.awt.Component getTableCellRendererComponent(javax.swing.JTable table, Object value,
-                boolean isSelected, boolean hasFocus, int row, int column) {
-            
-            // Get the default component (usually a JLabel)
-            javax.swing.JLabel c = (javax.swing.JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-            
-            // 1. Set Background to match jPanel1
-            c.setBackground(isSelected ? table.getSelectionBackground() : bg);
-            
-            // 2. Set Text Color to White
-            c.setForeground(java.awt.Color.WHITE);
-            
-            // 3. Set Alignment (LEFT looks best for 'User' and 'Email')
-            c.setHorizontalAlignment(javax.swing.JLabel.LEFT);
-            
-            // 4. Add the thin bottom line separator from your reference image
-            c.setBorder(javax.swing.BorderFactory.createCompoundBorder(
-                javax.swing.BorderFactory.createMatteBorder(0, 0, 1, 0, line), // Bottom line
-                javax.swing.BorderFactory.createEmptyBorder(0, 15, 0, 0)       // Left padding
-            ));
-
-            return c;
-        }
-    };
-
-    // Apply this to every column in your table
-    for (int i = 0; i < tableUsers.getColumnCount(); i++) {
-        tableUsers.getColumnModel().getColumn(i).setCellRenderer(customRenderer);
-    }
-}
-    
-    private void styleCells() {
-    java.awt.Color panelColor = new java.awt.Color(48, 48, 46);
-    java.awt.Color separatorColor = new java.awt.Color(80, 80, 80); // The gray line color
-
-    javax.swing.table.DefaultTableCellRenderer renderer = new javax.swing.table.DefaultTableCellRenderer() {
-        @Override
-        public java.awt.Component getTableCellRendererComponent(javax.swing.JTable table, Object value,
-                boolean isSelected, boolean hasFocus, int row, int column) {
-            
-            javax.swing.JLabel c = (javax.swing.JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-            
-            // Set background and text
-            c.setBackground(isSelected ? new java.awt.Color(60, 60, 60) : panelColor);
-            c.setForeground(java.awt.Color.WHITE);
-            c.setFont(new java.awt.Font("Segoe UI", java.awt.Font.PLAIN, 16));
-            
-            // Create the thin bottom line (separator)
-            c.setBorder(javax.swing.BorderFactory.createMatteBorder(0, 0, 1, 0, separatorColor));
-            
-            // Adjust padding so text isn't touching the line
-            c.setBorder(javax.swing.BorderFactory.createCompoundBorder(
-                c.getBorder(), 
-                javax.swing.BorderFactory.createEmptyBorder(0, 15, 0, 0)
-            ));
-
-            return c;
-        }
-    };
-
-    // Apply to all columns
-    for (int i = 0; i < tableUsers.getColumnCount(); i++) {
-        tableUsers.getColumnModel().getColumn(i).setCellRenderer(renderer);
-    }
-}
-
-    private void centerTableData() {
-        javax.swing.table.DefaultTableCellRenderer centerRenderer = new javax.swing.table.DefaultTableCellRenderer();
-        centerRenderer.setHorizontalAlignment(javax.swing.JLabel.CENTER);
-
-        // Loop through every column and apply the center alignment
-        for (int i = 0; i < tableUsers.getColumnCount(); i++) {
-            tableUsers.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
-        }
-    }
     
     private void applyInvisibleHeaderStyle() {
     java.awt.Color panelBg = new java.awt.Color(48, 48, 46);
@@ -491,72 +469,65 @@ tableUsers.getColumnModel().getColumn(4).setCellEditor(new TableButtonEditor(new
     });
 }
     
-    private void addRowSeparators() {
-    java.awt.Color panelBg = new java.awt.Color(48, 48, 46); // Your background color
-    java.awt.Color separatorColor = new java.awt.Color(80, 80, 80); // Subtle gray for the line
+    /*private void applyActionColumnRenderer() {
+    tableUsers.getColumnModel().getColumn(4).setCellRenderer(new javax.swing.table.DefaultTableCellRenderer() {
+        @Override
+        public java.awt.Component getTableCellRendererComponent(javax.swing.JTable table, Object value,
+                boolean isSelected, boolean hasFocus, int row, int column) {
+            
+            javax.swing.JButton button = new javax.swing.JButton("View");
+            
+            // Style it to match your theme
+            button.setBackground(new java.awt.Color(60, 60, 60));
+            button.setForeground(java.awt.Color.WHITE);
+            button.setFocusPainted(false);
+            button.setBorderPainted(false);
+            button.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 14));
 
-    javax.swing.table.DefaultTableCellRenderer rowRenderer = new javax.swing.table.DefaultTableCellRenderer() {
+            // If the row is selected, make the button slightly lighter
+            if (isSelected) {
+                button.setBackground(new java.awt.Color(80, 80, 80));
+            }
+
+            return button;
+        }
+    });
+}*/
+    
+private void applyRowStyles() {
+    // Define your colors clearly
+    java.awt.Color panelBg = new java.awt.Color(48, 48, 46);
+    java.awt.Color separatorColor = new java.awt.Color(80, 80, 80);
+
+    javax.swing.table.DefaultTableCellRenderer permanentRenderer = new javax.swing.table.DefaultTableCellRenderer() {
         @Override
         public java.awt.Component getTableCellRendererComponent(javax.swing.JTable table, Object value,
                 boolean isSelected, boolean hasFocus, int row, int column) {
             
             javax.swing.JLabel c = (javax.swing.JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
             
-            // 1. Maintain the "Invisible" background and white text
-            c.setBackground(isSelected ? new java.awt.Color(60, 60, 60) : panelBg);
-            c.setForeground(java.awt.Color.WHITE);
+            // THE FIX: This must be OUTSIDE of any 'if' statements
+            // This ensures the text is white the moment the program starts.
+            c.setForeground(java.awt.Color.WHITE); 
+            c.setBackground(isSelected ? new java.awt.Color(70, 70, 70) : panelBg);
             c.setHorizontalAlignment(javax.swing.JLabel.CENTER);
             
-            // 2. The Horizontal Line: MatteBorder(top, left, bottom, right, color)
-            // We only set the 'bottom' to 1 pixel.
+            // Add the bottom border line
             c.setBorder(javax.swing.BorderFactory.createMatteBorder(0, 0, 1, 0, separatorColor));
             
             return c;
         }
     };
 
-    // Apply this renderer to every column
+    // Apply this to every column
     for (int i = 0; i < tableUsers.getColumnCount(); i++) {
-        tableUsers.getColumnModel().getColumn(i).setCellRenderer(rowRenderer);
-    }
-}
-    
-    private void applyRowStyles() {
-    java.awt.Color panelBg = new java.awt.Color(48, 48, 46); // Your background color
-    java.awt.Color lineGray = new java.awt.Color(80, 80, 80); // The color of the line
-    java.awt.Color selectionColor = new java.awt.Color(70, 70, 70);
-
-    javax.swing.table.DefaultTableCellRenderer rowRenderer = new javax.swing.table.DefaultTableCellRenderer() {
-        @Override
-        public java.awt.Component getTableCellRendererComponent(javax.swing.JTable table, Object value,
-                boolean isSelected, boolean hasFocus, int row, int column) {
-            
-            javax.swing.JLabel c = (javax.swing.JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-            
-            if (isSelected) {
-                c.setBackground(selectionColor);
-                c.setForeground(java.awt.Color.WHITE); // Ensure text is white when selected
-            } else {
-                c.setBackground(panelBg);
-                c.setForeground(java.awt.Color.WHITE);
-            }
-
-            c.setHorizontalAlignment(javax.swing.JLabel.CENTER);
-            
-            // Draw the bottom border line for that "list" look
-            c.setBorder(javax.swing.BorderFactory.createMatteBorder(0, 0, 1, 0, lineGray));
-            
-            return c;
-        }
-    };
-
-    // Apply this to every column in your table
-    for (int i = 0; i < tableUsers.getColumnCount(); i++) {
-        if (i != 2 && i != 4) { 
-            tableUsers.getColumnModel().getColumn(i).setCellRenderer(rowRenderer);
+        // We skip column 2 and 4 because you use a BadgeRenderer and ButtonEditor there
+        if (i != 2 && i != 4) {
+            tableUsers.getColumnModel().getColumn(i).setCellRenderer(permanentRenderer);
         }
     }
 }
+
 
     /**
      * This method is called from within the constructor to initialize the form.
