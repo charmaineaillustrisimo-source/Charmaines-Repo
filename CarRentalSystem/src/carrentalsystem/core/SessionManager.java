@@ -80,6 +80,10 @@ try (PreparedStatement ps
     public static User getCurrentUser() {
         return currentUser;
     }
+    
+    public static void setCurrentUser(User user) {
+        currentUser = user;
+    }
 
     public static int getSessionId() {
         return currentSessionId;

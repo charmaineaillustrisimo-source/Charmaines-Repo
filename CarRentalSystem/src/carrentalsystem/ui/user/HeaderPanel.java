@@ -46,6 +46,11 @@ public class HeaderPanel extends javax.swing.JPanel {
     
     public void setProfileAction(Runnable action) {
         this.profileAction = action;
+        btnProfile.addActionListener(e -> {
+            if (profileAction != null) {
+                profileAction.run();
+            }
+        });
     }
     public void updateProfileIcon(String imagePath) {
         int size = 40; // Match the button's visual size

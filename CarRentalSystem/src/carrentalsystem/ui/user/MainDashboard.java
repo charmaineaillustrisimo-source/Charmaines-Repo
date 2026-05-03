@@ -108,7 +108,8 @@ public class MainDashboard extends javax.swing.JFrame {
         headerPanel.setProfileAction(() -> {
             profilePanel1.loadUserData(); // Call the backend loader (Step 2)
             CardLayout cl = (CardLayout) pnlMainContent.getLayout();
-            cl.show(pnlMainContent, "profileCard"); //[cite: 27]
+            cl.show(pnlMainContent, "profileCard"); 
+            if (sideMenu != null) sideMenu.setVisible(false);
         });
 
         // Set Window properties
@@ -281,11 +282,22 @@ public class MainDashboard extends javax.swing.JFrame {
     public void addCarToFeed(carrentalsystem.models.Car car) {
         // Get current user
         carrentalsystem.models.User currentOwner = carrentalsystem.core.SessionManager.getInstance().getCurrentUser();
+        carrentalsystem.services.UserService userSvc = new carrentalsystem.services.UserService();
 
         // Create the card
         CarCardPanel card = new CarCardPanel();
         card.setCarData(car, null);
-
+        carrentalsystem.models.User owner = null;
+        
+        try {
+            // This pulls the owner's city and province from the database[cite: 39]
+            owner = userSvc.getUserById(car.getOwnerId());
+        } catch (Exception ignored) {
+            // If owner fetch fails, location will simply show as "Unknown" or be blank[cite: 39]
+        }
+        
+        card.setCarData(car, owner);
+        
         // Events
         card.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
