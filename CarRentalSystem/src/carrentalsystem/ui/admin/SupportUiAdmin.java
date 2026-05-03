@@ -100,6 +100,17 @@ TableContent.getTableHeader().setPreferredSize(new java.awt.Dimension(100, 50));
         return jbutton;
     }
 });
+        
+        // 1. Fix the top-right corner above the scrollbar
+jScrollPane1.setCorner(javax.swing.JScrollPane.UPPER_RIGHT_CORNER, new javax.swing.JPanel() {
+    {
+        setBackground(new java.awt.Color(48, 48, 46));
+    }
+});
+
+// 2. Ensure the scrollbar itself is opaque so it shows your track color
+jScrollPane1.getVerticalScrollBar().setOpaque(true);
+jScrollPane1.getVerticalScrollBar().setBackground(new java.awt.Color(48, 48, 46));
     }
 
     /**

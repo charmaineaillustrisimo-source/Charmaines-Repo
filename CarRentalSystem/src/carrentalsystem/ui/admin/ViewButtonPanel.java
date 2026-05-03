@@ -33,6 +33,19 @@ public class ViewButtonPanel extends javax.swing.JFrame {
     public ViewButtonPanel() {
         initComponents();
         this.setExtendedState(javax.swing.JFrame.MAXIMIZED_BOTH);
+        
+        //Buttons
+        btnExitButton.addActionListener (e -> {
+        try {
+            ApprovalQueuePanel approval = new ApprovalQueuePanel();
+        approval.setVisible(true);
+        this.dispose();
+            } catch (Exception ex){
+                ex.printStackTrace();
+        }
+    });
+        
+        //Buttons for side bar
 
         //Position Top Bar Icons
         TopBarPanel.add(lblProfileIcon, new org.netbeans.lib.awtextra.AbsoluteConstraints(1210, 20, 50, 50));
@@ -60,6 +73,78 @@ public class ViewButtonPanel extends javax.swing.JFrame {
         //Top Bar Panel Icon
         setIcon(lblProfileIcon, "/carrentalsystem/ui/admin/PIC/Profile.png", 50, 50);
         setIcon(lblNotifyIcon, "/carrentalsystem/ui/admin/PIC/bell.png", 50, 50);
+        
+        // 1. Set the colors to match your theme
+java.awt.Color darkGray = new java.awt.Color(100, 100, 100); // Adjust to match Save Changes exactly
+java.awt.Color whiteText = java.awt.Color.WHITE;
+
+        // 2. Remove default styling
+        btnExitButton.setBackground(darkGray);btnExitButton.setForeground(whiteText);
+        btnExitButton.setFocusPainted(false); // Removes the inner dotted line when clicked
+        btnExitButton.setBorderPainted(false); // Removes the default 3D border
+        btnExitButton.setContentAreaFilled(false); // Allows us to use custom painting for background
+        btnExitButton.setOpaque(true);
+
+        // 3. Set the font (Optional, to match button style)
+        btnExitButton.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 14));
+
+        // 4. Match the "Save Changes" rounded look (Override paintComponent)
+        // If you want it exactly like the other button, you can use this trick:
+        btnExitButton.setUI(new javax.swing.plaf.basic.BasicButtonUI() {
+    @Override
+    public void update(java.awt.Graphics g, javax.swing.JComponent c) {
+        java.awt.Graphics2D g2 = (java.awt.Graphics2D) g.create();
+        g2.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING, java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
+        
+        // Draw the background
+        g2.setColor(c.getBackground());
+        g2.fillRoundRect(0, 0, c.getWidth(), c.getHeight(), 10, 10); // 10 is the arc size
+        
+        super.paint(g2, c);
+        g2.dispose();
+    }
+});
+        
+        // 1. Define your button colors
+java.awt.Color normalColor = new java.awt.Color(100, 100, 100); // Matches "Save Changes"
+java.awt.Color hoverColor = new java.awt.Color(130, 130, 130);  // Lighter for hover
+java.awt.Color pressColor = new java.awt.Color(80, 80, 80);    // Darker for click
+//java.awt.Color whiteText = java.awt.Color.WHITE;
+
+// 2. Apply initial styling
+btnExitButton.setBackground(normalColor);
+btnExitButton.setForeground(whiteText);
+btnExitButton.setFocusPainted(false);
+btnExitButton.setBorderPainted(false);
+btnExitButton.setOpaque(true);
+
+// 3. Add the clickable effects
+btnExitButton.addMouseListener(new java.awt.event.MouseAdapter() {
+    @Override
+    public void mouseEntered(java.awt.event.MouseEvent evt) {
+        btnExitButton.setBackground(hoverColor); // Glow effect when hovering
+    }
+
+    @Override
+    public void mouseExited(java.awt.event.MouseEvent evt) {
+        btnExitButton.setBackground(normalColor); // Return to original color
+    }
+
+    @Override
+    public void mousePressed(java.awt.event.MouseEvent evt) {
+        btnExitButton.setBackground(pressColor);  // "Sink" effect when clicked
+    }
+
+    @Override
+    public void mouseReleased(java.awt.event.MouseEvent evt) {
+        // Return to hover color if mouse is still over the button
+        if (btnExitButton.getVisibleRect().contains(evt.getPoint())) {
+            btnExitButton.setBackground(hoverColor);
+        } else {
+            btnExitButton.setBackground(normalColor);
+        }
+    }
+});
     }
 
     private void setIcon(javax.swing.JLabel label, String path, int width, int height) {
@@ -257,6 +342,7 @@ public class ViewButtonPanel extends javax.swing.JFrame {
         jSeparator2 = new javax.swing.JSeparator();
         spPreviousBookings = new javax.swing.JScrollPane();
         tblPreviousBookings = new javax.swing.JTable();
+        btnExitButton = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setBackground(new java.awt.Color(3, 33, 33));
@@ -478,7 +564,7 @@ public class ViewButtonPanel extends javax.swing.JFrame {
         btnButtonSaveChanges.setContentAreaFilled(false);
         btnButtonSaveChanges.setFocusPainted(false);
         btnButtonSaveChanges.setPreferredSize(new java.awt.Dimension(200, 43));
-        pnlMain.add(btnButtonSaveChanges, new org.netbeans.lib.awtextra.AbsoluteConstraints(790, 30, -1, -1));
+        pnlMain.add(btnButtonSaveChanges, new org.netbeans.lib.awtextra.AbsoluteConstraints(790, 60, -1, -1));
 
         pnlActiveListingHeader.setBackground(new java.awt.Color(48, 48, 46));
         pnlActiveListingHeader.setOpaque(false);
@@ -695,6 +781,12 @@ public class ViewButtonPanel extends javax.swing.JFrame {
 
         pnlMain.add(spPreviousBookings, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 470, 960, 300));
 
+        btnExitButton.setFont(new java.awt.Font("Segoe UI", 0, 20)); // NOI18N
+        btnExitButton.setForeground(new java.awt.Color(255, 0, 0));
+        btnExitButton.setText("X");
+        btnExitButton.setPreferredSize(new java.awt.Dimension(50, 43));
+        pnlMain.add(btnExitButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(940, 10, -1, -1));
+
         getContentPane().add(pnlMain, java.awt.BorderLayout.CENTER);
 
         pack();
@@ -729,6 +821,7 @@ public class ViewButtonPanel extends javax.swing.JFrame {
     private javax.swing.JPanel TopBarPanel;
     private javax.swing.JButton btnBookingsButton;
     private javax.swing.JButton btnButtonSaveChanges;
+    private javax.swing.JButton btnExitButton;
     private javax.swing.JButton btnListingButton;
     private javax.swing.JButton btnLogoutButton;
     private javax.swing.JButton btnOverviewButton;

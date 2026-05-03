@@ -80,10 +80,10 @@ public class AdminSettings extends javax.swing.JFrame {
         }
     });
     
-    btnSettingsButton.addActionListener (e -> {
+        btnSupportButton.addActionListener (e -> {
         try {
-            AdminSettings settings = new AdminSettings();
-        settings.setVisible(true);
+            AdminSupportPanel support = new AdminSupportPanel();
+        support.setVisible(true);
         this.dispose();
             } catch (Exception ex){
                 ex.printStackTrace();

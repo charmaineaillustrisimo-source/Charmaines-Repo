@@ -61,6 +61,16 @@ private java.util.List<carrentalsystem.models.Car> userCarList = new java.util.A
         }
     });
     
+    btnSupportButton.addActionListener (e -> {
+        try {
+            AdminSupportPanel support = new AdminSupportPanel();
+        support.setVisible(true);
+        this.dispose();
+            } catch (Exception ex){
+                ex.printStackTrace();
+        }
+    });
+    
     btnSettingsButton.addActionListener (e -> {
         try {
             AdminSettings settings = new AdminSettings();

@@ -67,6 +67,26 @@ public class AdminListingPanel extends javax.swing.JFrame {
             }
         });
     
+    btnBookingsButton.addActionListener (e -> {
+        try {
+            AdminBookingPanel booking = new AdminBookingPanel();
+        booking.setVisible(true);
+        this.dispose();
+            } catch (Exception ex){
+                ex.printStackTrace();
+        }
+    });
+    
+      btnSupportButton.addActionListener (e -> {
+        try {
+            AdminSupportPanel support = new AdminSupportPanel();
+        support.setVisible(true);
+        this.dispose();
+            } catch (Exception ex){
+                ex.printStackTrace();
+        }
+    });
+    
     btnSettingsButton.addActionListener (e -> {
         try {
             AdminSettings settings = new AdminSettings();

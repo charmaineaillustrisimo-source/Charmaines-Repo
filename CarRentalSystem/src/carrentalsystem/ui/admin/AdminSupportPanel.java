@@ -62,6 +62,16 @@ public class AdminSupportPanel extends javax.swing.JFrame {
                 ex.printStackTrace();
         }
     });
+        
+        btnUsersButton.addActionListener(e -> {
+            try {
+            ApprovalQueuePanel approval = new ApprovalQueuePanel();
+        approval.setVisible(true);
+        this.dispose();
+            } catch (Exception ex){
+                ex.printStackTrace();
+            }
+        });
 
         
         btnBookingsButton.addActionListener (e -> {

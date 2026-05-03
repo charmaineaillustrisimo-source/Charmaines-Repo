@@ -34,6 +34,36 @@ public class ApprovalQueuePanel extends javax.swing.JFrame {
     public ApprovalQueuePanel() {
         initComponents();
         styleUserTable();
+        
+        tableUsers.addMouseListener(new java.awt.event.MouseAdapter() {
+    @Override
+    public void mouseClicked(java.awt.event.MouseEvent e) {
+        // 1. Find which row and column was clicked
+        int row = tableUsers.rowAtPoint(e.getPoint());
+        int col = tableUsers.columnAtPoint(e.getPoint());
+
+        // 2. Check if the "View" column was clicked (Index 4)
+        if (col == 4 && row != -1) {
+            try {
+                // 3. Get the User's name or email from the selected row to pass to the next form
+                String selectedUserName = tableUsers.getValueAt(row, 0).toString();
+                String selectedUserEmail = tableUsers.getValueAt(row, 1).toString();
+
+                // 4. Create the new JForm (Replace 'UserDetailsFrame' with your actual class name)
+                // If your class doesn't take parameters yet, just use: new UserDetailsFrame()
+                ViewButtonPanel viewButton = new ViewButtonPanel();
+                
+                // 5. Show the new form and close this one
+                viewButton.setVisible(true);
+                dispose(); 
+                
+            } catch (Exception ex) {
+                System.err.println("Error opening User Details: " + ex.getMessage());
+            }
+        }
+    }
+});
+        
         centerTableData();
         loadUsersFromDatabase();
         
@@ -63,6 +93,16 @@ public class ApprovalQueuePanel extends javax.swing.JFrame {
         try {
             AdminBookingPanel booking = new AdminBookingPanel();
         booking.setVisible(true);
+        this.dispose();
+            } catch (Exception ex){
+                ex.printStackTrace();
+        }
+    });
+        
+        btnSupportButton.addActionListener (e -> {
+        try {
+            AdminSupportPanel support = new AdminSupportPanel();
+        support.setVisible(true);
         this.dispose();
             } catch (Exception ex){
                 ex.printStackTrace();
@@ -234,6 +274,21 @@ public class ApprovalQueuePanel extends javax.swing.JFrame {
         } catch (SQLException e) {
             javax.swing.JOptionPane.showMessageDialog(this, "Database Error: " + e.getMessage());
         }
+        
+        model.addRow(new Object[]{"John Doe", "john@example.com", "Premium", "3 active", "View"});
+    model.addRow(new Object[]{"Jane Smith", "jane@example.com", "Basic", "1 active", "View"});
+    model.addRow(new Object[]{"Admin Test", "admin@carrent.com", "Gold", "10 active", "View"});
+    
+    // Set the color of the highlight when a row is selected
+tableUsers.setSelectionBackground(new java.awt.Color(70, 70, 70)); 
+
+// Set the color of the text when a row is selected (e.g., White)
+tableUsers.setSelectionForeground(java.awt.Color.WHITE);
+tableUsers.setFocusable(false);
+
+// Optional: Ensure the grid and viewport match your dark theme
+tableUsers.setGridColor(new java.awt.Color(60, 60, 60));
+tableUsers.setShowGrid(true);
     }
 
     private void styleUserTable() {
@@ -469,6 +524,7 @@ tableUsers.getColumnModel().getColumn(4).setCellEditor(new TableButtonEditor(new
     private void applyRowStyles() {
     java.awt.Color panelBg = new java.awt.Color(48, 48, 46); // Your background color
     java.awt.Color lineGray = new java.awt.Color(80, 80, 80); // The color of the line
+    java.awt.Color selectionColor = new java.awt.Color(70, 70, 70);
 
     javax.swing.table.DefaultTableCellRenderer rowRenderer = new javax.swing.table.DefaultTableCellRenderer() {
         @Override
@@ -477,13 +533,17 @@ tableUsers.getColumnModel().getColumn(4).setCellEditor(new TableButtonEditor(new
             
             javax.swing.JLabel c = (javax.swing.JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
             
-            // Background and Text
-            c.setBackground(isSelected ? new java.awt.Color(60, 60, 60) : panelBg);
-            c.setForeground(java.awt.Color.WHITE);
+            if (isSelected) {
+                c.setBackground(selectionColor);
+                c.setForeground(java.awt.Color.WHITE); // Ensure text is white when selected
+            } else {
+                c.setBackground(panelBg);
+                c.setForeground(java.awt.Color.WHITE);
+            }
+
             c.setHorizontalAlignment(javax.swing.JLabel.CENTER);
             
-            // THE FIX: Draw only the bottom border line
-            // MatteBorder(top, left, bottom, right, color)
+            // Draw the bottom border line for that "list" look
             c.setBorder(javax.swing.BorderFactory.createMatteBorder(0, 0, 1, 0, lineGray));
             
             return c;
@@ -492,7 +552,9 @@ tableUsers.getColumnModel().getColumn(4).setCellEditor(new TableButtonEditor(new
 
     // Apply this to every column in your table
     for (int i = 0; i < tableUsers.getColumnCount(); i++) {
-        tableUsers.getColumnModel().getColumn(i).setCellRenderer(rowRenderer);
+        if (i != 2 && i != 4) { 
+            tableUsers.getColumnModel().getColumn(i).setCellRenderer(rowRenderer);
+        }
     }
 }
 
