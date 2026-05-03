@@ -35,6 +35,32 @@ public class AdminService implements IAdminService{
             ps.setInt(1, carId);
             ps.executeUpdate();
         }
+        
+        try {
+            // Fetch details needed for the notification[cite: 15]
+            String fetchSql = "SELECT owner_id, brand, model FROM cars WHERE car_id = ?";
+            try (PreparedStatement fps = DBConnection.getConnection().prepareStatement(fetchSql)) {
+                fps.setInt(1, carId);
+                ResultSet rs = fps.executeQuery();
+                if (rs.next()) {
+                    int ownerId = rs.getInt("owner_id");
+                    String carName = rs.getString("brand") + " " + rs.getString("model");
+
+                    // Insert the 'LISTING' type notification
+                    String notifSql = "INSERT INTO notifications (user_id, title, message, type, reference_id, is_read) "
+                            + "VALUES (?, 'Listing Approved', ?, 'LISTING', ?, 0)";
+                    try (PreparedStatement nps = DBConnection.getConnection().prepareStatement(notifSql)) {
+                        nps.setInt(1, ownerId);
+                        nps.setString(2, "Your listing '" + carName + "' has been approved and is now live!");
+                        nps.setInt(3, carId);
+                        nps.executeUpdate();
+                    }
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Notification failed: " + e.getMessage());
+        }
+        
     }
 
     @Override
@@ -44,6 +70,29 @@ public class AdminService implements IAdminService{
             ps.setInt(1, carId);
             ps.setString(2, reason);
             ps.executeUpdate();
+        }
+        
+        try {
+            String fetchSql = "SELECT owner_id, brand, model FROM cars WHERE car_id = ?";
+            try (PreparedStatement fps = DBConnection.getConnection().prepareStatement(fetchSql)) {
+                fps.setInt(1, carId);
+                ResultSet rs = fps.executeQuery();
+                if (rs.next()) {
+                    int ownerId = rs.getInt("owner_id");
+                    String carName = rs.getString("brand") + " " + rs.getString("model");
+
+                    String notifSql = "INSERT INTO notifications (user_id, title, message, type, reference_id, is_read) "
+                            + "VALUES (?, 'Listing Rejected', ?, 'LISTING', ?, 0)";
+                    try (PreparedStatement nps = DBConnection.getConnection().prepareStatement(notifSql)) {
+                        nps.setInt(1, ownerId);
+                        nps.setString(2, "Your listing '" + carName + "' was rejected. Reason: " + reason);
+                        nps.setInt(3, carId);
+                        nps.executeUpdate();
+                    }
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Notification failed: " + e.getMessage());
         }
     }
 
@@ -136,18 +185,15 @@ public class AdminService implements IAdminService{
         Car c = new Car();
         c.setCarId(rs.getInt("car_id"));
         c.setOwnerId(rs.getInt("owner_id"));
-        c.setModel(rs.getString("model"));
         c.setBrand(rs.getString("brand"));
-        c.setYear(rs.getInt("year"));
-        c.setPlateNumber(rs.getString("plate_number"));
-        c.setColor(rs.getString("color"));
+        c.setModel(rs.getString("model"));
+        c.setType(rs.getString("type"));
         c.setSeats(rs.getInt("seats"));
         c.setFuelType(rs.getString("fuel_type"));
+        c.setTransmission(rs.getString("transmission"));
+        c.setCondition(rs.getString("car_condition")); // Matches the renamed DB column
         c.setDescription(rs.getString("description"));
         c.setBasePrice(rs.getDouble("base_price"));
-        c.setMileageLimit(rs.getInt("mileage_limit"));
-        c.setFuelPolicy(rs.getString("fuel_policy"));
-        c.setHouseRules(rs.getString("house_rules"));
         c.setImagePath(rs.getString("image_path"));
         c.setViewsCount(rs.getInt("views_count"));
         c.setPriority(rs.getBoolean("is_priority"));

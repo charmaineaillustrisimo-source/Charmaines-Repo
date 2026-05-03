@@ -238,65 +238,77 @@ public class LoginFrame extends javax.swing.JFrame {
     private void btnLoginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLoginActionPerformed
         // TODO add your handling code here:
  
-        String email = txtUsername.getText().trim();  // your field is txtUsername
-        String password = new String(txtPassword.getPassword());
+        String username = txtUsername.getText().trim();
+        String password = new String(txtPassword.getPassword()).trim();
 
-        // Basic empty check
-        if (email.isEmpty() || password.isEmpty()) {
-            JOptionPane.showMessageDialog(this,
-                    "Please fill in all fields.",
-                    "Missing Fields",
-                    JOptionPane.WARNING_MESSAGE);
+        // ── 1. Empty field guard ──────────────────────────────────
+        if (username.isEmpty() || password.isEmpty()) {
+            javax.swing.JOptionPane.showMessageDialog(this,
+                    "Please enter your username and password.",
+                    "Login Error", javax.swing.JOptionPane.WARNING_MESSAGE);
             return;
         }
 
+        // ── 2. Call AuthService ───────────────────────────────────
         try {
-            carrentalsystem.models.User user = authService.login(email, password);
+            
+            if (!authService.usernameExists(username)) {
+                int choice = javax.swing.JOptionPane.showConfirmDialog(
+                        this,
+                        "No account found. Want to Signup a account?",
+                        "Account Not Found", 
+                javax.swing.JOptionPane.YES_NO_OPTION
+            );
+
+            if (choice == javax.swing.JOptionPane.YES_OPTION) {
+                
+                // Direct to SignupFrame (Ensure SignupFrame class is in your project)
+                new carrentalsystem.auth.SignupFrame().setVisible(true);
+                this.dispose(); // Close current login window
+            }
+            return;
+        }
+            
+            
+            carrentalsystem.interfaces.IAuthService authService
+                    = new carrentalsystem.services.AuthService();
+
+            carrentalsystem.models.User user = authService.login(username, password);
 
             if (user == null) {
-                failedAttempts++;
-                if (failedAttempts >= 5) {
-                    authService.banUser(email);
-                    JOptionPane.showMessageDialog(this,
-                            "Too many failed attempts. Account locked.",
-                            "Account Locked",
-                            JOptionPane.ERROR_MESSAGE);
-                    System.exit(0);
-                    return;
-                }
-                JOptionPane.showMessageDialog(this,
-                        "Wrong email or password. Attempt "
-                        + failedAttempts + " of 5.",
-                        "Login Failed",
-                        JOptionPane.ERROR_MESSAGE);
+                javax.swing.JOptionPane.showMessageDialog(this,
+                        "Incorrect email or password.",
+                        "Login Failed", javax.swing.JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
-            // Login successful — start session
-            carrentalsystem.core.SessionManager.startSession(user);
-            System.out.println("[LOGIN] Welcome " + user.getFullName()
-                    + " | Role: " + user.getRole());
-
-            // Route based on role
-            if ("ADMIN".equals(user.getRole())) {
-                JOptionPane.showMessageDialog(this,
-                        "Admin dashboard coming soon!\n"
-                        + "Logged in as: " + user.getFullName());
-                // TODO: new AdminDashboard().setVisible(true);
-            } else {
-                JOptionPane.showMessageDialog(this,
-                        "Main dashboard coming soon!\n"
-                        + "Logged in as: " + user.getFullName());
-                // TODO: new MainDashboard().setVisible(true);
+            // ── 3. Check if account is banned ────────────────────
+            if ("BANNED".equals(user.getStatus())) {
+                javax.swing.JOptionPane.showMessageDialog(this,
+                        "Your account has been suspended. Contact support.",
+                        "Access Denied", javax.swing.JOptionPane.ERROR_MESSAGE);
+                return;
             }
+
+            // ── 4. Start session + IdleTracker ───────────────────
+            carrentalsystem.core.SessionManager.getInstance().startSession(user);
+            new carrentalsystem.utils.IdleTracker().start();
+
+            // ── 5. Route by role ──────────────────────────────────
+            if ("ADMIN".equals(user.getRole())) {
+                new carrentalsystem.ui.admin.AdminDashboard().setVisible(true);
+            } else {
+                new carrentalsystem.ui.user.MainDashboard().setVisible(true);
+            }
+
             this.dispose();
 
         } catch (java.sql.SQLException e) {
-            JOptionPane.showMessageDialog(this,
+            javax.swing.JOptionPane.showMessageDialog(this,
                     "Database error: " + e.getMessage(),
-                    "Error",
-                    JOptionPane.ERROR_MESSAGE);
+                    "Error", javax.swing.JOptionPane.ERROR_MESSAGE);
         }
+
     
     }//GEN-LAST:event_btnLoginActionPerformed
 

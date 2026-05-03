@@ -12,18 +12,15 @@ public class Car {
     
     private int carId;
     private int ownerId;
-    private String model;
     private String brand;
-    private int year;
-    private String plateNumber;
-    private String color;
+    private String model;
+    private String type;
     private int seats;
-    private String fuelType;      // "Gasoline","Diesel","Electric","Hybrid"
+    private String fuelType;
+    private String transmission;      // "Gasoline","Diesel","Electric","Hybrid"
+    private String condition;
     private String description;
     private double basePrice;
-    private int mileageLimit;     // 0 = unlimited
-    private String fuelPolicy;
-    private String houseRules;
     private String imagePath;     // local file path stored in DB
     private int viewsCount;
     private boolean isPriority;   // PRO feature — appears first in feed
@@ -32,47 +29,41 @@ public class Car {
     
     public Car() {}
     
-    public Car(int carId, int ownerId, String model, String brand, int year,
-               String plateNumber, String color, int seats, String fuelType,
-               String description, double basePrice, int mileageLimit,
-               String fuelPolicy, String houseRules, String imagePath,
+    public Car(int carId, int ownerId, String brand, String model,
+               String type, int seats, String fuelType,
+               String transmission,  String condition, 
+               String description, double basePrice, String imagePath,
                int viewsCount, boolean isPriority, String status, Timestamp createdAt) {
         this.carId = carId;
         this.ownerId = ownerId;
-        this.model = model;
         this.brand = brand;
-        this.year = year;
-        this.plateNumber = plateNumber;
-        this.color = color;
+        this.model = model;
+        this.type = type;
         this.seats = seats;
         this.fuelType = fuelType;
+        this.transmission = transmission;
+        this.condition = condition;
         this.description = description;
         this.basePrice = basePrice;
-        this.mileageLimit = mileageLimit;
-        this.fuelPolicy = fuelPolicy;
-        this.houseRules = houseRules;
         this.imagePath = imagePath;
         this.viewsCount = viewsCount;
         this.isPriority = isPriority;
-        this.status = status;
+        this.status = "PENDING_APPROVAL";
         this.createdAt = createdAt;
     }
 
     // ── Getters ──────────────────────────────────────────────
     public int getCarId()             { return carId; }
     public int getOwnerId()           { return ownerId; }
-    public String getModel()          { return model; }
     public String getBrand()          { return brand; }
-    public int getYear()              { return year; }
-    public String getPlateNumber()    { return plateNumber; }
-    public String getColor()          { return color; }
+    public String getModel()          { return model; }
+    public String getType()           { return type; }
     public int getSeats()             { return seats; }
     public String getFuelType()       { return fuelType; }
+    public String getTransmission()   { return transmission; }
+    public String getCondition()      { return condition; }
     public String getDescription()    { return description; }
     public double getBasePrice()      { return basePrice; }
-    public int getMileageLimit()      { return mileageLimit; }
-    public String getFuelPolicy()     { return fuelPolicy; }
-    public String getHouseRules()     { return houseRules; }
     public String getImagePath()      { return imagePath; }
     public int getViewsCount()        { return viewsCount; }
     public boolean isPriority()       { return isPriority; }
@@ -82,18 +73,15 @@ public class Car {
     // ── Setters ──────────────────────────────────────────────
     public void setCarId(int carId)                   { this.carId = carId; }
     public void setOwnerId(int ownerId)               { this.ownerId = ownerId; }
-    public void setModel(String model)                { this.model = model; }
     public void setBrand(String brand)                { this.brand = brand; }
-    public void setYear(int year)                     { this.year = year; }
-    public void setPlateNumber(String plateNumber)    { this.plateNumber = plateNumber; }
-    public void setColor(String color)                { this.color = color; }
+    public void setModel(String model)                { this.model = model; }
+    public void setType(String type)                  { this.type = type; }
     public void setSeats(int seats)                   { this.seats = seats; }
     public void setFuelType(String fuelType)          { this.fuelType = fuelType; }
+    public void setTransmission(String transmission)  { this.transmission = transmission; }
+    public void setCondition(String condition)        { this.condition = condition; }
     public void setDescription(String description)    { this.description = description; }
     public void setBasePrice(double basePrice)        { this.basePrice = basePrice; }
-    public void setMileageLimit(int mileageLimit)     { this.mileageLimit = mileageLimit; }
-    public void setFuelPolicy(String fuelPolicy)      { this.fuelPolicy = fuelPolicy; }
-    public void setHouseRules(String houseRules)      { this.houseRules = houseRules; }
     public void setImagePath(String imagePath)        { this.imagePath = imagePath; }
     public void setViewsCount(int viewsCount)         { this.viewsCount = viewsCount; }
     public void setPriority(boolean isPriority)       { this.isPriority = isPriority; }
@@ -102,7 +90,6 @@ public class Car {
 
     @Override
     public String toString() {
-        return "Car{carId=" + carId + ", brand=" + brand + ", model=" + model
-                + ", status=" + status + "}";
+        return "Car{" + "brand=" + brand + ", model=" + model + ", price=" + basePrice + ", status=" + status + '}';
     }
 }

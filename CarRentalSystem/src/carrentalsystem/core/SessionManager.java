@@ -10,8 +10,19 @@ import java.sql.*;
  * @author macbookairm1grey
  */
 public class SessionManager {
+    private static SessionManager instance;
     private static User currentUser = null;
     private static int currentSessionId = -1;
+    
+    private SessionManager() {}
+    
+    public static SessionManager getInstance() {
+        if (instance == null) {
+            instance = new SessionManager();
+        }
+        return instance;
+    }
+    
 
     public static void startSession(User user) throws SQLException {
         currentUser = user;

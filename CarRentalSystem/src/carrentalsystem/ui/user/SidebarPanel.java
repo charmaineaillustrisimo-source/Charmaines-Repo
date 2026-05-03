@@ -3,6 +3,13 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JPanel.java to edit this template
  */
 package carrentalsystem.ui.user;
+import java.awt.CardLayout;
+import carrentalsystem.interfaces.NavigationListener;
+import javax.swing.JButton;
+import javax.swing.JOptionPane;
+import java.awt.Color;
+import java.sql.SQLException;
+import javax.swing.SwingUtilities;
 
 /**
  *
@@ -13,10 +20,79 @@ public class SidebarPanel extends javax.swing.JPanel {
     /**
      * Creates new form SidebarPanel
      */
-    public SidebarPanel() {
+    private NavigationListener navListener;
+    private JButton activeBtn = null;
+    private javax.swing.JPanel pnlMainContent;
+    private final MainDashboard dashboard;
+    
+    
+    // Theme Colors
+    private final Color HOVER_COLOR = new Color(65, 56, 54);
+    private final Color ACTIVE_COLOR = new Color(85, 75, 70);
+    private final Color DEFAULT_COLOR = new Color(45, 36, 34);
+
+    public SidebarPanel(javax.swing.JPanel mainContent, MainDashboard dashboard) {
         initComponents();
+        this.pnlMainContent = mainContent;
+        this.dashboard = dashboard;
+        
+        setActiveButton(btnHome);
     }
 
+    public void setNavigationListener(NavigationListener listener) {
+        this.navListener = listener;
+    }
+    
+    private void setActiveButton(JButton btn) {
+        // Reset previous button
+        if (activeBtn != null) {
+            activeBtn.setContentAreaFilled(false);
+            activeBtn.setOpaque(false);
+        }
+
+        // Set new active button
+        activeBtn = btn;
+        activeBtn.setOpaque(true);
+        activeBtn.setContentAreaFilled(true);
+        activeBtn.setBackground(ACTIVE_COLOR);
+        this.repaint();
+    }
+    
+    /**
+     * Centralized method to handle both the UI highlight and the Page switch.
+     */
+    private void handleNavigation(JButton btn, String cardName) {
+        setActiveButton(btn);
+
+        // 1. Swap the Card in the local pnlMainContent
+        if (pnlMainContent != null) {
+            CardLayout cl = (CardLayout) pnlMainContent.getLayout();
+            cl.show(pnlMainContent, cardName);
+        }
+
+        // 2. Notify the Dashboard through the interface (if needed for other logic)
+        if (navListener != null) {
+            navListener.onNavigate(cardName);
+        }
+    }
+
+    // Helper for hover effects
+    private void applyHover(JButton btn, boolean entering) {
+        if (btn == activeBtn) {
+            return; // Don't change background if it's currently active
+        }
+        if (entering) {
+            btn.setContentAreaFilled(true);
+            btn.setBackground(HOVER_COLOR);
+            btn.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        } else {
+            btn.setContentAreaFilled(false);
+        }
+    }
+    
+    
+    
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -49,7 +125,7 @@ public class SidebarPanel extends javax.swing.JPanel {
         setPreferredSize(new java.awt.Dimension(500, 1024));
         setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        lblHome.setText("jLabel1");
+        lblHome.setIcon(new javax.swing.ImageIcon(getClass().getResource("/carrentalsystem/ui/user/Icons/Home.png"))); // NOI18N
         lblHome.setPreferredSize(new java.awt.Dimension(50, 50));
         add(lblHome, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 60, -1, -1));
 
@@ -71,7 +147,7 @@ public class SidebarPanel extends javax.swing.JPanel {
         btnHome.addActionListener(this::btnHomeActionPerformed);
         add(btnHome, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 60, -1, -1));
 
-        lblMyLIsts.setText("jLabel1");
+        lblMyLIsts.setIcon(new javax.swing.ImageIcon(getClass().getResource("/carrentalsystem/ui/user/Icons/Manage Listing.png"))); // NOI18N
         lblMyLIsts.setPreferredSize(new java.awt.Dimension(50, 50));
         add(lblMyLIsts, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 140, -1, -1));
 
@@ -93,9 +169,10 @@ public class SidebarPanel extends javax.swing.JPanel {
         btnMyLists.addActionListener(this::btnMyListsActionPerformed);
         add(btnMyLists, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 140, -1, -1));
 
-        lblRents.setText("jLabel1");
-        lblRents.setPreferredSize(new java.awt.Dimension(50, 50));
-        add(lblRents, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 220, -1, -1));
+        lblRents.setIcon(new javax.swing.ImageIcon(getClass().getResource("/carrentalsystem/ui/user/Icons/MyRentals.png"))); // NOI18N
+        lblRents.setMaximumSize(new java.awt.Dimension(560, 67));
+        lblRents.setPreferredSize(new java.awt.Dimension(60, 60));
+        add(lblRents, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 210, 50, 70));
 
         btnRents.setFont(new java.awt.Font("Helvetica Neue", 0, 24)); // NOI18N
         btnRents.setForeground(new java.awt.Color(255, 255, 255));
@@ -115,8 +192,7 @@ public class SidebarPanel extends javax.swing.JPanel {
         btnRents.addActionListener(this::btnRentsActionPerformed);
         add(btnRents, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 220, -1, -1));
 
-        lblInbox.setText("jLabel1");
-        lblInbox.setPreferredSize(new java.awt.Dimension(50, 50));
+        lblInbox.setIcon(new javax.swing.ImageIcon(getClass().getResource("/carrentalsystem/ui/user/Icons/Inbox.png"))); // NOI18N
         add(lblInbox, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 300, -1, -1));
 
         btnInbox.setFont(new java.awt.Font("Helvetica Neue", 0, 24)); // NOI18N
@@ -137,8 +213,7 @@ public class SidebarPanel extends javax.swing.JPanel {
         btnInbox.addActionListener(this::btnInboxActionPerformed);
         add(btnInbox, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 300, -1, -1));
 
-        lblAnalytics.setText("jLabel1");
-        lblAnalytics.setPreferredSize(new java.awt.Dimension(50, 50));
+        lblAnalytics.setIcon(new javax.swing.ImageIcon(getClass().getResource("/carrentalsystem/ui/user/Icons/Analytics.png"))); // NOI18N
         add(lblAnalytics, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 380, -1, -1));
 
         btnAnalytics.setFont(new java.awt.Font("Helvetica Neue", 0, 24)); // NOI18N
@@ -159,9 +234,9 @@ public class SidebarPanel extends javax.swing.JPanel {
         btnAnalytics.addActionListener(this::btnAnalyticsActionPerformed);
         add(btnAnalytics, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 380, -1, -1));
 
-        lblReservations.setText("jLabel1");
+        lblReservations.setIcon(new javax.swing.ImageIcon(getClass().getResource("/carrentalsystem/ui/user/Icons/Reservations.png"))); // NOI18N
         lblReservations.setPreferredSize(new java.awt.Dimension(50, 50));
-        add(lblReservations, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 460, -1, -1));
+        add(lblReservations, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 460, -1, 60));
 
         btnReservations.setFont(new java.awt.Font("Helvetica Neue", 0, 24)); // NOI18N
         btnReservations.setForeground(new java.awt.Color(255, 255, 255));
@@ -196,10 +271,9 @@ public class SidebarPanel extends javax.swing.JPanel {
             }
         });
         btnAddList.addActionListener(this::btnAddListActionPerformed);
-        add(btnAddList, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 550, -1, -1));
+        add(btnAddList, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 550, 250, -1));
 
-        lblSettings.setText("jLabel1");
-        lblSettings.setPreferredSize(new java.awt.Dimension(50, 50));
+        lblSettings.setIcon(new javax.swing.ImageIcon(getClass().getResource("/carrentalsystem/ui/user/Icons/Settings.png"))); // NOI18N
         add(lblSettings, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 660, -1, -1));
 
         btnSettings.setFont(new java.awt.Font("Helvetica Neue", 0, 24)); // NOI18N
@@ -220,9 +294,10 @@ public class SidebarPanel extends javax.swing.JPanel {
         btnSettings.addActionListener(this::btnSettingsActionPerformed);
         add(btnSettings, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 660, -1, -1));
 
-        lblLogout.setText("jLabel1");
+        lblLogout.setForeground(new java.awt.Color(255, 255, 255));
+        lblLogout.setIcon(new javax.swing.ImageIcon(getClass().getResource("/carrentalsystem/ui/user/Icons/Logout.png"))); // NOI18N
         lblLogout.setPreferredSize(new java.awt.Dimension(50, 50));
-        add(lblLogout, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 720, -1, -1));
+        add(lblLogout, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 730, -1, -1));
 
         btnLogout.setFont(new java.awt.Font("Helvetica Neue", 0, 24)); // NOI18N
         btnLogout.setForeground(new java.awt.Color(255, 255, 255));
@@ -240,7 +315,7 @@ public class SidebarPanel extends javax.swing.JPanel {
             }
         });
         btnLogout.addActionListener(this::btnLogoutActionPerformed);
-        add(btnLogout, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 720, -1, -1));
+        add(btnLogout, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 730, -1, -1));
 
         sptLine1.setPreferredSize(new java.awt.Dimension(300, 10));
         add(sptLine1, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 630, -1, 170));
@@ -248,146 +323,182 @@ public class SidebarPanel extends javax.swing.JPanel {
 
     private void btnMyListsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMyListsActionPerformed
         // TODO add your handling code here:
+        // 1. Handle the UI highlighting and Card switch
+        handleNavigation(btnMyLists, "myListingsCard");
+
+        // 2. Refresh the data for the capsules
+        if (dashboard != null && dashboard.getMyListings1() != null) {
+            dashboard.getMyListings1().loadData();
+        }
+        
     }//GEN-LAST:event_btnMyListsActionPerformed
 
     private void btnHomeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnHomeActionPerformed
         // TODO add your handling code here:
+        handleNavigation(btnHome, "discovery");
     }//GEN-LAST:event_btnHomeActionPerformed
 
     private void btnInboxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnInboxActionPerformed
         // TODO add your handling code here:
+        handleNavigation(btnInbox, "inboxCard");
+        if (dashboard != null && dashboard.getInboxPanel() != null) {
+            dashboard.getInboxPanel().loadData(); // This triggers the DB fetch
+        }
     }//GEN-LAST:event_btnInboxActionPerformed
 
     private void btnRentsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRentsActionPerformed
         // TODO add your handling code here:
+        handleNavigation(btnRents, "myRentalsCard");
+        if (dashboard != null && dashboard.getMyRentalsPanel() != null) {
+            dashboard.getMyRentalsPanel().loadData();
+        }
     }//GEN-LAST:event_btnRentsActionPerformed
 
     private void btnAnalyticsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAnalyticsActionPerformed
         // TODO add your handling code here:
+        handleNavigation(btnAnalytics, "analyticsCard");
     }//GEN-LAST:event_btnAnalyticsActionPerformed
 
     private void btnReservationsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnReservationsActionPerformed
         // TODO add your handling code here:
+        handleNavigation(btnReservations, "reservationsCard");
     }//GEN-LAST:event_btnReservationsActionPerformed
 
     private void btnHomeMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnHomeMouseEntered
         // TODO add your handling code here:
-        btnHome.setContentAreaFilled(true); // Turn the background back on
-        btnHome.setBackground(new java.awt.Color(65, 56, 54)); // Set the hover color
-        btnHome.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR)); // Make it look clickable
+        applyHover(btnHome, true);
     }//GEN-LAST:event_btnHomeMouseEntered
 
     private void btnHomeMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnHomeMouseExited
         // TODO add your handling code here:
-        btnHome.setContentAreaFilled(false); // Turn the background off again
+        applyHover(btnHome, false);
     }//GEN-LAST:event_btnHomeMouseExited
 
     private void btnMyListsMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnMyListsMouseEntered
         // TODO add your handling code here:
-        btnMyLists.setContentAreaFilled(true); 
-        btnMyLists.setBackground(new java.awt.Color(65, 56, 54)); 
-        btnMyLists.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR)); 
+        applyHover(btnMyLists, true);
     }//GEN-LAST:event_btnMyListsMouseEntered
 
     private void btnMyListsMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnMyListsMouseExited
         // TODO add your handling code here:
-        btnMyLists.setContentAreaFilled(false);
+        applyHover(btnMyLists, false);
     }//GEN-LAST:event_btnMyListsMouseExited
 
     private void btnInboxMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnInboxMouseEntered
         // TODO add your handling code here:
-        btnInbox.setContentAreaFilled(true); 
-        btnInbox.setBackground(new java.awt.Color(65, 56, 54)); 
-        btnInbox.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR)); 
+        applyHover(btnInbox, true);
     }//GEN-LAST:event_btnInboxMouseEntered
 
     private void btnInboxMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnInboxMouseExited
         // TODO add your handling code here:
-        btnInbox.setContentAreaFilled(false);
+        applyHover(btnInbox, false);
     }//GEN-LAST:event_btnInboxMouseExited
 
     private void btnRentsMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnRentsMouseEntered
         // TODO add your handling code here:
-        btnRents.setContentAreaFilled(true); 
-        btnRents.setBackground(new java.awt.Color(65, 56, 54)); 
-        btnRents.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR)); 
+        applyHover(btnRents, true);
     }//GEN-LAST:event_btnRentsMouseEntered
 
     private void btnRentsMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnRentsMouseExited
         // TODO add your handling code here:
-        btnRents.setContentAreaFilled(false);
+        applyHover(btnRents, false);
     }//GEN-LAST:event_btnRentsMouseExited
 
     private void btnAnalyticsMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnAnalyticsMouseEntered
         // TODO add your handling code here:
-        btnAnalytics.setContentAreaFilled(true); 
-        btnAnalytics.setBackground(new java.awt.Color(65, 56, 54)); 
-        btnAnalytics.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR)); 
+        applyHover(btnAnalytics, true);
     }//GEN-LAST:event_btnAnalyticsMouseEntered
 
     private void btnAnalyticsMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnAnalyticsMouseExited
         // TODO add your handling code here:
-        btnAnalytics.setContentAreaFilled(false);
+        applyHover(btnAnalytics, false);
     }//GEN-LAST:event_btnAnalyticsMouseExited
 
     private void btnReservationsMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnReservationsMouseEntered
         // TODO add your handling code here:
-        btnReservations.setContentAreaFilled(true); 
-        btnReservations.setBackground(new java.awt.Color(65, 56, 54)); 
-        btnReservations.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR)); 
+        applyHover(btnReservations, true); 
     }//GEN-LAST:event_btnReservationsMouseEntered
 
     private void btnReservationsMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnReservationsMouseExited
         // TODO add your handling code here:
-        btnReservations.setContentAreaFilled(false);
+        applyHover(btnReservations, false);
     }//GEN-LAST:event_btnReservationsMouseExited
 
     private void btnAddListMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnAddListMouseEntered
         // TODO add your handling code here:
-        btnAddList.setContentAreaFilled(true); 
-        btnAddList.setBackground(new java.awt.Color(65, 56, 54)); 
-        btnAddList.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR)); 
+        applyHover(btnAddList, true);
     }//GEN-LAST:event_btnAddListMouseEntered
 
     private void btnAddListMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnAddListMouseExited
         // TODO add your handling code here:
-        btnAddList.setContentAreaFilled(false);
+        applyHover(btnAddList, false);
     }//GEN-LAST:event_btnAddListMouseExited
 
     private void btnAddListActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddListActionPerformed
         // TODO add your handling code here:
+        handleNavigation(btnAddList, "addListing");
+        if (dashboard != null && dashboard.getPnlAddList1() != null) {
+            dashboard.getPnlAddList1().prepareAdd();
+        }
     }//GEN-LAST:event_btnAddListActionPerformed
 
     private void btnLogoutMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnLogoutMouseEntered
         // TODO add your handling code here:
-        btnLogout.setContentAreaFilled(true); 
-        btnLogout.setBackground(new java.awt.Color(65, 56, 54)); 
-        btnLogout.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR)); 
+        applyHover(btnLogout, true); 
     }//GEN-LAST:event_btnLogoutMouseEntered
 
     private void btnLogoutMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnLogoutMouseExited
         // TODO add your handling code here:
-        btnLogout.setContentAreaFilled(false);
+        applyHover(btnLogout, false);
     }//GEN-LAST:event_btnLogoutMouseExited
 
     private void btnLogoutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLogoutActionPerformed
         // TODO add your handling code here:
+        // 1. Find the top-level JFrame (MainDashboard) to center the dialog
+        java.awt.Window parentWindow = javax.swing.SwingUtilities.getWindowAncestor(this);
+
+        // 2. Show the confirmation dialog relative to the whole frame
+        int confirm = javax.swing.JOptionPane.showConfirmDialog(
+                parentWindow, // Passing the frame here centers the popup over the dashboard
+                "Are you sure you want to log out?",
+                "Logout Confirmation",
+                javax.swing.JOptionPane.YES_NO_OPTION,
+                javax.swing.JOptionPane.QUESTION_MESSAGE
+        );
+
+        if (confirm == javax.swing.JOptionPane.YES_OPTION) {
+            try {
+                // 3. Clear session logic
+                carrentalsystem.core.SessionManager.endSession();
+
+                // 4. Close the Dashboard and return to Login
+                if (parentWindow != null) {
+                    parentWindow.dispose();
+                }
+                new carrentalsystem.auth.LoginFrame().setVisible(true);
+
+            } catch (java.sql.SQLException ex) {
+                javax.swing.JOptionPane.showMessageDialog(parentWindow,
+                        "Error during logout: " + ex.getMessage(),
+                        "Database Error",
+                        javax.swing.JOptionPane.ERROR_MESSAGE);
+            }
+        }
     }//GEN-LAST:event_btnLogoutActionPerformed
 
     private void btnSettingsMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnSettingsMouseEntered
         // TODO add your handling code here:
-        btnSettings.setContentAreaFilled(true); 
-        btnSettings.setBackground(new java.awt.Color(65, 56, 54)); 
-        btnSettings.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR)); 
+        applyHover(btnSettings, true);
     }//GEN-LAST:event_btnSettingsMouseEntered
 
     private void btnSettingsMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnSettingsMouseExited
         // TODO add your handling code here:
-        btnSettings.setContentAreaFilled(false);
+        applyHover(btnSettings, false);
     }//GEN-LAST:event_btnSettingsMouseExited
 
     private void btnSettingsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSettingsActionPerformed
         // TODO add your handling code here:
+        handleNavigation(btnSettings, "settingsCard");
     }//GEN-LAST:event_btnSettingsActionPerformed
 
 

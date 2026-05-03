@@ -31,7 +31,7 @@ public class AuthService implements IAuthService{
 
     @Override
     public void register(String fullName, String username,
-                         String email, String password) throws SQLException {
+                         String email, String password, String role) throws SQLException {
         // Check if username already taken
         String checkSql = "SELECT user_id FROM users WHERE username = ?";
         try (PreparedStatement ps = DBConnection.getConnection().prepareStatement(checkSql)) {
@@ -50,14 +50,16 @@ public class AuthService implements IAuthService{
         }
         // Hash password and insert
         String hashed = BCrypt.hashpw(password, BCrypt.gensalt(12));
-        String sql = "INSERT INTO users (username, full_name, email, password) "
-                   + "VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO users (username, full_name, email, password, role) "
+                   + "VALUES (?, ?, ?, ?, ?)";
         try (PreparedStatement ps = DBConnection.getConnection().prepareStatement(sql)) {
             ps.setString(1, username);
             ps.setString(2, fullName);
             ps.setString(3, email);
             ps.setString(4, hashed);
+            ps.setString(5, role);
             ps.executeUpdate();
+            System.out.println("[AUTH] Sucessfully registered " + username + " as " + role);
         }
     }
 
@@ -80,6 +82,21 @@ public class AuthService implements IAuthService{
             ps.setString(1, email);
             ps.executeUpdate();
         }
+    }
+    
+    @Override
+    public boolean usernameExists(String username) throws SQLException {
+        // Check if the username is present in the users table
+        String sql = "SELECT COUNT(*) FROM users WHERE username = ?";
+        try (PreparedStatement ps = DBConnection.getConnection().prepareStatement(sql)) {
+            ps.setString(1, username);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0; // Returns true if a record exists
+                }
+            }
+        }
+        return false;
     }
     
     // ── Helper ───────────────────────────────────────────────

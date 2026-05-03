@@ -105,11 +105,12 @@ public class UserService implements IUserService{
         u.setEmail(rs.getString("email"));
         u.setPassword(rs.getString("password"));
         u.setRole(rs.getString("role"));
-        u.setTier(rs.getString("tier"));
+        u.setTier(rs.getString("user_tier"));
         u.setStatus(rs.getString("status"));
         u.setVerified(rs.getBoolean("is_verified"));
         u.setLastLogin(rs.getTimestamp("last_login"));
         u.setCreatedAt(rs.getTimestamp("created_at"));
+        u.setProfileImagePath(rs.getString("profile_image_path"));
         return u;
     }
 }

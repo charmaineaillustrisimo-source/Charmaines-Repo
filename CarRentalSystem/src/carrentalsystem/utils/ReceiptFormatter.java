@@ -30,6 +30,8 @@ public class ReceiptFormatter {
                 booking.getStartDate().toLocalDate(),
                 booking.getEndDate().toLocalDate()
         );
+        if (days == 0) days = 1;
+        
         double dailyRate = car.getBasePrice();
         double totalPrice = booking.getTotalPrice();
 
@@ -41,8 +43,8 @@ public class ReceiptFormatter {
                 + "Renter       : " + renter.getFullName() + "\n"
                 + "Username     : @" + renter.getUsername() + "\n"
                 + "-----------------------------------\n"
-                + "Car          : " + car.getBrand() + " " + car.getModel() + "\n"
-                + "Plate        : " + car.getPlateNumber() + "\n"
+                + "Vehicle      : " + car.getBrand() + " " + car.getModel() + "\n"
+                + "Type         : " + car.getType() + "\n" // Replaced Plate Number
                 + "-----------------------------------\n"
                 + "Pick-up Date : " + booking.getStartDate() + "\n"
                 + "Return Date  : " + booking.getEndDate() + "\n"

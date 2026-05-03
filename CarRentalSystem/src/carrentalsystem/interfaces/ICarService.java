@@ -17,7 +17,7 @@ public interface ICarService {
 
     int addCar(Car car) throws SQLException;
 
-    void updateCar(Car car) throws SQLException;
+    boolean updateCar(Car car) throws SQLException;
 
     void archiveCar(int carId) throws SQLException;
 
