@@ -3,10 +3,10 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Interface.java to edit this template
  */
 package carrentalsystem.interfaces;
-import carrentalsystem.models.Car;
-import carrentalsystem.models.Ticket;
+import carrentalsystem.models.*;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -85,5 +85,42 @@ public interface IAdminService {
      * Count of tickets with status = 'OPEN'. For the KPI badge.
      */
     int countOpenTickets() throws SQLException;
+    
+    // ── DASHBOARD STATISTICS ──
+    // Reusing 'User' model for total user counts[cite: 20]
+    int countTotalUsers() throws SQLException;
 
+    // Reusing 'Car' model for active count[cite: 15]
+    int countActiveListings() throws SQLException;
+
+    // Reusing 'Booking' model for the table
+    List<Booking> getRecentBookings() throws SQLException;
+
+    int countBookingsToday() throws SQLException;
+
+    Map<String, Integer> getListingsByType() throws SQLException;
+    
+    int countNewUsersThisWeek() throws SQLException;
+    
+    int countNewListingsToday() throws SQLException;
+    
+    int countCompletedBookingsToday() throws SQLException;
+    
+    void flagListing(int carId, String warningMessage) throws SQLException;
+    
+    void warnUser(int userId, String message) throws SQLException;
+
+    void banUser(int userId) throws SQLException;
+
+    void changeUserTier(int userId, String tier) throws SQLException;
+    
+    List<User> getAllUsers() throws SQLException;
+    
+    List<Booking> getAllBookings() throws SQLException;
+    
+    List<Ticket> getAllTicketsWithUserInfo() throws SQLException;
+    
+    Map<String, String> getSystemSettings() throws SQLException;
+
+    void updateSystemSetting(String key, String value) throws SQLException;
 }

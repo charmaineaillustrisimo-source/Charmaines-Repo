@@ -1,0 +1,991 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
+ */
+package carrentalsystem.ui.admin;
+
+import carrentalsystem.auth.LoginFrame;
+/**
+ *
+ * @author macbookairm1grey
+ */
+import java.awt.Color;
+import java.awt.Font;
+import javax.swing.ImageIcon;
+import java.awt.Image;
+import java.util.Map;
+import java.util.HashMap;
+import javax.swing.table.DefaultTableModel;
+import java.sql.*;
+import java.util.Vector;
+import javax.swing.JTextField;
+
+public class ViewButtonPanel extends javax.swing.JFrame {
+
+    private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(ViewButtonPanel.class.getName());
+    // Add this at the top of your class variables
+    private java.util.List<carrentalsystem.models.Car> userCarList = new java.util.ArrayList<>();
+    private String planStatus = "False";
+
+    
+    public ViewButtonPanel() {
+        initComponents();
+        this.setExtendedState(javax.swing.JFrame.MAXIMIZED_BOTH);
+        
+        //Buttons
+        btnExitButton.addActionListener (e -> {
+        try {
+            ApprovalQueuePanel approval = new ApprovalQueuePanel();
+        approval.setVisible(true);
+        this.dispose();
+            } catch (Exception ex){
+                ex.printStackTrace();
+        }
+    });
+        
+        //Buttons for side bar
+        //Button Events
+        btnOverviewButton.addActionListener(e -> {
+            try {
+            AdminDashboard admin = new AdminDashboard();
+        admin.setVisible(true);
+        this.dispose();
+            } catch (Exception ex){
+                ex.printStackTrace();
+            }
+        });
+        
+        btnUsersButton.addActionListener(e -> {
+            try {
+            ApprovalQueuePanel approval = new ApprovalQueuePanel();
+        approval.setVisible(true);
+        this.dispose();
+            } catch (Exception ex){
+                ex.printStackTrace();
+            }
+        });
+    
+    btnBookingsButton.addActionListener (e -> {
+        try {
+            AdminBookingPanel booking = new AdminBookingPanel();
+        booking.setVisible(true);
+        this.dispose();
+            } catch (Exception ex){
+                ex.printStackTrace();
+        }
+    });
+    
+    btnSupportButton.addActionListener (e -> {
+        try {
+            AdminSupportPanel support = new AdminSupportPanel();
+        support.setVisible(true);
+        this.dispose();
+            } catch (Exception ex){
+                ex.printStackTrace();
+        }
+    });
+    
+    btnSettingsButton.addActionListener (e -> {
+        try {
+            AdminSettings settings = new AdminSettings();
+        settings.setVisible(true);
+        this.dispose();
+            } catch (Exception ex){
+                ex.printStackTrace();
+        }
+    });
+    
+    String message = "<html>" +
+                     "<b style='font-size: 14pt; color: white;'>Are you sure you want to log out?</b><br/>" +
+                     "<span style='color: white;'>Logging out will end your current session.</span><br/>" +
+                     "<span style='color: white;'>All unsaved work will be lost.</span>" +
+                     "</html>";
+
+    // Set Up the Action Listener
+    btnLogoutButton.addActionListener(e -> {
+    javax.swing.JDialog logoutDialog = new javax.swing.JDialog(this, true);
+    logoutDialog.setUndecorated(true);
+    
+    // 1. Create the Main Panel with Padding
+    javax.swing.JPanel pnlLogout = new javax.swing.JPanel();
+    pnlLogout.setBackground(new java.awt.Color(49, 49, 47));
+    pnlLogout.setBorder(javax.swing.BorderFactory.createEmptyBorder(30, 30, 30, 30));
+    // Use BoxLayout to stack elements vertically and center them
+    pnlLogout.setLayout(new javax.swing.BoxLayout(pnlLogout, javax.swing.BoxLayout.Y_AXIS));
+
+    // 2. Title Label (Centered)
+    javax.swing.JLabel lblTitle = new javax.swing.JLabel("Are you sure you want to log out?");
+    lblTitle.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 18));
+    lblTitle.setForeground(java.awt.Color.WHITE);
+    lblTitle.setAlignmentX(java.awt.Component.CENTER_ALIGNMENT); // Centers the component
+    lblTitle.setHorizontalAlignment(javax.swing.SwingConstants.CENTER); // Centers the text inside
+
+    // 3. Subtext Label (Centered with HTML for wrapping)
+    javax.swing.JLabel lblSub = new javax.swing.JLabel("<html><div style='text-align: center;'>"
+            + "Logging out will end your current session.<br>"
+            + "All unsaved work will be lost.</div></html>");
+    lblSub.setFont(new java.awt.Font("Segoe UI", java.awt.Font.PLAIN, 14));
+    lblSub.setForeground(new java.awt.Color(200, 200, 200));
+    lblSub.setAlignmentX(java.awt.Component.CENTER_ALIGNMENT);
+
+    // 4. Button Container (FlowLayout to keep buttons side-by-side)
+    javax.swing.JPanel pnlButtons = new javax.swing.JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.CENTER, 15, 0));
+    pnlButtons.setOpaque(false); // Keeps the 49, 49, 47 background visible
+
+    javax.swing.JButton btnConfirm = new javax.swing.JButton("Logout");
+    btnConfirm.setBackground(new java.awt.Color(120, 30, 30));
+    btnConfirm.setForeground(java.awt.Color.WHITE);
+    btnConfirm.setPreferredSize(new java.awt.Dimension(100, 35));
+    btnConfirm.setFocusPainted(false);
+
+    javax.swing.JButton btnCancel = new javax.swing.JButton("Cancel");
+    btnCancel.setBackground(new java.awt.Color(70, 70, 70));
+    btnCancel.setForeground(java.awt.Color.WHITE);
+    btnCancel.setPreferredSize(new java.awt.Dimension(100, 35));
+    btnCancel.setFocusPainted(false);
+
+    pnlButtons.add(btnConfirm);
+    pnlButtons.add(btnCancel);
+
+    // 5. Add components with Spacing (Rigid Areas)
+    pnlLogout.add(lblTitle);
+    pnlLogout.add(javax.swing.Box.createRigidArea(new java.awt.Dimension(0, 15))); // Gap after title
+    pnlLogout.add(lblSub);
+    pnlLogout.add(javax.swing.Box.createRigidArea(new java.awt.Dimension(0, 25))); // Gap before buttons
+    pnlLogout.add(pnlButtons);
+
+    // 6. Action Logic
+    btnConfirm.addActionListener(ev -> {
+        logoutDialog.dispose();
+        new carrentalsystem.auth.LoginFrame().setVisible(true);
+        this.dispose();
+    });
+    btnCancel.addActionListener(ev -> logoutDialog.dispose());
+
+    // 7. Dialog Final Setup
+    logoutDialog.add(pnlLogout);
+    logoutDialog.pack(); // Adjusts size automatically based on content
+    logoutDialog.setLocationRelativeTo(this); 
+    logoutDialog.setVisible(true);
+});
+
+        //Position Top Bar Icons
+        TopBarPanel.add(lblProfileIcon, new org.netbeans.lib.awtextra.AbsoluteConstraints(1210, 20, 50, 50));
+        TopBarPanel.add(lblNotifyIcon, new org.netbeans.lib.awtextra.AbsoluteConstraints(1140, 20, 50, 50));
+
+        // Add this to your constructor after initComponents()
+        this.addComponentListener(new java.awt.event.ComponentAdapter() {
+            public void componentResized(java.awt.event.ComponentEvent evt) {
+                int width = getWidth();
+                // Position Profile 70 pixels from the right edge
+                lblProfileIcon.setLocation(width - 90, lblProfileIcon.getY());
+                // Position Notify 140 pixels from the right edge
+                lblNotifyIcon.setLocation(width - 160, lblNotifyIcon.getY());
+            }
+        });
+
+        // The "Easy Way" - One line per icon
+        setIcon(lblOverviewIcon, "/carrentalsystem/ui/admin/PIC/four-squares.png", 35, 35);
+        setIcon(lblListingIcon, "/carrentalsystem/ui/admin/PIC/Listing.png", 35, 35);
+        setIcon(lblUsersIcon, "/carrentalsystem/ui/admin/PIC/Users.png", 35, 35);
+        setIcon(lblBookingsIcon, "/carrentalsystem/ui/admin/PIC/Bookings.png", 35, 35);
+        setIcon(lblSupportIcon, "/carrentalsystem/ui/admin/PIC/support.png", 35, 35);
+        setIcon(lblSettingsIcon, "/carrentalsystem/ui/admin/PIC/setting (1).png", 35, 35);
+        setIcon(lblLogoutIcon, "/carrentalsystem/ui/admin/PIC/logout-white.png", 35, 35);
+        //Top Bar Panel Icon
+        setIcon(lblProfileIcon, "/carrentalsystem/ui/admin/PIC/Profile.png", 50, 50);
+        setIcon(lblNotifyIcon, "/carrentalsystem/ui/admin/PIC/bell.png", 50, 50);
+        
+        // 1. Set the colors to match your theme
+java.awt.Color darkGray = new java.awt.Color(100, 100, 100); // Adjust to match Save Changes exactly
+java.awt.Color whiteText = java.awt.Color.WHITE;
+
+        // 2. Remove default styling
+        btnExitButton.setBackground(darkGray);btnExitButton.setForeground(whiteText);
+        btnExitButton.setFocusPainted(false); // Removes the inner dotted line when clicked
+        btnExitButton.setBorderPainted(false); // Removes the default 3D border
+        btnExitButton.setContentAreaFilled(false); // Allows us to use custom painting for background
+        btnExitButton.setOpaque(true);
+
+        // 3. Set the font (Optional, to match button style)
+        btnExitButton.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 14));
+
+        // 4. Match the "Save Changes" rounded look (Override paintComponent)
+        // If you want it exactly like the other button, you can use this trick:
+        btnExitButton.setUI(new javax.swing.plaf.basic.BasicButtonUI() {
+    @Override
+    public void update(java.awt.Graphics g, javax.swing.JComponent c) {
+        java.awt.Graphics2D g2 = (java.awt.Graphics2D) g.create();
+        g2.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING, java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
+        
+        // Draw the background
+        g2.setColor(c.getBackground());
+        g2.fillRoundRect(0, 0, c.getWidth(), c.getHeight(), 10, 10); // 10 is the arc size
+        
+        super.paint(g2, c);
+        g2.dispose();
+    }
+});
+        
+        // 1. Define your button colors
+java.awt.Color normalColor = new java.awt.Color(100, 100, 100); // Matches "Save Changes"
+java.awt.Color hoverColor = new java.awt.Color(130, 130, 130);  // Lighter for hover
+java.awt.Color pressColor = new java.awt.Color(80, 80, 80);    // Darker for click
+//java.awt.Color whiteText = java.awt.Color.WHITE;
+
+// 2. Apply initial styling
+btnExitButton.setBackground(normalColor);
+btnExitButton.setForeground(whiteText);
+btnExitButton.setFocusPainted(false);
+btnExitButton.setBorderPainted(false);
+btnExitButton.setOpaque(true);
+
+// 3. Add the clickable effects
+btnExitButton.addMouseListener(new java.awt.event.MouseAdapter() {
+    @Override
+    public void mouseEntered(java.awt.event.MouseEvent evt) {
+        btnExitButton.setBackground(hoverColor); // Glow effect when hovering
+    }
+
+    @Override
+    public void mouseExited(java.awt.event.MouseEvent evt) {
+        btnExitButton.setBackground(normalColor); // Return to original color
+    }
+
+    @Override
+    public void mousePressed(java.awt.event.MouseEvent evt) {
+        btnExitButton.setBackground(pressColor);  // "Sink" effect when clicked
+    }
+
+    @Override
+    public void mouseReleased(java.awt.event.MouseEvent evt) {
+        // Return to hover color if mouse is still over the button
+        if (btnExitButton.getVisibleRect().contains(evt.getPoint())) {
+            btnExitButton.setBackground(hoverColor);
+        } else {
+            btnExitButton.setBackground(normalColor);
+        }
+    }
+});
+    }
+
+    private void setIcon(javax.swing.JLabel label, String path, int width, int height) {
+        try {
+            java.net.URL imgURL = getClass().getResource(path);
+            if (imgURL != null) {
+                ImageIcon icon = new ImageIcon(imgURL);
+                // Now uses the width and height parameters you pass in
+                Image img = icon.getImage().getScaledInstance(width, height, Image.SCALE_SMOOTH);
+                label.setIcon(new ImageIcon(img));
+            }
+        } catch (Exception e) {
+            System.err.println("Could not load image: " + path);
+        }
+    }
+    
+    public void updateSubscriptionBadge(String status) {
+    this.planStatus = status;
+    
+    if ("Free".equalsIgnoreCase(status)) {
+        lblStatusText.setText("Free");
+        lblStatusText.setForeground(new java.awt.Color(120, 100, 0)); // Brown
+    } else {
+        lblStatusText.setText("Pro");
+        lblStatusText.setForeground(new java.awt.Color(0, 50, 150)); // Dark Blue
+    }
+    
+    pnlMembershipBadge.repaint(); // Force the background to redraw
+}
+    // Your classmate can use this method to update the count dynamically
+    public void updateActiveListingCount(int count) {
+    lblListingCount.setText("(" + count + ")");
+}
+    
+    
+
+    /**
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
+     */
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
+        TopBarPanel = new javax.swing.JPanel();
+        lblCarRental = new javax.swing.JLabel();
+        lblProfileIcon = new javax.swing.JLabel();
+        lblNotifyIcon = new javax.swing.JLabel();
+        sideBarPanel = new javax.swing.JPanel();
+        lblMain = new javax.swing.JLabel();
+        lblAdmin = new javax.swing.JLabel();
+        lblOverviewIcon = new javax.swing.JLabel();
+        btnOverviewButton = new javax.swing.JButton();
+        buttonArchiveUser = new javax.swing.JButton();
+        lblListingIcon = new javax.swing.JLabel();
+        btnListingButton = new javax.swing.JButton();
+        lblUsersIcon = new javax.swing.JLabel();
+        btnUsersButton = new javax.swing.JButton();
+        pnlHighlight = new javax.swing.JPanel();
+        lblBookingsIcon = new javax.swing.JLabel();
+        btnBookingsButton = new javax.swing.JButton();
+        lblSupportIcon = new javax.swing.JLabel();
+        btnSupportButton = new javax.swing.JButton();
+        lblSettingsIcon = new javax.swing.JLabel();
+        btnSettingsButton = new javax.swing.JButton();
+        lblLogoutIcon = new javax.swing.JLabel();
+        btnLogoutButton = new javax.swing.JButton();
+        pnlMain = new javax.swing.JPanel();
+        lblUserDetails = new javax.swing.JLabel();
+        lblUser = new javax.swing.JLabel();
+        pnlMembershipBadge = // Corrected initialization
+        pnlMembershipBadge = new javax.swing.JPanel() {
+            @Override
+            protected void paintComponent(java.awt.Graphics g) {
+                super.paintComponent(g); // Call super
+                java.awt.Graphics2D g2 = (java.awt.Graphics2D) g.create();
+                g2.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING, 
+                    java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
+
+                int w = getWidth();
+                int h = getHeight();
+
+                // Check the data from your planStatus variable
+                if ("Free".equalsIgnoreCase(planStatus)) {
+                    g2.setColor(new java.awt.Color(255, 245, 200)); // Light Yellow
+                    lblStatusText.setText("Free");
+                    lblStatusText.setForeground(new java.awt.Color(120, 100, 0)); // Brown
+                } else if ("Pro".equalsIgnoreCase(planStatus)) {
+                    g2.setColor(new java.awt.Color(200, 230, 255)); // Light Blue
+                    lblStatusText.setText("Pro");
+                    lblStatusText.setForeground(new java.awt.Color(0, 50, 150)); // Dark Blue
+                }
+
+                g2.fillRoundRect(0, 0, w, h, h, h);
+                g2.dispose();
+            }
+        };
+        // Set to transparent so the rounded corners show correctly
+        pnlMembershipBadge.setOpaque(false);
+        lblStatusText = new javax.swing.JLabel();
+        btnButtonSaveChanges = // Set the drop-down to "Custom Creation"
+        buttonArchiveUser = new javax.swing.JButton() {
+            private int shadowGap = 3;
+
+            @Override
+            protected void paintComponent(java.awt.Graphics g) {
+                java.awt.Graphics2D g2 = (java.awt.Graphics2D) g.create();
+                g2.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING, 
+                    java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
+
+                int w = getWidth();
+                int h = getHeight() - shadowGap;
+
+                // 1. Draw Solid Shadow (Darker than background)
+                g2.setColor(new java.awt.Color(0, 0, 0, 60)); 
+                g2.fillRoundRect(0, shadowGap, w, h, 10, 10);
+
+                // 2. Draw Solid Button Body
+                if (getModel().isPressed()) {
+                    g2.setColor(new java.awt.Color(90, 90, 90)); // Pressed color
+                    g2.fillRoundRect(0, shadowGap, w, h, 10, 10); // Shift body down
+                } else {
+                    g2.setColor(new java.awt.Color(110, 110, 110)); // Normal solid color
+                    g2.fillRoundRect(0, 0, w, h, 10, 10);
+                }
+
+                // 3. Draw Text Manually (to ensure it stays centered)
+                g2.setColor(java.awt.Color.WHITE);
+                g2.setFont(getFont());
+                java.awt.FontMetrics fm = g2.getFontMetrics();
+                int textX = (w - fm.stringWidth(getText())) / 2;
+                int textY = (h - fm.getHeight()) / 2 + fm.getAscent() + (getModel().isPressed() ? shadowGap : 0);
+                g2.drawString(getText(), textX, textY);
+
+                g2.dispose();
+            }
+        };
+        pnlActiveListingHeader = new javax.swing.JPanel();
+        lblActiveListing = new javax.swing.JLabel();
+        lblListingCount = new javax.swing.JLabel();
+        jSeparator1 = new javax.swing.JSeparator();
+        pnlCarCard = pnlCarCard = new javax.swing.JPanel() {
+            private int cornerRadius = 20; // Adjust for smoothness [cite: 1]
+            private java.awt.Color borderColor = new java.awt.Color(204, 204, 204); // Lighter gray for border [cite: 9]
+
+            @Override
+            protected void paintComponent(java.awt.Graphics g) {
+                super.paintComponent(g); // Call super to ensure children are painted correctly
+                java.awt.Graphics2D g2 = (java.awt.Graphics2D) g.create();
+                g2.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING, 
+                    java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
+
+                int w = getWidth();
+                int h = getHeight();
+
+                // Fill background with card color (overrides standard background) [cite: 9]
+                g2.setColor(getBackground());
+                g2.fillRoundRect(0, 0, w, h, cornerRadius, cornerRadius);
+
+                // Draw the thin, light gray rounded border [cite: 9]
+                g2.setColor(borderColor);
+                g2.setStroke(new java.awt.BasicStroke(1f)); // Thin border [cite: 9]
+                g2.drawRoundRect(0, 0, w - 1, h - 1, cornerRadius, cornerRadius);
+
+                g2.dispose();
+            }
+        };
+        // Critical setup after creation
+        pnlCarCard.setOpaque(false); // Let the custom drawing handle the background [cite: 1];
+        pnlCarImageContainer = new javax.swing.JPanel();
+        lblCarImage = lblCarImage = new javax.swing.JLabel() {
+            @Override
+            protected void paintComponent(java.awt.Graphics g) {
+                java.awt.Graphics2D g2 = (java.awt.Graphics2D) g.create();
+                g2.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING, 
+                    java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
+
+                // Create a rounded clip area
+                java.awt.geom.RoundRectangle2D roundedRect = new java.awt.geom.RoundRectangle2D.Float(
+                    0, 0, getWidth(), getHeight(), 20, 20); // 20 is the corner radius
+                g2.clip(roundedRect);
+
+                super.paintComponent(g2);
+                g2.dispose();
+            }
+        };
+        pnlCarTextDetails = new javax.swing.JPanel();
+        lblCarName = new javax.swing.JLabel();
+        lblCurrentLocation = new javax.swing.JLabel();
+        lblCarLocation = new javax.swing.JLabel();
+        lblCurrentStatus = new javax.swing.JLabel();
+        lblCarStatus = new javax.swing.JLabel();
+        lblPreviousBookings = new javax.swing.JLabel();
+        jSeparator2 = new javax.swing.JSeparator();
+        spPreviousBookings = new javax.swing.JScrollPane();
+        tblPreviousBookings = new javax.swing.JTable();
+        btnExitButton = new javax.swing.JButton();
+
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setBackground(new java.awt.Color(3, 33, 33));
+
+        TopBarPanel.setBackground(new java.awt.Color(30, 30, 30));
+        TopBarPanel.setPreferredSize(new java.awt.Dimension(1290, 90));
+        TopBarPanel.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        lblCarRental.setFont(new java.awt.Font("Segoe UI", 0, 36)); // NOI18N
+        lblCarRental.setForeground(new java.awt.Color(255, 255, 255));
+        lblCarRental.setText("Rent A Car");
+        TopBarPanel.add(lblCarRental, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 20, -1, -1));
+
+        lblProfileIcon.setPreferredSize(new java.awt.Dimension(20, 90));
+        TopBarPanel.add(lblProfileIcon, new org.netbeans.lib.awtextra.AbsoluteConstraints(1220, 10, 80, 70));
+
+        lblNotifyIcon.setPreferredSize(new java.awt.Dimension(20, 90));
+        TopBarPanel.add(lblNotifyIcon, new org.netbeans.lib.awtextra.AbsoluteConstraints(1080, 20, 90, 60));
+
+        getContentPane().add(TopBarPanel, java.awt.BorderLayout.NORTH);
+
+        sideBarPanel.setBackground(new java.awt.Color(38, 38, 36));
+        sideBarPanel.setMinimumSize(new java.awt.Dimension(300, 485));
+        sideBarPanel.setPreferredSize(new java.awt.Dimension(353, 700));
+        sideBarPanel.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        lblMain.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
+        lblMain.setForeground(new java.awt.Color(255, 255, 255));
+        lblMain.setText("MAIN");
+        sideBarPanel.add(lblMain, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 70, -1, -1));
+
+        lblAdmin.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
+        lblAdmin.setForeground(new java.awt.Color(255, 255, 255));
+        lblAdmin.setText("ADMIN");
+        sideBarPanel.add(lblAdmin, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 310, -1, -1));
+
+        lblOverviewIcon.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        sideBarPanel.add(lblOverviewIcon, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 110, 35, 35));
+
+        btnOverviewButton.setBackground(new java.awt.Color(38, 38, 36));
+        btnOverviewButton.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
+        btnOverviewButton.setForeground(new java.awt.Color(255, 255, 255));
+        btnOverviewButton.setText("Overview");
+        btnOverviewButton.setBorder(null);
+        btnOverviewButton.setBorderPainted(false);
+        btnOverviewButton.setContentAreaFilled(false);
+        btnOverviewButton.setFocusPainted(false);
+        btnOverviewButton.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        btnOverviewButton.setPreferredSize(new java.awt.Dimension(270, 50));
+        sideBarPanel.add(btnOverviewButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 100, -1, -1));
+
+        buttonArchiveUser.setBackground(new java.awt.Color(48, 48, 46));
+
+        buttonArchiveUser.setFont(new java.awt.Font("Segoe UI", 0, 18));
+
+        buttonArchiveUser.setForeground(new java.awt.Color(204, 204, 204));
+
+        buttonArchiveUser.setText("Archive User");
+
+        buttonArchiveUser.setBorderPainted(false);
+
+        buttonArchiveUser.setContentAreaFilled(false);
+
+        buttonArchiveUser.setFocusPainted(false);
+
+        buttonArchiveUser.setPreferredSize(new java.awt.Dimension(150, 43));
+        sideBarPanel.add(buttonArchiveUser, new org.netbeans.lib.awtextra.AbsoluteConstraints(790, 90, -1, -1));
+
+        lblListingIcon.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        sideBarPanel.add(lblListingIcon, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 160, 35, 35));
+
+        btnListingButton.setBackground(new java.awt.Color(48, 48, 46));
+        btnListingButton.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
+        btnListingButton.setForeground(new java.awt.Color(255, 255, 255));
+        btnListingButton.setText("Listing");
+        btnListingButton.setBorder(null);
+        btnListingButton.setBorderPainted(false);
+        btnListingButton.setContentAreaFilled(false);
+        btnListingButton.setFocusPainted(false);
+        btnListingButton.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        btnListingButton.setPreferredSize(new java.awt.Dimension(270, 50));
+        sideBarPanel.add(btnListingButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 150, -1, -1));
+
+        lblUsersIcon.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        sideBarPanel.add(lblUsersIcon, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 210, 35, 35));
+
+        btnUsersButton.setBackground(new java.awt.Color(48, 48, 46));
+        btnUsersButton.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
+        btnUsersButton.setForeground(new java.awt.Color(255, 255, 255));
+        btnUsersButton.setText("Users");
+        btnUsersButton.setBorder(null);
+        btnUsersButton.setBorderPainted(false);
+        btnUsersButton.setContentAreaFilled(false);
+        btnUsersButton.setFocusPainted(false);
+        btnUsersButton.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        btnUsersButton.setPreferredSize(new java.awt.Dimension(270, 50));
+        sideBarPanel.add(btnUsersButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 200, -1, -1));
+
+        pnlHighlight.setBackground(new java.awt.Color(48, 48, 46));
+
+        javax.swing.GroupLayout pnlHighlightLayout = new javax.swing.GroupLayout(pnlHighlight);
+        pnlHighlight.setLayout(pnlHighlightLayout);
+        pnlHighlightLayout.setHorizontalGroup(
+            pnlHighlightLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 360, Short.MAX_VALUE)
+        );
+        pnlHighlightLayout.setVerticalGroup(
+            pnlHighlightLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 50, Short.MAX_VALUE)
+        );
+
+        sideBarPanel.add(pnlHighlight, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 200, 360, 50));
+
+        lblBookingsIcon.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        sideBarPanel.add(lblBookingsIcon, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 260, 35, 35));
+
+        btnBookingsButton.setBackground(new java.awt.Color(48, 48, 46));
+        btnBookingsButton.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
+        btnBookingsButton.setForeground(new java.awt.Color(255, 255, 255));
+        btnBookingsButton.setText("Bookings");
+        btnBookingsButton.setBorder(null);
+        btnBookingsButton.setBorderPainted(false);
+        btnBookingsButton.setContentAreaFilled(false);
+        btnBookingsButton.setFocusPainted(false);
+        btnBookingsButton.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        btnBookingsButton.setPreferredSize(new java.awt.Dimension(270, 50));
+        sideBarPanel.add(btnBookingsButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 250, 270, -1));
+
+        lblSupportIcon.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        sideBarPanel.add(lblSupportIcon, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 350, 35, 35));
+
+        btnSupportButton.setBackground(new java.awt.Color(48, 48, 46));
+        btnSupportButton.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
+        btnSupportButton.setForeground(new java.awt.Color(255, 255, 255));
+        btnSupportButton.setText("Support");
+        btnSupportButton.setBorder(null);
+        btnSupportButton.setBorderPainted(false);
+        btnSupportButton.setContentAreaFilled(false);
+        btnSupportButton.setFocusPainted(false);
+        btnSupportButton.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        btnSupportButton.setPreferredSize(new java.awt.Dimension(270, 50));
+        sideBarPanel.add(btnSupportButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 340, -1, -1));
+
+        lblSettingsIcon.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        sideBarPanel.add(lblSettingsIcon, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 400, 35, 35));
+
+        btnSettingsButton.setBackground(new java.awt.Color(48, 48, 46));
+        btnSettingsButton.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
+        btnSettingsButton.setForeground(new java.awt.Color(255, 255, 255));
+        btnSettingsButton.setText("Settings");
+        btnSettingsButton.setBorder(null);
+        btnSettingsButton.setBorderPainted(false);
+        btnSettingsButton.setContentAreaFilled(false);
+        btnSettingsButton.setFocusPainted(false);
+        btnSettingsButton.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        btnSettingsButton.setPreferredSize(new java.awt.Dimension(270, 50));
+        sideBarPanel.add(btnSettingsButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 390, -1, -1));
+
+        lblLogoutIcon.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        sideBarPanel.add(lblLogoutIcon, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 450, 35, 35));
+
+        btnLogoutButton.setBackground(new java.awt.Color(48, 48, 46));
+        btnLogoutButton.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
+        btnLogoutButton.setForeground(new java.awt.Color(255, 255, 255));
+        btnLogoutButton.setText("Logout");
+        btnLogoutButton.setBorder(null);
+        btnLogoutButton.setBorderPainted(false);
+        btnLogoutButton.setContentAreaFilled(false);
+        btnLogoutButton.setFocusPainted(false);
+        btnLogoutButton.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        btnLogoutButton.setPreferredSize(new java.awt.Dimension(270, 50));
+        sideBarPanel.add(btnLogoutButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 440, -1, -1));
+
+        getContentPane().add(sideBarPanel, java.awt.BorderLayout.WEST);
+
+        pnlMain.setBackground(new java.awt.Color(48, 48, 46));
+        pnlMain.setForeground(new java.awt.Color(255, 255, 255));
+        pnlMain.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        lblUserDetails.setFont(new java.awt.Font("Segoe UI", 0, 32)); // NOI18N
+        lblUserDetails.setForeground(new java.awt.Color(255, 255, 255));
+        lblUserDetails.setText("User Details");
+        pnlMain.add(lblUserDetails, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 30, -1, -1));
+
+        lblUser.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
+        lblUser.setForeground(new java.awt.Color(255, 255, 255));
+        lblUser.setPreferredSize(new java.awt.Dimension(500, 43));
+        pnlMain.add(lblUser, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 100, -1, -1));
+
+        pnlMembershipBadge.setOpaque(false);
+        pnlMembershipBadge.setPreferredSize(new java.awt.Dimension(100, 35));
+
+        lblStatusText.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+
+        javax.swing.GroupLayout pnlMembershipBadgeLayout = new javax.swing.GroupLayout(pnlMembershipBadge);
+        pnlMembershipBadge.setLayout(pnlMembershipBadgeLayout);
+        pnlMembershipBadgeLayout.setHorizontalGroup(
+            pnlMembershipBadgeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnlMembershipBadgeLayout.createSequentialGroup()
+                .addGap(19, 19, 19)
+                .addComponent(lblStatusText, javax.swing.GroupLayout.PREFERRED_SIZE, 62, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(19, Short.MAX_VALUE))
+        );
+        pnlMembershipBadgeLayout.setVerticalGroup(
+            pnlMembershipBadgeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlMembershipBadgeLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(lblStatusText, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+
+        pnlMain.add(pnlMembershipBadge, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 150, -1, -1));
+
+        btnButtonSaveChanges.setBackground(new java.awt.Color(48, 48, 46));
+        btnButtonSaveChanges.setFont(new java.awt.Font("Segoe UI", 0, 20)); // NOI18N
+        btnButtonSaveChanges.setForeground(new java.awt.Color(255, 255, 255));
+        btnButtonSaveChanges.setText("Save Changes");
+        btnButtonSaveChanges.setBorderPainted(false);
+        btnButtonSaveChanges.setContentAreaFilled(false);
+        btnButtonSaveChanges.setFocusPainted(false);
+        btnButtonSaveChanges.setPreferredSize(new java.awt.Dimension(200, 43));
+        pnlMain.add(btnButtonSaveChanges, new org.netbeans.lib.awtextra.AbsoluteConstraints(790, 60, -1, -1));
+
+        pnlActiveListingHeader.setBackground(new java.awt.Color(48, 48, 46));
+        pnlActiveListingHeader.setOpaque(false);
+        pnlActiveListingHeader.setPreferredSize(new java.awt.Dimension(215, 43));
+        pnlActiveListingHeader.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT));
+
+        lblActiveListing.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
+        lblActiveListing.setForeground(new java.awt.Color(255, 255, 255));
+        lblActiveListing.setText("Active Listings");
+        pnlActiveListingHeader.add(lblActiveListing);
+
+        lblListingCount.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
+        lblListingCount.setForeground(new java.awt.Color(255, 255, 255));
+        lblListingCount.setText("( )");
+        lblListingCount.setPreferredSize(new java.awt.Dimension(50, 32));
+        pnlActiveListingHeader.add(lblListingCount);
+
+        pnlMain.add(pnlActiveListingHeader, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 200, -1, -1));
+
+        jSeparator1.setBorder(javax.swing.BorderFactory.createMatteBorder(2, 2, 2, 2, new java.awt.Color(204, 204, 204)));
+        jSeparator1.setPreferredSize(new java.awt.Dimension(960, 2));
+        pnlMain.add(jSeparator1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 240, -1, -1));
+
+        pnlCarCard.setBackground(new java.awt.Color(46, 46, 46));
+        pnlCarCard.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        pnlCarImageContainer.setOpaque(false);
+        pnlCarImageContainer.setPreferredSize(new java.awt.Dimension(150, 100));
+        pnlCarImageContainer.setLayout(new java.awt.GridBagLayout());
+
+        lblCarImage.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lblCarImage.setPreferredSize(new java.awt.Dimension(150, 100));
+        pnlCarImageContainer.add(lblCarImage, new java.awt.GridBagConstraints());
+
+        pnlCarCard.add(pnlCarImageContainer, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 10, -1, 110));
+
+        pnlCarTextDetails.setOpaque(false);
+        pnlCarTextDetails.setPreferredSize(new java.awt.Dimension(300, 100));
+        pnlCarTextDetails.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        lblCarName.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
+        lblCarName.setForeground(new java.awt.Color(255, 255, 255));
+        lblCarName.setPreferredSize(new java.awt.Dimension(127, 32));
+        pnlCarTextDetails.add(lblCarName, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 10, 280, -1));
+
+        lblCurrentLocation.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        lblCurrentLocation.setForeground(new java.awt.Color(204, 204, 204));
+        lblCurrentLocation.setText("Current Location:");
+        pnlCarTextDetails.add(lblCurrentLocation, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 45, -1, -1));
+
+        lblCarLocation.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        lblCarLocation.setForeground(new java.awt.Color(255, 255, 255));
+        lblCarLocation.setPreferredSize(new java.awt.Dimension(135, 25));
+        pnlCarTextDetails.add(lblCarLocation, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 45, -1, -1));
+
+        lblCurrentStatus.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        lblCurrentStatus.setForeground(new java.awt.Color(204, 204, 204));
+        lblCurrentStatus.setText("Current Status:");
+        pnlCarTextDetails.add(lblCurrentStatus, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 70, -1, -1));
+
+        lblCarStatus.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        lblCarStatus.setForeground(new java.awt.Color(255, 255, 255));
+        lblCarStatus.setPreferredSize(new java.awt.Dimension(135, 25));
+        pnlCarTextDetails.add(lblCarStatus, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 70, -1, -1));
+
+        pnlCarCard.add(pnlCarTextDetails, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 10, 320, 110));
+
+        pnlMain.add(pnlCarCard, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 260, 500, 130));
+
+        lblPreviousBookings.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
+        lblPreviousBookings.setForeground(new java.awt.Color(255, 255, 255));
+        lblPreviousBookings.setText("Previous Bookings");
+        pnlMain.add(lblPreviousBookings, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 420, -1, -1));
+
+        jSeparator2.setBorder(javax.swing.BorderFactory.createMatteBorder(2, 2, 2, 2, new java.awt.Color(255, 255, 255)));
+        jSeparator2.setPreferredSize(new java.awt.Dimension(960, 2));
+        pnlMain.add(jSeparator2, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 455, -1, -1));
+
+        spPreviousBookings.setBorder(null);
+        spPreviousBookings.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        spPreviousBookings.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+        spPreviousBookings.setOpaque(false);
+        spPreviousBookings.setPreferredSize(new java.awt.Dimension(910, 200));
+        // 1. Hide the background and the track of the scrollbar
+        spPreviousBookings.getVerticalScrollBar().setOpaque(false);
+        spPreviousBookings.getVerticalScrollBar().setBackground(new java.awt.Color(0, 0, 0, 0));
+
+        // 2. Remove the border of the scrollbar itself
+        spPreviousBookings.getVerticalScrollBar().setBorder(null);
+        spPreviousBookings.getVerticalScrollBar().setPreferredSize(new java.awt.Dimension(0, 0));
+
+        // 3. Make the "buttons" (the arrows at top/bottom) invisible or match background
+        spPreviousBookings.getVerticalScrollBar().setUI(new javax.swing.plaf.basic.BasicScrollBarUI() {
+            @Override
+            protected void configureScrollBarColors() {
+                this.thumbColor = new java.awt.Color(100, 100, 100, 100); // Semi-transparent thumb
+                this.trackColor = new java.awt.Color(0, 0, 0, 0);         // Fully transparent track
+            }
+
+            @Override
+            protected javax.swing.JButton createDecreaseButton(int orientation) {
+                return createZeroButton();
+            }
+
+            @Override
+            protected javax.swing.JButton createIncreaseButton(int orientation) {
+                return createZeroButton();
+            }
+
+            private javax.swing.JButton createZeroButton() {
+                javax.swing.JButton jbutton = new javax.swing.JButton();
+                jbutton.setPreferredSize(new java.awt.Dimension(0, 0));
+                jbutton.setMinimumSize(new java.awt.Dimension(0, 0));
+                jbutton.setMaximumSize(new java.awt.Dimension(0, 0));
+                return jbutton;
+            }
+        });
+
+        tblPreviousBookings.setBackground(new java.awt.Color(48, 48, 46));
+        tblPreviousBookings.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
+        tblPreviousBookings.setForeground(new java.awt.Color(255, 255, 255));
+        tblPreviousBookings.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null}
+            },
+            new String [] {
+                "Listing", "Dates", "Duration", "Total", "Payment Status"
+            }
+        ));
+        tblPreviousBookings.setFillsViewportHeight(true);
+        tblPreviousBookings.setGridColor(new java.awt.Color(255, 255, 255));
+        tblPreviousBookings.setIntercellSpacing(new java.awt.Dimension(0, 0));
+        tblPreviousBookings.setOpaque(false);
+        tblPreviousBookings.setPreferredSize(new java.awt.Dimension(375, 64));
+        tblPreviousBookings.setRowHeight(20);
+        tblPreviousBookings.setShowVerticalLines(false);
+        // 1. Set the Header background to your specific color (48, 48, 46)
+        tblPreviousBookings.getTableHeader().setBackground(new java.awt.Color(48, 48, 46));
+        tblPreviousBookings.getTableHeader().setOpaque(true); // Must be true to show the solid color
+
+        // 2. Center-align the Header Text and set Font
+        tblPreviousBookings.getTableHeader().setDefaultRenderer(new javax.swing.table.DefaultTableCellRenderer() {
+            @Override
+            public java.awt.Component getTableCellRendererComponent(javax.swing.JTable table, Object value,
+                boolean isSelected, boolean hasFocus, int row, int column) {
+
+                javax.swing.JLabel label = (javax.swing.JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+
+                label.setHorizontalAlignment(javax.swing.JLabel.CENTER); // Center the text
+                label.setBackground(new java.awt.Color(48, 48, 46));     // Apply your color here too
+                label.setForeground(java.awt.Color.WHITE);              // Text color
+                label.setFont(new java.awt.Font("Segoe UI", java.awt.Font.PLAIN, 18));
+                label.setBorder(javax.swing.BorderFactory.createMatteBorder(0, 0, 1, 0, java.awt.Color.WHITE));
+
+                return label;
+            }
+        });
+
+        // 3. Fix the Header Height
+        tblPreviousBookings.getTableHeader().setPreferredSize(new java.awt.Dimension(0, 40));
+
+        // 1. Create a renderer that centers text AND sets the background color
+        javax.swing.table.DefaultTableCellRenderer customRenderer = new javax.swing.table.DefaultTableCellRenderer() {
+            @Override
+            public java.awt.Component getTableCellRendererComponent(javax.swing.JTable table, Object value,
+                boolean isSelected, boolean hasFocus, int row, int column) {
+
+                java.awt.Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+
+                // Center the text
+                ((javax.swing.JLabel)c).setHorizontalAlignment(javax.swing.JLabel.CENTER);
+
+                // If the row is NOT selected, use your custom background
+                if (!isSelected) {
+                    c.setBackground(new java.awt.Color(48, 48, 46));
+                }
+
+                c.setForeground(java.awt.Color.WHITE);
+                return c;
+            }
+        };
+
+        // 2. Apply the renderer to all columns
+        for (int i = 0; i < tblPreviousBookings.getColumnCount(); i++) {
+            tblPreviousBookings.getColumnModel().getColumn(i).setCellRenderer(customRenderer);
+        }
+
+        // 3. Set the horizontal divider lines
+        tblPreviousBookings.setShowHorizontalLines(true);
+        tblPreviousBookings.setShowVerticalLines(false); // Clean list look
+        tblPreviousBookings.setGridColor(new java.awt.Color(255, 255, 255, 50)); // Semi-transparent white line
+        tblPreviousBookings.setRowHeight(40);
+        tblPreviousBookings.setFillsViewportHeight(true);
+        spPreviousBookings.setViewportView(tblPreviousBookings);
+
+        pnlMain.add(spPreviousBookings, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 470, 960, 300));
+
+        btnExitButton.setFont(new java.awt.Font("Segoe UI", 0, 20)); // NOI18N
+        btnExitButton.setForeground(new java.awt.Color(255, 0, 0));
+        btnExitButton.setText("X");
+        btnExitButton.setPreferredSize(new java.awt.Dimension(50, 43));
+        pnlMain.add(btnExitButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(940, 10, -1, -1));
+
+        getContentPane().add(pnlMain, java.awt.BorderLayout.CENTER);
+
+        pack();
+    }// </editor-fold>//GEN-END:initComponents
+/**/
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String args[]) {
+        /* Set the Nimbus look and feel */
+        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+         */
+        try {
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (ReflectiveOperationException | javax.swing.UnsupportedLookAndFeelException ex) {
+            logger.log(java.util.logging.Level.SEVERE, null, ex);
+        }
+        //</editor-fold>
+
+        /* Create and display the form */
+        java.awt.EventQueue.invokeLater(() -> new ViewButtonPanel().setVisible(true));
+    }
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JPanel TopBarPanel;
+    private javax.swing.JButton btnBookingsButton;
+    private javax.swing.JButton btnButtonSaveChanges;
+    private javax.swing.JButton btnExitButton;
+    private javax.swing.JButton btnListingButton;
+    private javax.swing.JButton btnLogoutButton;
+    private javax.swing.JButton btnOverviewButton;
+    private javax.swing.JButton btnSettingsButton;
+    private javax.swing.JButton btnSupportButton;
+    private javax.swing.JButton btnUsersButton;
+    private javax.swing.JButton buttonArchiveUser;
+    private javax.swing.JSeparator jSeparator1;
+    private javax.swing.JSeparator jSeparator2;
+    private javax.swing.JLabel lblActiveListing;
+    private javax.swing.JLabel lblAdmin;
+    private javax.swing.JLabel lblBookingsIcon;
+    private javax.swing.JLabel lblCarImage;
+    private javax.swing.JLabel lblCarLocation;
+    private javax.swing.JLabel lblCarName;
+    private javax.swing.JLabel lblCarRental;
+    private javax.swing.JLabel lblCarStatus;
+    private javax.swing.JLabel lblCurrentLocation;
+    private javax.swing.JLabel lblCurrentStatus;
+    private javax.swing.JLabel lblListingCount;
+    private javax.swing.JLabel lblListingIcon;
+    private javax.swing.JLabel lblLogoutIcon;
+    private javax.swing.JLabel lblMain;
+    private javax.swing.JLabel lblNotifyIcon;
+    private javax.swing.JLabel lblOverviewIcon;
+    private javax.swing.JLabel lblPreviousBookings;
+    private javax.swing.JLabel lblProfileIcon;
+    private javax.swing.JLabel lblSettingsIcon;
+    private javax.swing.JLabel lblStatusText;
+    private javax.swing.JLabel lblSupportIcon;
+    private javax.swing.JLabel lblUser;
+    private javax.swing.JLabel lblUserDetails;
+    private javax.swing.JLabel lblUsersIcon;
+    private javax.swing.JPanel pnlActiveListingHeader;
+    private javax.swing.JPanel pnlCarCard;
+    private javax.swing.JPanel pnlCarImageContainer;
+    private javax.swing.JPanel pnlCarTextDetails;
+    private javax.swing.JPanel pnlHighlight;
+    private javax.swing.JPanel pnlMain;
+    private javax.swing.JPanel pnlMembershipBadge;
+    private javax.swing.JPanel sideBarPanel;
+    private javax.swing.JScrollPane spPreviousBookings;
+    private javax.swing.JTable tblPreviousBookings;
+    // End of variables declaration//GEN-END:variables
+}
