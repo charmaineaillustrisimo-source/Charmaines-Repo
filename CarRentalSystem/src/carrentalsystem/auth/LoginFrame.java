@@ -31,6 +31,50 @@ public class LoginFrame extends javax.swing.JFrame {
         
         
     }
+    
+    private void handleForgotPassword() {
+        // 1. Ask for the username
+        String username = javax.swing.JOptionPane.showInputDialog(this,
+                "Enter your username to reset password:",
+                "Forgot Password",
+                javax.swing.JOptionPane.QUESTION_MESSAGE);
+
+        if (username == null || username.trim().isEmpty()) {
+            return;
+        }
+
+        try {
+            // 2. Check if username exists using your existing authService
+            if (!authService.usernameExists(username)) {
+                javax.swing.JOptionPane.showMessageDialog(this, "Username not found.");
+                return;
+            }
+
+            // 3. Securely ask for the new password using a JPasswordField
+            javax.swing.JPasswordField pf = new javax.swing.JPasswordField();
+            int okCxl = javax.swing.JOptionPane.showConfirmDialog(this, pf,
+                    "Enter New Password for " + username,
+                    javax.swing.JOptionPane.OK_CANCEL_OPTION,
+                    javax.swing.JOptionPane.PLAIN_MESSAGE);
+
+            if (okCxl == javax.swing.JOptionPane.OK_OPTION) {
+                String newPassword = new String(pf.getPassword()).trim();
+
+                if (newPassword.length() < 6) {
+                    javax.swing.JOptionPane.showMessageDialog(this, "Password must be at least 6 characters.");
+                    return;
+                }
+
+                // 4. Call the service to update the database
+                carrentalsystem.services.AuthService service = new carrentalsystem.services.AuthService();
+                if (service.resetPassword(username, newPassword)) {
+                    javax.swing.JOptionPane.showMessageDialog(this, "Password reset successful! You can now log in.");
+                }
+            }
+        } catch (java.sql.SQLException e) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Database error: " + e.getMessage());
+        }
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -132,11 +176,12 @@ public class LoginFrame extends javax.swing.JFrame {
             }
         }
         ;
+        lblForgotPassword = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         getContentPane().setLayout(new java.awt.GridBagLayout());
 
-        pnlMainContainer.setPreferredSize(new java.awt.Dimension(400, 300));
+        pnlMainContainer.setPreferredSize(new java.awt.Dimension(400, 350));
         pnlMainContainer.setLayout(new java.awt.GridBagLayout());
 
         pnlGlass.setBackground(new java.awt.Color(68, 49, 38));
@@ -169,6 +214,7 @@ public class LoginFrame extends javax.swing.JFrame {
         txtUsername.setFont(new java.awt.Font("Helvetica Neue", 0, 15)); // NOI18N
         txtUsername.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 20, 1, 20));
         txtUsername.setPreferredSize(new java.awt.Dimension(500, 50));
+        txtUsername.addActionListener(this::txtUsernameActionPerformed);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 2;
@@ -205,11 +251,27 @@ public class LoginFrame extends javax.swing.JFrame {
         btnLogin.addActionListener(this::btnLoginActionPerformed);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 11;
+        gridBagConstraints.gridy = 5;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTH;
-        gridBagConstraints.weighty = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(30, 50, 10, 20);
+        gridBagConstraints.insets = new java.awt.Insets(30, 0, 5, 0);
         pnlGlass.add(btnLogin, gridBagConstraints);
+
+        lblForgotPassword.setFont(new java.awt.Font("Helvetica Neue", 0, 15)); // NOI18N
+        lblForgotPassword.setForeground(new java.awt.Color(255, 255, 255));
+        lblForgotPassword.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lblForgotPassword.setText("Forgot Password?");
+        lblForgotPassword.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        lblForgotPassword.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                lblForgotPasswordMouseClicked(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 6;
+        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 10, 0);
+        pnlGlass.add(lblForgotPassword, gridBagConstraints);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -237,67 +299,88 @@ public class LoginFrame extends javax.swing.JFrame {
     private void btnLoginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLoginActionPerformed
         // TODO add your handling code here:
  
-        String email = txtUsername.getText().trim();  // your field is txtUsername
-        String password = new String(txtPassword.getPassword());
+        String username = txtUsername.getText().trim();
+        String password = new String(txtPassword.getPassword()).trim();
 
-        // Basic empty check
-        if (email.isEmpty() || password.isEmpty()) {
-            JOptionPane.showMessageDialog(this,
-                    "Please fill in all fields.",
-                    "Missing Fields",
-                    JOptionPane.WARNING_MESSAGE);
+        // ── 1. Empty field guard ──────────────────────────────────
+        if (username.isEmpty() || password.isEmpty()) {
+            javax.swing.JOptionPane.showMessageDialog(this,
+                    "Please enter your username and password.",
+                    "Login Error", javax.swing.JOptionPane.WARNING_MESSAGE);
             return;
         }
 
+        // ── 2. Call AuthService ───────────────────────────────────
         try {
-            carrentalsystem.models.User user = authService.login(email, password);
+            
+            if (!authService.usernameExists(username)) {
+                int choice = javax.swing.JOptionPane.showConfirmDialog(
+                        this,
+                        "No account found. Want to Signup a account?",
+                        "Account Not Found", 
+                javax.swing.JOptionPane.YES_NO_OPTION
+            );
+
+            if (choice == javax.swing.JOptionPane.YES_OPTION) {
+                
+                // Direct to SignupFrame (Ensure SignupFrame class is in your project)
+                new carrentalsystem.auth.SignupFrame().setVisible(true);
+                this.dispose(); // Close current login window
+            }
+            return;
+        }
+            
+            
+            carrentalsystem.interfaces.IAuthService authService
+                    = new carrentalsystem.services.AuthService();
+
+            carrentalsystem.models.User user = authService.login(username, password);
 
             if (user == null) {
-                failedAttempts++;
-                if (failedAttempts >= 5) {
-                    authService.banUser(email);
-                    JOptionPane.showMessageDialog(this,
-                            "Too many failed attempts. Account locked.",
-                            "Account Locked",
-                            JOptionPane.ERROR_MESSAGE);
-                    System.exit(0);
-                    return;
-                }
-                JOptionPane.showMessageDialog(this,
-                        "Wrong email or password. Attempt "
-                        + failedAttempts + " of 5.",
-                        "Login Failed",
-                        JOptionPane.ERROR_MESSAGE);
+                javax.swing.JOptionPane.showMessageDialog(this,
+                        "Incorrect email or password.",
+                        "Login Failed", javax.swing.JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
-            // Login successful — start session
-            carrentalsystem.core.SessionManager.startSession(user);
-            System.out.println("[LOGIN] Welcome " + user.getFullName()
-                    + " | Role: " + user.getRole());
-
-            // Route based on role
-            if ("ADMIN".equals(user.getRole())) {
-                JOptionPane.showMessageDialog(this,
-                        "Admin dashboard coming soon!\n"
-                        + "Logged in as: " + user.getFullName());
-                // TODO: new AdminDashboard().setVisible(true);
-            } else {
-                JOptionPane.showMessageDialog(this,
-                        "Main dashboard coming soon!\n"
-                        + "Logged in as: " + user.getFullName());
-                // TODO: new MainDashboard().setVisible(true);
+            // ── 3. Check if account is banned ────────────────────
+            if ("BANNED".equals(user.getStatus())) {
+                javax.swing.JOptionPane.showMessageDialog(this,
+                        "Your account has been suspended. Contact support.",
+                        "Access Denied", javax.swing.JOptionPane.ERROR_MESSAGE);
+                return;
             }
+
+            // ── 4. Start session + IdleTracker ───────────────────
+            carrentalsystem.core.SessionManager.getInstance().startSession(user);
+            new carrentalsystem.utils.IdleTracker().start();
+
+            // ── 5. Route by role ──────────────────────────────────
+            if ("ADMIN".equals(user.getRole())) {
+                new carrentalsystem.ui.admin.AdminDashboard().setVisible(true);
+            } else {
+                new carrentalsystem.ui.user.MainDashboard().setVisible(true);
+            }
+
             this.dispose();
 
         } catch (java.sql.SQLException e) {
-            JOptionPane.showMessageDialog(this,
+            javax.swing.JOptionPane.showMessageDialog(this,
                     "Database error: " + e.getMessage(),
-                    "Error",
-                    JOptionPane.ERROR_MESSAGE);
+                    "Error", javax.swing.JOptionPane.ERROR_MESSAGE);
         }
+
     
     }//GEN-LAST:event_btnLoginActionPerformed
+
+    private void txtUsernameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtUsernameActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtUsernameActionPerformed
+
+    private void lblForgotPasswordMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblForgotPasswordMouseClicked
+        // TODO add your handling code here:
+        handleForgotPassword(); 
+    }//GEN-LAST:event_lblForgotPasswordMouseClicked
 
     /**
      * @param args the command line arguments
@@ -348,6 +431,7 @@ public class LoginFrame extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnLogin;
+    private javax.swing.JLabel lblForgotPassword;
     private javax.swing.JLabel lblPassword;
     private javax.swing.JLabel lblTitle;
     private javax.swing.JLabel lblUsername;

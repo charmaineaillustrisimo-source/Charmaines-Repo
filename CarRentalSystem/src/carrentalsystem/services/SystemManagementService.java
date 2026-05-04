@@ -272,6 +272,7 @@ public class SystemManagementService implements ISystemManagementService{
     /**
      * Send system-wide alert to all ACTIVE users.
      * Calls stored procedure which inserts notification for every active user.
+     * @param message
      */
     @Override
     public void issueSystemAlert(String message) throws SQLException {

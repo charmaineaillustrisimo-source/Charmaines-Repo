@@ -22,12 +22,16 @@ public class User {
     private boolean isVerified;
     private Timestamp lastLogin;
     private Timestamp createdAt;;
+    private String city;
+    private String province;
+    private String profileImagePath;
 
     public User() {}
 
     public User(int userId, String username, String fullName, String email,
                 String password, String role, String tier, String status,
-                boolean isVerified, Timestamp lastLogin, Timestamp createdAt) {
+                boolean isVerified, Timestamp lastLogin, Timestamp createdAt, 
+                String city, String province, String profileImagePath) {
         this.userId = userId;
         this.username = username;
         this.fullName = fullName;
@@ -39,6 +43,9 @@ public class User {
         this.isVerified = isVerified;
         this.lastLogin = lastLogin;
         this.createdAt = createdAt;
+        this.city = city;
+        this.province = province;
+        this.profileImagePath = profileImagePath;
     }
 
     // ── Getters ──────────────────────────────────────────────
@@ -53,6 +60,9 @@ public class User {
     public boolean isVerified()     { return isVerified; }
     public Timestamp getLastLogin() { return lastLogin; }
     public Timestamp getCreatedAt() { return createdAt; }
+    public String getCity()         { return city; }
+    public String getProvince()     { return province; }
+    public String getProfileImagePath() { return profileImagePath; }
 
     // ── Setters ──────────────────────────────────────────────
     public void setUserId(int userId)             { this.userId = userId; }
@@ -66,6 +76,9 @@ public class User {
     public void setVerified(boolean isVerified)    { this.isVerified = isVerified; }
     public void setLastLogin(Timestamp lastLogin)  { this.lastLogin = lastLogin; }
     public void setCreatedAt(Timestamp createdAt)  { this.createdAt = createdAt; }
+    public void setCity(String city)               { this.city = city; }
+    public void setProvince(String province)       { this.province = province; }
+    public void setProfileImagePath(String profileImagePath) { this.profileImagePath = profileImagePath; }
 
     @Override
     public String toString() {

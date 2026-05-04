@@ -11,11 +11,13 @@ import java.util.List;
  * @author macbookairm1grey
  */
 public interface INotificationService {
-    void send(int userId, String message, String type) throws SQLException;
+    void send(int userId, String message, String type, int referenceId) throws SQLException;
 
-    List<Notification> getUnread(int userId) throws SQLException;
+    List<Notification> getNotificationsForUser(int userId) throws SQLException;
 
     void markAllRead(int userId) throws SQLException;
 
     int countUnread(int userId) throws SQLException; // for bell badge
+    
+    void markAsRead(int notifId) throws SQLException;
 }

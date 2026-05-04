@@ -15,8 +15,8 @@ import java.util.*;
 public class BookingService implements IBookingService{
     @Override
     public int submitRequest(Booking booking) throws SQLException {
-        String sql = "INSERT INTO bookings (car_id, renter_id, start_date, end_date, total_price) "
-                + "VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO bookings (car_id, renter_id, start_date, end_date, total_price, image_path, pickup_location, return_location) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement ps = DBConnection.getConnection()
                 .prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setInt(1, booking.getCarId());
@@ -24,10 +24,81 @@ public class BookingService implements IBookingService{
             ps.setDate(3, booking.getStartDate());
             ps.setDate(4, booking.getEndDate());
             ps.setDouble(5, booking.getTotalPrice());
+            ps.setString(6, booking.getImagePath());
+            ps.setString(7, booking.getPickupLocation());
+            ps.setString(8, booking.getReturnLocation());
             ps.executeUpdate();
             ResultSet keys = ps.getGeneratedKeys();
             if (keys.next()) {
-                return keys.getInt(1);
+                int generatedId = keys.getInt(1);  // ← capture it first
+
+                // ── AUTO-MESSAGE: send booking card to owner's inbox ──
+                try {
+                    String ownerSql = "SELECT owner_id FROM cars WHERE car_id = ?";
+                    try (PreparedStatement ownerPs = DBConnection.getConnection()
+                            .prepareStatement(ownerSql)) {
+                        ownerPs.setInt(1, booking.getCarId());
+                        ResultSet ownerRs = ownerPs.executeQuery();
+                        if (ownerRs.next()) {
+                            int ownerId = ownerRs.getInt("owner_id");
+                            int renterId = booking.getRenterId();
+
+                            String msgSql
+                                    = "INSERT INTO messages (sender_id, receiver_id, car_id, booking_id, content) "
+                                    + "VALUES (?, ?, ?, ?, ?)";
+                            try (PreparedStatement msgPs = DBConnection.getConnection()
+                                    .prepareStatement(msgSql)) {
+                                msgPs.setInt(1, renterId);
+                                msgPs.setInt(2, ownerId);
+                                msgPs.setInt(3, booking.getCarId());
+                                msgPs.setInt(4, generatedId);
+                                msgPs.setString(5, "BOOKING_CARD::" + generatedId);
+                                msgPs.executeUpdate();
+                                
+                                // Notify the owner about the new booking request
+                                carrentalsystem.services.NotificationService notifSvc
+                                        = new carrentalsystem.services.NotificationService();
+
+                                // Get the car name for the message
+                                String carNameSql = "SELECT CONCAT(brand, ' ', model) FROM cars WHERE car_id = ?";
+                                String carName = "a car";
+                                try (java.sql.PreparedStatement carPs
+                                        = carrentalsystem.core.DBConnection.getConnection()
+                                                .prepareStatement(carNameSql)) {
+                                            carPs.setInt(1, booking.getCarId());
+                                            java.sql.ResultSet carRs = carPs.executeQuery();
+                                            if (carRs.next()) {
+                                                carName = carRs.getString(1);
+                                            }
+                                        } catch (Exception ignored) {
+                                        }
+
+                                        // Notify owner: new booking request
+                                        notifSvc.notify(ownerId,
+                                                "New booking request for your " + carName + ". Tap to review.",
+                                                "RENTAL");
+
+                                        // Notify renter: booking submitted
+                                        notifSvc.notify(renterId,
+                                                "Your booking request for " + carName + " has been submitted. Waiting for owner approval.",
+                                                "RENTAL");
+                            }
+                            
+                            String notifSql = "INSERT INTO notifications (user_id, message, type, is_read) VALUES (?, ?, 'RENTAL', 0)";
+                            try (PreparedStatement nPs = DBConnection.getConnection().prepareStatement(notifSql)) {
+                                nPs.setInt(1, ownerId);
+                                nPs.setString(2, "You have a new booking request for car #" + booking.getCarId());
+                                nPs.executeUpdate();
+                            }
+                        }
+                    }
+                } catch (Exception e) {
+                    // Don't fail the booking if messaging fails
+                    System.err.println("[BookingService] Auto-message failed: " + e.getMessage());
+                }
+                // ── END AUTO-MESSAGE ──────────────────────────────────
+
+                return generatedId;  // ← return it after the message is sent
             }
         }
         return -1;
@@ -60,19 +131,67 @@ public class BookingService implements IBookingService{
             ps.executeUpdate();
         }
     }
+    
+    public void updateStatus(int bookingId, String newStatus) throws SQLException {
+        String sql = "UPDATE bookings SET status = ? WHERE booking_id = ?";
+        try (PreparedStatement ps = DBConnection.getConnection().prepareStatement(sql)) {
+            ps.setString(1, newStatus);
+            ps.setInt(2, bookingId);
+            ps.executeUpdate();
+        }
+    }
+
+    public carrentalsystem.models.Booking getBookingById(int bookingId) throws SQLException {
+        String sql = "SELECT b.*, c.brand AS car_brand, c.model AS car_model, c.owner_id "
+                + "FROM bookings b JOIN cars c ON c.car_id = b.car_id "
+                + "WHERE b.booking_id = ?";
+
+        try (Connection conn = DBConnection.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, bookingId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    // Manually map fields to avoid "ResultSet closed" errors in helpers
+                    carrentalsystem.models.Booking b = new carrentalsystem.models.Booking();
+                    b.setBookingId(rs.getInt("booking_id"));
+                    b.setCarId(rs.getInt("car_id"));
+                    b.setRenterId(rs.getInt("renter_id"));
+                    b.setOwnerId(rs.getInt("owner_id"));
+                    b.setStartDate(rs.getDate("start_date"));
+                    b.setEndDate(rs.getDate("end_date"));
+                    b.setTotalPrice(rs.getDouble("total_price"));
+                    b.setStatus(rs.getString("status"));
+                    b.setCarBrand(rs.getString("car_brand"));
+                    b.setCarModel(rs.getString("car_model"));
+                    b.setPickupLocation(rs.getString("pickup_location"));
+                    b.setReturnLocation(rs.getString("return_location"));
+                    return b;
+                }
+            }
+        }
+        return null;
+    }
 
     @Override
     public List<Booking> getBookingsByRenter(int renterId) throws SQLException {
         String sql = "SELECT b.*, c.brand AS car_brand, c.model AS car_model, "
-                + "c.owner_id FROM bookings b "
+                + "c.image_path, c.owner_id, u.full_name AS owner_name "
+                + "FROM bookings b "
                 + "JOIN cars c ON b.car_id = c.car_id "
+                + "JOIN users u ON c.owner_id = u.user_id "
                 + "WHERE b.renter_id = ? ORDER BY b.created_at DESC";
+
         List<Booking> list = new ArrayList<>();
-        try (PreparedStatement ps = DBConnection.getConnection().prepareStatement(sql)) {
+        // Open Connection, Statement, and ResultSet in try-with-resources
+        try (Connection conn = DBConnection.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+
             ps.setInt(1, renterId);
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                list.add(mapBooking(rs));
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Booking b = mapBooking(rs); // Map while ResultSet is open
+                    b.setOwnerName(rs.getString("owner_name"));
+                    list.add(b);
+                }
             }
         }
         return list;
@@ -81,18 +200,183 @@ public class BookingService implements IBookingService{
     @Override
     public List<Booking> getBookingsByOwner(int ownerId) throws SQLException {
         String sql = "SELECT b.*, c.brand AS car_brand, c.model AS car_model, "
-                + "c.owner_id FROM bookings b "
+                + "c.image_path, c.owner_id FROM bookings b "
                 + "JOIN cars c ON b.car_id = c.car_id "
                 + "WHERE c.owner_id = ? ORDER BY b.created_at DESC";
+
         List<Booking> list = new ArrayList<>();
-        try (PreparedStatement ps = DBConnection.getConnection().prepareStatement(sql)) {
+        try (Connection conn = DBConnection.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+
             ps.setInt(1, ownerId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapBooking(rs));
+                }
+            }
+        }
+        return list;
+    }
+    
+    
+    public java.util.List<Booking> getBookingsForMonth(int userId, int year, int month)
+            throws java.sql.SQLException {
+        String sql
+                = "SELECT b.*, c.brand AS car_brand, c.model AS car_model, "
+                + "  c.image_path, c.owner_id "
+                + "FROM bookings b "
+                + "JOIN cars c ON b.car_id = c.car_id "
+                + "WHERE (b.renter_id = ? OR c.owner_id = ?) "
+                + "  AND YEAR(b.start_date) = ? AND MONTH(b.start_date) = ? "
+                + "  AND b.status NOT IN ('REJECTED', 'CANCELLED') "
+                + "ORDER BY b.start_date ASC";
+
+        java.util.List<Booking> list = new java.util.ArrayList<>();
+        try (PreparedStatement ps
+                = DBConnection.getConnection().prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            ps.setInt(2, userId);
+            ps.setInt(3, year);
+            ps.setInt(4, month);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 list.add(mapBooking(rs));
             }
         }
         return list;
+    }
+    
+    /**
+     * Total revenue from SUCCESSFUL bookings owned by this user in the past N
+     * days.
+     */
+    public double getRevenueLastDays(int ownerId, int days) throws java.sql.SQLException {
+        String sql = "SELECT COALESCE(SUM(b.total_price), 0) "
+                + "FROM bookings b JOIN cars c ON c.car_id = b.car_id "
+                + "WHERE c.owner_id = ? AND b.status = 'SUCCESSFUL' "
+                + "AND b.created_at >= DATE_SUB(NOW(), INTERVAL ? DAY)";
+
+        try (Connection conn = DBConnection.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, ownerId);
+            ps.setInt(2, days);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getDouble(1);
+                }
+            }
+        }
+        return 0.0;
+    }
+
+    /**
+     * Total views_count across all ACTIVE listings owned by this user in past N
+     * days. (views_count is incremented in CarService when a user opens
+     * CarDetailsPanel)
+     */
+    public int getListingClicksLastDays(int ownerId, int days) throws java.sql.SQLException {
+        String sql = "SELECT COALESCE(SUM(views_count), 0) FROM cars "
+                + "WHERE owner_id = ? AND status = 'ACTIVE'";
+
+        try (Connection conn = DBConnection.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, ownerId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        }
+        return 0;
+    }
+
+    /**
+     * Count of booking requests received by this owner in the past 7 days. Used
+     * for the Daily Clicks / activity graph label.
+     */
+    public int getDailyActivityCount(int ownerId) throws java.sql.SQLException {
+        String sql
+                = "SELECT COUNT(*) "
+                + "FROM bookings b "
+                + "JOIN cars c ON c.car_id = b.car_id "
+                + "WHERE c.owner_id = ? "
+                + "  AND b.created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)";
+        try (java.sql.PreparedStatement ps
+                = DBConnection.getConnection().prepareStatement(sql)) {
+            ps.setInt(1, ownerId);
+            java.sql.ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        }
+        return 0;
+    }
+    
+    /**
+ * Returns booking counts per day for the past 7 days (Mon→Sun).
+ * Index 0 = 6 days ago, index 6 = today.
+ */
+public int[] getDailyActivityLast7Days(int ownerId) throws java.sql.SQLException {
+    int[] result = new int[7];
+    String sql =
+        "SELECT DATEDIFF(NOW(), b.created_at) AS days_ago, COUNT(*) AS cnt " +
+        "FROM bookings b " +
+        "JOIN cars c ON c.car_id = b.car_id " +
+        "WHERE c.owner_id = ? " +
+        "  AND b.created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY) " +
+        "GROUP BY days_ago";
+    try (PreparedStatement ps =
+            DBConnection.getConnection().prepareStatement(sql)) {
+        ps.setInt(1, ownerId);
+        ResultSet rs = ps.executeQuery();
+        while (rs.next()) {
+            int idx = 6 - rs.getInt("days_ago"); // 0=oldest, 6=today
+            if (idx >= 0 && idx < 7) {
+                result[idx] = rs.getInt("cnt");
+            }
+        }
+    }
+    return result;
+}
+
+    /**
+     * Returns revenue broken down by status: [PENDING, CONFIRMED, SUCCESSFUL]
+     * Used for the pie chart in AnalyticsPanel.
+     */
+    public double[] getRevenueBreakdown(int ownerId) throws java.sql.SQLException {
+        double[] result = new double[3]; // [pending, confirmed, successful]
+        String sql
+                = "SELECT b.status, COALESCE(SUM(b.total_price), 0) AS total "
+                + "FROM bookings b "
+                + "JOIN cars c ON c.car_id = b.car_id "
+                + "WHERE c.owner_id = ? "
+                + "  AND b.status IN ('PENDING','CONFIRMED','SUCCESSFUL') "
+                + "  AND b.created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY) "
+                + "GROUP BY b.status";
+        try (PreparedStatement ps
+                = DBConnection.getConnection().prepareStatement(sql)) {
+            ps.setInt(1, ownerId);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                switch (rs.getString("status")) {
+                    case "PENDING":
+                        result[0] = rs.getDouble("total");
+                        break;
+                    case "CONFIRMED":
+                        result[1] = rs.getDouble("total");
+                        break;
+                    case "SUCCESSFUL":
+                        result[2] = rs.getDouble("total");
+                        break;
+                }
+            }
+        }
+        return result;
+    }
+    
+    public void recordListingClick(int carId) throws java.sql.SQLException {
+        String sql = "UPDATE cars SET views_count = views_count + 1 WHERE car_id = ?";
+        try (PreparedStatement ps = DBConnection.getConnection().prepareStatement(sql)) {
+            ps.setInt(1, carId);
+            ps.executeUpdate();
+        }
     }
 
     // ── Helper ───────────────────────────────────────────────
@@ -106,6 +390,11 @@ public class BookingService implements IBookingService{
         b.setTotalPrice(rs.getDouble("total_price"));
         b.setStatus(rs.getString("status"));
         b.setCreatedAt(rs.getTimestamp("created_at"));
+        
+        try {
+            b.setImagePath (rs.getString("image_path"));
+        } catch (SQLException ignored) {
+        }
         try {
             b.setCarBrand(rs.getString("car_brand"));
         } catch (SQLException ignored) {
@@ -116,6 +405,11 @@ public class BookingService implements IBookingService{
         }
         try {
             b.setOwnerId(rs.getInt("owner_id"));
+        } catch (SQLException ignored) {
+        }
+        try {
+            b.setPickupLocation(rs.getString("pickup_location"));
+            b.setReturnLocation(rs.getString("return_location"));
         } catch (SQLException ignored) {
         }
         return b;

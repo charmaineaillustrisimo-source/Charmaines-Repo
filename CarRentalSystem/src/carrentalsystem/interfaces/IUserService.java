@@ -38,7 +38,7 @@ public interface IUserService {
      * in ProfilePanel. Sets users.tier = 'PRO' and enables unlimited listings +
      * analytics.
      */
-    void upgradeToPro(int userId) throws SQLException;
+    boolean upgradeToPro(int userId) throws SQLException;
 
     // ── ADMIN-SIDE ACTIONS (called from AdminService or UserManagementPanel) ──
     /**

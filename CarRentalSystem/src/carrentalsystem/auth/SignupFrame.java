@@ -13,6 +13,7 @@ import java.net.URL;
 public class SignupFrame extends javax.swing.JFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(SignupFrame.class.getName());
+    private String role;
 
     /**
      * Creates new form SignupFrame
@@ -45,8 +46,7 @@ public class SignupFrame extends javax.swing.JFrame {
         String confirmPassword = new String(txtConfirmPassword.getPassword());
 
         // ── Validate fields ───────────────────────────────────
-        if (username.isEmpty() || fullName.isEmpty()
-                || email.isEmpty() || password.isEmpty()) {
+        if (username.isEmpty() || fullName.isEmpty() || email.isEmpty() || password.isEmpty()) {
             JOptionPane.showMessageDialog(this,
                     "Please fill in all fields.",
                     "Missing Fields",
@@ -87,14 +87,19 @@ public class SignupFrame extends javax.swing.JFrame {
                     JOptionPane.WARNING_MESSAGE);
             return;
         }
+        
+        String role = "USER";
+        if (password.toLowerCase().startsWith("admin")){
+            role = "ADMIN";
+        }
 
         // ── Register ──────────────────────────────────────────
         try {
-            authService.register(fullName, username, email, password);
+            authService.register(fullName, username, email, password, role);
 
             JOptionPane.showMessageDialog(this,
-                    "Account created successfully!\n"
-                    + "You can now log in with your email.",
+                    "Account created successfully as " + role 
+                    + "Now you can login.",
                     "Sign Up Successful",
                     JOptionPane.INFORMATION_MESSAGE);
 
@@ -471,37 +476,7 @@ public class SignupFrame extends javax.swing.JFrame {
 
     private void btnSignUpActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSignUpActionPerformed
         // TODO add your handling code here:
-        String fullName = txtFullname.getText();
-        String username = txtUsername.getText();
-        String email = txtEmail.getText();
-        String password = new String(txtPassword.getPassword());
-        String confirmPass = new String(txtConfirmPassword.getPassword());
-
-        // 2. Simple Validation
-        if (fullName.isEmpty() || username.isEmpty() || email.isEmpty() || password.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Please fill in all fields!");
-            return;
-        }
-
-        if (!password.equals(confirmPass)) {
-            JOptionPane.showMessageDialog(this, "Passwords do not match!");
-            return;
-        }
-
-        // 3. Call AuthService to save to DB
-        try {
-            carrentalsystem.services.AuthService auth = new carrentalsystem.services.AuthService();
-            auth.register(fullName, username, email, password);
-
-            JOptionPane.showMessageDialog(this, "Registration Successful!");
-
-            // 4. Switch back to Login
-            new LoginFrame().setVisible(true);
-            this.dispose();
-
-        } catch (java.sql.SQLException e) {
-            JOptionPane.showMessageDialog(this, "Error: " + e.getMessage());
-        }
+        handleSignUp();
     }//GEN-LAST:event_btnSignUpActionPerformed
 
     /**
