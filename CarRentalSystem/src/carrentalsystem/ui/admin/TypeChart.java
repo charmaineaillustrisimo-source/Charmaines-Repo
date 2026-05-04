@@ -54,9 +54,7 @@ public class TypeChart extends javax.swing.JPanel {
         }
     }
 
-    /**
-     * Creates new form TypeChart
-     */
+    
     public TypeChart() {
         initComponents();
     }

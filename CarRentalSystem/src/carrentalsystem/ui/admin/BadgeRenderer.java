@@ -11,10 +11,7 @@ import java.awt.RenderingHints; // Fixed import
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.table.DefaultTableCellRenderer;
-/**
- *
- * @author EMY2025
- */
+
 public class BadgeRenderer extends javax.swing.table.DefaultTableCellRenderer{
     private final java.awt.Color lineGray = new java.awt.Color(80, 80, 80);
     private final java.awt.Color panelBg = new java.awt.Color(48, 48, 46);

@@ -390,6 +390,8 @@ public class AdminProfileIcon extends javax.swing.JFrame {
         txtEmail = new javax.swing.JTextField();
         jSeparator1 = new javax.swing.JSeparator();
         jLabel5 = new javax.swing.JLabel();
+        jLabel6 = new javax.swing.JLabel();
+        jPasswordField1 = new javax.swing.JPasswordField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setBackground(new java.awt.Color(3, 33, 33));
@@ -612,6 +614,15 @@ public class AdminProfileIcon extends javax.swing.JFrame {
         jLabel5.setText("First Name:");
         jPanel1.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(360, 85, -1, -1));
 
+        jLabel6.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
+        jLabel6.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel6.setText("Password:");
+        jPanel1.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 370, -1, -1));
+
+        jPasswordField1.setFont(new java.awt.Font("Segoe UI", 0, 20)); // NOI18N
+        jPasswordField1.setPreferredSize(new java.awt.Dimension(300, 40));
+        jPanel1.add(jPasswordField1, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 410, -1, -1));
+
         pnlMain.add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 90, 960, 490));
 
         getContentPane().add(pnlMain, java.awt.BorderLayout.CENTER);
@@ -657,7 +668,9 @@ public class AdminProfileIcon extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JPasswordField jPasswordField1;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JLabel lblAccountManagement;
     private javax.swing.JLabel lblAccountManagement1;

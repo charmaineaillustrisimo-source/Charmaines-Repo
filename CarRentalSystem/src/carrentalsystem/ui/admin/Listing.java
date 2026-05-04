@@ -11,9 +11,7 @@ package carrentalsystem.ui.admin;
  */
 public class Listing extends javax.swing.JPanel {
 
-    /**
-     * Creates new form Listing
-     */
+    
     public Listing() {
         initComponents();
         

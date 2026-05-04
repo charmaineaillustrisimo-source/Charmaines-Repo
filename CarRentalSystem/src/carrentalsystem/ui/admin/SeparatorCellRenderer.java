@@ -24,7 +24,6 @@ public class SeparatorCellRenderer extends DefaultTableCellRenderer{
         // Let the default renderer handle standard cell colors and value display
         super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 
-        // --- THE CUSTOM SEPARATOR LOGIC ---
         
         // 1. Set the background/foreground to match your dark theme
         // You can customize this further to match your existing logic.

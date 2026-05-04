@@ -27,9 +27,7 @@ public class ViewButtonPanel extends javax.swing.JFrame {
     private java.util.List<carrentalsystem.models.Car> userCarList = new java.util.ArrayList<>();
     private String planStatus = "False";
 
-    /**
-     * Creates new form AdminDashboard
-     */
+    
     public ViewButtonPanel() {
         initComponents();
         this.setExtendedState(javax.swing.JFrame.MAXIMIZED_BOTH);

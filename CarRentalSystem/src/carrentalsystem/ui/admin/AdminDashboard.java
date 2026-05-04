@@ -24,9 +24,7 @@ public class AdminDashboard extends javax.swing.JFrame {
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(AdminDashboard.class.getName());
     // Add this at the top of your class variables
 private java.util.List<carrentalsystem.models.Car> userCarList = new java.util.ArrayList<>();
-    /**
-     * Creates new form AdminDashboard
-     */
+    
     public AdminDashboard() {
     initComponents();
     

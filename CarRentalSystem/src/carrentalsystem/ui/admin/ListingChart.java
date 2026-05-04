@@ -15,9 +15,7 @@ import java.util.Map;
 public class ListingChart extends javax.swing.JPanel {
     private Map<String, Integer> data = new HashMap<>();
 
-    /**
-     * Creates new form ListingChart
-     */
+    
     public ListingChart() {
         initComponents();
         setOpaque(true);

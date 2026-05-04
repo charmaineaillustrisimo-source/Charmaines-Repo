@@ -11,9 +11,7 @@ package carrentalsystem.ui.admin;
  */
 public class StatCard extends javax.swing.JPanel {
 
-    /**
-     * Creates new form StatCard
-     */
+    
     public StatCard() {
         initComponents();
     }

@@ -32,9 +32,7 @@ public class AdminSettings extends javax.swing.JFrame {
     // Add this at the top of your class variables
     //private java.util.List<carrentalsystem.models.Car> userCarList = new java.util.ArrayList<>();
 
-    /**
-     * Creates new form AdminDashboard
-     */
+    
     public AdminSettings() {
         initComponents();
         

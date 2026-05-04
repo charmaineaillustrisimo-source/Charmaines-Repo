@@ -11,9 +11,7 @@ package carrentalsystem.ui.admin;
  */
 public class TicketRow extends javax.swing.JPanel {
 
-    /**
-     * Creates new form TicketRow
-     */
+    
     public TicketRow() {
         initComponents();
     }
