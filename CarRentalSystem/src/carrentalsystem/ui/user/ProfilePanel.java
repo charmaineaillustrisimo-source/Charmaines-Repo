@@ -28,6 +28,7 @@ public class ProfilePanel extends javax.swing.JPanel {
     private MainDashboard dashboard;
     private CardLayout cardManager;
     private JPanel cardsContainer;
+    private boolean isEditing = false;
 
     /**
      * Creates new form ProfilePanel
@@ -36,111 +37,15 @@ public class ProfilePanel extends javax.swing.JPanel {
         initComponents();
         // Styling
         applyModernStyling();
-        setupInternalLayouts();
-        
+
         makeSidebarButton(lblSettings);
         makeSidebarButton(lblSup);
-    
+
         CardLayout cl = (CardLayout) pnlCardsContainer.getLayout();
         cl.show(pnlCardsContainer, "cardSettings");
 
         this.revalidate();
         this.repaint();
-    }
-
-    private void setupInternalLayouts() {
-        int contentWidth = 450; // Spacious width for fields
-
-        // --- Account Card ---
-        javax.swing.GroupLayout accLayout = new javax.swing.GroupLayout(panelAccountCard);
-        panelAccountCard.setLayout(accLayout);
-
-        accLayout.setHorizontalGroup(
-                accLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addGroup(accLayout.createSequentialGroup()
-                                .addGap(30, 30, 30) // Left internal padding
-                                .addGroup(accLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                        .addComponent(lblYourAcc)
-                                        .addGroup(accLayout.createSequentialGroup()
-                                                .addComponent(lblIconProfile)
-                                                .addGap(20, 20, 20)
-                                                .addComponent(lblName))
-                                        .addComponent(lblNameAcc)
-                                        .addComponent(txtName, contentWidth, contentWidth, contentWidth)
-                                        .addComponent(lbleEmail)
-                                        .addComponent(txtEmail, contentWidth, contentWidth, contentWidth)
-                                        .addComponent(lblPassword)
-                                        .addComponent(txtPassword, contentWidth, contentWidth, contentWidth)
-                                        .addComponent(lblLocation)
-                                        .addComponent(txtCity, contentWidth, contentWidth, contentWidth)
-                                        .addComponent(txtProvince, contentWidth, contentWidth, contentWidth)
-                                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, accLayout.createSequentialGroup()
-                                                .addComponent(btnSwitchAcc, 200, 200, 200)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                                .addComponent(btnDelete, 120, 120, 120)))
-                                .addGap(30, 30, 30)) // Right internal padding
-        );
-
-        accLayout.setVerticalGroup(
-                accLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addGroup(accLayout.createSequentialGroup()
-                                .addGap(30, 30, 30)
-                                .addComponent(lblYourAcc)
-                                .addGap(25, 25, 25)
-                                .addGroup(accLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
-                                        .addComponent(lblIconProfile)
-                                        .addComponent(lblName))
-                                .addGap(25, 25, 25)
-                                .addComponent(lblNameAcc).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(txtName, 45, 45, 45)
-                                .addGap(15, 15, 15)
-                                .addComponent(lbleEmail).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(txtEmail, 45, 45, 45)
-                                .addGap(15, 15, 15)
-                                .addComponent(lblPassword).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(txtPassword, 45, 45, 45)
-                                .addGap(15, 15, 15)
-                                .addComponent(lblLocation).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(txtCity, 45, 45, 45)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(txtProvince, 45, 45, 45)
-                                .addGap(40, 40, 40)
-                                .addGroup(accLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                        .addComponent(btnSwitchAcc, 45, 45, 45)
-                                        .addComponent(btnDelete, 45, 45, 45))
-                                .addGap(35, 35, 35))
-        );
-
-        // --- Support Card ---
-        javax.swing.GroupLayout suppLayout = new javax.swing.GroupLayout(panelSupportCard);
-        panelSupportCard.setLayout(suppLayout);
-
-        suppLayout.setHorizontalGroup(
-                suppLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addGroup(suppLayout.createSequentialGroup()
-                                .addGap(30, 30, 30)
-                                .addGroup(suppLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                        .addComponent(lblSupport)
-                                        .addComponent(lblIssue)
-                                        .addComponent(comboSelectCategory, contentWidth, contentWidth, contentWidth)
-                                        .addComponent(lblDescription)
-                                        .addComponent(jScrollPane1, contentWidth, contentWidth, contentWidth)
-                                        .addComponent(btnSubmit, javax.swing.GroupLayout.Alignment.TRAILING, 160, 160, 160))
-                                .addGap(30, 30, 30))
-        );
-
-        suppLayout.setVerticalGroup(
-                suppLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addGroup(suppLayout.createSequentialGroup()
-                                .addGap(30, 30, 30)
-                                .addComponent(lblSupport)
-                                .addGap(30, 30, 30)
-                                .addComponent(lblIssue)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(comboSelectCategory, 45, 45, 45)
-                                .addGap(25, 25, 25)
-                                .addComponent(lblDescription)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jScrollPane1, 330, 330, 330) // Matches vertical flow of account card
-                                .addGap(40, 40, 40)
-                                .addComponent(btnSubmit, 45, 45, 45)
-                                .addGap(35, 35, 35))
-        );
     }
 
     private void makeSidebarButton(javax.swing.JLabel label) {
@@ -163,13 +68,13 @@ public class ProfilePanel extends javax.swing.JPanel {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 if (pnlCardsContainer != null && pnlCardsContainer.getLayout() instanceof CardLayout) {
                     CardLayout cl = (CardLayout) pnlCardsContainer.getLayout();
-                if (label.getText().contains("Settings")) {
+                    if (label.getText().contains("Settings")) {
                         cl.show(pnlCardsContainer, "cardSettings");
-                } else if (label.getText().contains("Support")) {
+                    } else if (label.getText().contains("Support")) {
                         cl.show(pnlCardsContainer, "cardSupport");
-                }
-            } else {
-                System.err.println("Error: pnlCardsContainer not found or layout is wrong.");
+                    }
+                } else {
+                    System.err.println("Error: pnlCardsContainer not found or layout is wrong.");
                 }
             }
         });
@@ -200,8 +105,6 @@ public class ProfilePanel extends javax.swing.JPanel {
         // We use the button's background property for the color.
         btnSubmit.setBorder(new RoundedBorder(15, ACCENT_GREEN, false));
 
-        btnDelete.setBackground(Color.WHITE);
-        btnDelete.setFocusPainted(false);
         btnDelete.setBorder(new RoundedBorder(10, BORDER_LIGHT, false));
 
         txtareaType.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -211,7 +114,7 @@ public class ProfilePanel extends javax.swing.JPanel {
 
         // Set the Submit button size clearly
         btnSubmit.setPreferredSize(new Dimension(140, 45));
-        
+
         try {
             lblSettings.setIcon(new ImageIcon(getClass().getResource("/carrentalsystem/ui/user/Icons/Settings1.png")));
             lblSup.setIcon(new ImageIcon(getClass().getResource("/carrentalsystem/ui/user/Icons/Support.png")));
@@ -277,28 +180,71 @@ public class ProfilePanel extends javax.swing.JPanel {
         if (user == null) {
             return;
         }
-
-        // Profile image
-        String path = user.getProfileImagePath();
-        if (path != null && !path.isEmpty()) {
-            ImageUtil.applyScaledImage(lblIconProfile, path, 100, 100);
-        } else {
-            lblIconProfile.setIcon(new javax.swing.ImageIcon(
-                    getClass().getResource("/carrentalsystem/ui/user/Icons/DefaultProfile.png")));
-        }
-
-        // Text fields
+        // Text bg static
         txtName.setText(user.getFullName());
         txtEmail.setText(user.getEmail());
         lblName.setText(user.getFullName().split(" ")[0]);
 
-        // Location — now uncommented
-        txtCity.setText(user.getCity() != null ? user.getCity() : "");
-        txtProvince.setText(user.getProvince() != null ? user.getProvince() : "");
+        if (user.getCity() == null || user.getCity().isEmpty()) {
+            txtCity.setText("City");
+            txtCity.setForeground(Color.GRAY); // Visual cue for "background text"
+        } else {
+            txtCity.setText(user.getCity());
+            txtCity.setForeground(TEXT_DARK);
+        }
 
-        // Update header icon
+        txtCity.setText(user.getCity() != null ? user.getCity() : "City");
+        txtProvince.setText(user.getProvince() != null ? user.getProvince() : "Province");
+
+        // Profile image
+        int size = 80;
+        String path = user.getProfileImagePath();
+        if (path != null && !path.isEmpty()) {
+            JLabel tempCircle = ImageUtil.cropCircle(path,size);
+            lblIconProfile.setIcon(tempCircle.getIcon());
+        } else {
+            lblIconProfile.setIcon(ImageUtil.loadIcon("/carrentalsystem/ui/user/Icons/DefaultAvatar.png", size, size));
+        }
+ 
+       // Update header icon
         if (dashboard != null) {
             dashboard.getHeaderPanel().updateProfileIcon(user.getProfileImagePath());
+        }
+    }
+
+    private void toggleEditMode() {
+        isEditing = !isEditing;
+
+        // Toggle field editability
+        txtName.setEditable(isEditing);
+        txtEmail.setEditable(isEditing);
+        txtCity.setEditable(isEditing);
+        txtProvince.setEditable(isEditing);
+        txtPassword.setEditable(isEditing);
+
+        // Visual border feedback — blue border when editable, grey when view-only
+        javax.swing.border.Border editBorder = javax.swing.BorderFactory.createLineBorder(
+                new java.awt.Color(100, 149, 237), 2, true);
+        javax.swing.border.Border viewBorder = javax.swing.BorderFactory.createLineBorder(
+                new java.awt.Color(210, 210, 210), 1, true);
+
+        javax.swing.border.Border active = isEditing ? editBorder : viewBorder;
+        txtName.setBorder(active);
+        txtEmail.setBorder(active);
+        txtCity.setBorder(active);
+        txtProvince.setBorder(active);
+
+        // Show/hide Update button based on mode
+        btnUpdate.setVisible(false);
+
+        // Change edit icon to indicate current state
+        String iconPath = isEditing
+                ? "/carrentalsystem/ui/user/Icons/EditProfile.png" // pencil = editing
+                : "/carrentalsystem/ui/user/Icons/EditProfile.png";  // same icon, just toggle
+        // If you have a "save/checkmark" icon, use it here instead
+
+        if (isEditing) {
+            txtName.requestFocus();
         }
     }
 
@@ -315,7 +261,6 @@ public class ProfilePanel extends javax.swing.JPanel {
         panelSidebar = new javax.swing.JPanel();
         lblSettings = new javax.swing.JLabel();
         lblSup = new javax.swing.JLabel();
-        lblAboutUs = new javax.swing.JLabel();
         pnlCardsContainer = new javax.swing.JPanel();
         panelSupportCard = new javax.swing.JPanel();
         lblSupport = new javax.swing.JLabel();
@@ -329,6 +274,7 @@ public class ProfilePanel extends javax.swing.JPanel {
         lblYourAcc = new javax.swing.JLabel();
         lblIconProfile = new javax.swing.JLabel();
         lblName = new javax.swing.JLabel();
+        lblEdit = new javax.swing.JLabel();
         lblUpgrade = new javax.swing.JLabel();
         txtName = new javax.swing.JTextField();
         lblNameAcc = new javax.swing.JLabel();
@@ -336,18 +282,17 @@ public class ProfilePanel extends javax.swing.JPanel {
         lbleEmail = new javax.swing.JLabel();
         txtPassword = new javax.swing.JPasswordField();
         lblPassword = new javax.swing.JLabel();
-        btnDelete = new javax.swing.JButton();
-        btnDelete.setBackground(java.awt.Color.WHITE);
-        btnDelete.setFocusPainted(false);
-        btnDelete.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(210, 210, 210), 1, true));
         lblLocation = new javax.swing.JLabel();
         txtCity = new javax.swing.JTextField();
         txtProvince = new javax.swing.JTextField();
         btnSwitchAcc = new javax.swing.JButton();
         btnUpdate = new javax.swing.JButton();
+        btnDelete = new javax.swing.JButton();
+        lblAboutUs = new javax.swing.JLabel();
 
-        setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+        setLayout(new java.awt.GridBagLayout());
 
+        panelSidebar.setOpaque(false);
         panelSidebar.setPreferredSize(new java.awt.Dimension(200, 200));
         panelSidebar.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
@@ -361,14 +306,19 @@ public class ProfilePanel extends javax.swing.JPanel {
         lblSup.setText("   Support");
         panelSidebar.add(lblSup, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 110, 164, 64));
 
-        add(panelSidebar, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 100, -1, -1));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.ipadx = 16;
+        gridBagConstraints.ipady = 26;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(100, 70, 0, 0);
+        add(panelSidebar, gridBagConstraints);
 
-        lblAboutUs.setText("<html><center>About Us<br>© 2026 IT. All Rights Reserved.</center></html>");
-        lblAboutUs.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        add(lblAboutUs, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 670, -1, -1));
-
-        pnlCardsContainer.setMinimumSize(new java.awt.Dimension(550, 650));
-        pnlCardsContainer.setPreferredSize(new java.awt.Dimension(500, 600));
+        pnlCardsContainer.setMinimumSize(new java.awt.Dimension(650, 750));
+        pnlCardsContainer.setOpaque(false);
+        pnlCardsContainer.setPreferredSize(new java.awt.Dimension(650, 750));
         pnlCardsContainer.setLayout(new java.awt.CardLayout());
 
         panelSupportCard.setBackground(new java.awt.Color(255, 255, 255));
@@ -414,7 +364,7 @@ public class ProfilePanel extends javax.swing.JPanel {
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 398, Short.MAX_VALUE)
                     .addComponent(comboSelectCategory, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(btnSubmit, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 109, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(96, Short.MAX_VALUE))
+                .addContainerGap(246, Short.MAX_VALUE))
         );
         panelSupportCardLayout.setVerticalGroup(
             panelSupportCardLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -431,79 +381,101 @@ public class ProfilePanel extends javax.swing.JPanel {
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 256, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(36, 36, 36)
                 .addComponent(btnSubmit, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(86, Short.MAX_VALUE))
+                .addContainerGap(236, Short.MAX_VALUE))
         );
 
         pnlCardsContainer.add(panelSupportCard, "cardSupport");
 
         panelAccountCard.setBackground(new java.awt.Color(255, 255, 255));
         panelAccountCard.setMinimumSize(new java.awt.Dimension(500, 600));
-        panelAccountCard.setPreferredSize(new java.awt.Dimension(500, 600));
+        panelAccountCard.setPreferredSize(new java.awt.Dimension(450, 600));
         panelAccountCard.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         lblYourAcc.setFont(new java.awt.Font("Serif", 1, 24)); // NOI18N
         lblYourAcc.setText("Your Account");
-        panelAccountCard.add(lblYourAcc, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 10, -1, -1));
+        panelAccountCard.add(lblYourAcc, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 20, -1, -1));
 
         lblIconProfile.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         lblIconProfile.setIcon(new javax.swing.ImageIcon(getClass().getResource("/carrentalsystem/ui/user/Icons/DefaultAvatar.png"))); // NOI18N
-        panelAccountCard.add(lblIconProfile, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 80, 98, 84));
+        lblIconProfile.setToolTipText("Click to change photo");
+        lblIconProfile.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        lblIconProfile.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                lblIconProfileMouseClicked(evt);
+            }
+        });
+        panelAccountCard.add(lblIconProfile, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 80, 98, 84));
 
         lblName.setFont(new java.awt.Font("Serif", 1, 30)); // NOI18N
-        lblName.setText("Charmaine");
-        panelAccountCard.add(lblName, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 100, -1, -1));
+        lblName.setText("Charmaine Illustrisimo");
+        panelAccountCard.add(lblName, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 100, -1, -1));
+
+        lblEdit.setIcon(new javax.swing.ImageIcon(getClass().getResource("/carrentalsystem/ui/user/Icons/EditProfile.png"))); // NOI18N
+        lblEdit.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                lblEditMouseClicked(evt);
+            }
+        });
+        panelAccountCard.add(lblEdit, new org.netbeans.lib.awtextra.AbsoluteConstraints(490, 100, 36, 39));
 
         lblUpgrade.setIcon(new javax.swing.ImageIcon(getClass().getResource("/carrentalsystem/ui/user/Icons/Upgrade.png"))); // NOI18N
-        panelAccountCard.add(lblUpgrade, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 100, 36, 39));
+        panelAccountCard.add(lblUpgrade, new org.netbeans.lib.awtextra.AbsoluteConstraints(530, 100, 36, 39));
 
+        txtName.setEditable(false);
         txtName.setFont(new java.awt.Font("Serif", 1, 16)); // NOI18N
         txtName.setText("Charmaine Illustrisimo");
-        panelAccountCard.add(txtName, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 220, 455, 40));
+        txtName.setBorder(javax.swing.BorderFactory.createCompoundBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)), javax.swing.BorderFactory.createEmptyBorder(1, 15, 1, 1)));
+        txtName.setDisabledTextColor(new java.awt.Color(204, 204, 204));
+        panelAccountCard.add(txtName, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 220, 530, 40));
 
         lblNameAcc.setFont(new java.awt.Font("Serif", 1, 16)); // NOI18N
         lblNameAcc.setText("Name");
-        panelAccountCard.add(lblNameAcc, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 200, -1, -1));
+        panelAccountCard.add(lblNameAcc, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 200, -1, -1));
 
+        txtEmail.setEditable(false);
         txtEmail.setFont(new java.awt.Font("Serif", 1, 16)); // NOI18N
-        txtEmail.setText("charmainillustrisimo@gmail.com");
+        txtEmail.setText("charmaineaillustrisimo@gmail.com");
+        txtEmail.setBorder(javax.swing.BorderFactory.createCompoundBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)), javax.swing.BorderFactory.createEmptyBorder(1, 15, 1, 1)));
+        txtEmail.setDisabledTextColor(new java.awt.Color(204, 204, 204));
+        txtEmail.setPreferredSize(new java.awt.Dimension(257, 25));
         txtEmail.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 txtEmailActionPerformed(evt);
             }
         });
-        panelAccountCard.add(txtEmail, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 290, 455, 36));
+        panelAccountCard.add(txtEmail, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 290, 530, 40));
 
         lbleEmail.setFont(new java.awt.Font("Serif", 1, 16)); // NOI18N
         lbleEmail.setText("Email");
-        panelAccountCard.add(lbleEmail, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 270, -1, 13));
+        panelAccountCard.add(lbleEmail, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 270, -1, 13));
 
+        txtPassword.setEditable(false);
         txtPassword.setFont(new java.awt.Font("Serif", 1, 16)); // NOI18N
         txtPassword.setText("jPasswordField1");
-        panelAccountCard.add(txtPassword, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 360, 455, 37));
+        txtPassword.setBorder(javax.swing.BorderFactory.createCompoundBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)), javax.swing.BorderFactory.createEmptyBorder(1, 15, 1, 1)));
+        panelAccountCard.add(txtPassword, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 360, 530, 37));
 
         lblPassword.setFont(new java.awt.Font("Serif", 1, 16)); // NOI18N
         lblPassword.setText("Password");
-        panelAccountCard.add(lblPassword, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 340, -1, -1));
-
-        btnDelete.setText("Delete");
-        btnDelete.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnDeleteActionPerformed(evt);
-            }
-        });
-        panelAccountCard.add(btnDelete, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 550, 130, 42));
+        panelAccountCard.add(lblPassword, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 340, -1, -1));
 
         lblLocation.setFont(new java.awt.Font("Serif", 1, 16)); // NOI18N
         lblLocation.setText("Location");
-        panelAccountCard.add(lblLocation, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 410, -1, -1));
+        panelAccountCard.add(lblLocation, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 410, -1, -1));
 
+        txtCity.setEditable(false);
         txtCity.setFont(new java.awt.Font("Serif", 1, 16)); // NOI18N
         txtCity.setText("City");
-        panelAccountCard.add(txtCity, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 430, 455, 41));
+        txtCity.setBorder(javax.swing.BorderFactory.createCompoundBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)), javax.swing.BorderFactory.createEmptyBorder(1, 15, 1, 1)));
+        txtCity.setDisabledTextColor(new java.awt.Color(204, 204, 204));
+        panelAccountCard.add(txtCity, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 430, 530, 41));
 
+        txtProvince.setEditable(false);
         txtProvince.setFont(new java.awt.Font("Serif", 1, 16)); // NOI18N
         txtProvince.setText("Province");
-        panelAccountCard.add(txtProvince, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 480, 455, 41));
+        txtProvince.setBorder(javax.swing.BorderFactory.createCompoundBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)), javax.swing.BorderFactory.createEmptyBorder(1, 15, 1, 1)));
+        txtProvince.setDisabledTextColor(new java.awt.Color(204, 204, 204));
+        panelAccountCard.add(txtProvince, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 480, 530, 41));
 
         btnSwitchAcc.setText("Switch Account");
         btnSwitchAcc.addActionListener(new java.awt.event.ActionListener() {
@@ -511,7 +483,7 @@ public class ProfilePanel extends javax.swing.JPanel {
                 btnSwitchAccActionPerformed(evt);
             }
         });
-        panelAccountCard.add(btnSwitchAcc, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 550, 130, 42));
+        panelAccountCard.add(btnSwitchAcc, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 550, 130, 42));
 
         btnUpdate.setText("Update");
         btnUpdate.addActionListener(new java.awt.event.ActionListener() {
@@ -519,45 +491,40 @@ public class ProfilePanel extends javax.swing.JPanel {
                 btnUpdateActionPerformed(evt);
             }
         });
-        panelAccountCard.add(btnUpdate, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 550, 130, 42));
+        panelAccountCard.add(btnUpdate, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 550, 130, 42));
+
+        btnDelete.setBackground(new java.awt.Color(255, 100, 100));
+        btnDelete.setForeground(new java.awt.Color(255, 255, 255));
+        btnDelete.setText("Delete");
+        btnDelete.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnDeleteActionPerformed(evt);
+            }
+        });
+        panelAccountCard.add(btnDelete, new org.netbeans.lib.awtextra.AbsoluteConstraints(460, 550, 130, 42));
 
         pnlCardsContainer.add(panelAccountCard, "cardSettings");
 
-        add(pnlCardsContainer, new org.netbeans.lib.awtextra.AbsoluteConstraints(262, 32, -1, -1));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(32, 42, 0, 42);
+        add(pnlCardsContainer, gridBagConstraints);
+
+        lblAboutUs.setText("<html><center>About Us<br>© 2026 IT. All Rights Reserved.</center></html>");
+        lblAboutUs.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.gridheight = 2;
+        gridBagConstraints.ipadx = 123;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTH;
+        gridBagConstraints.insets = new java.awt.Insets(38, 110, 40, 0);
+        add(lblAboutUs, gridBagConstraints);
     }// </editor-fold>//GEN-END:initComponents
-
-    private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
-        // TODO add your handling code here:
-        int confirm = javax.swing.JOptionPane.showConfirmDialog(this,
-                "Are you sure you want to permanently delete your account?\nThis cannot be undone.",
-                "Delete Account",
-                javax.swing.JOptionPane.YES_NO_OPTION,
-                javax.swing.JOptionPane.WARNING_MESSAGE);
-
-        if (confirm != javax.swing.JOptionPane.YES_OPTION) {
-            return;
-        }
-
-        new Thread(() -> {
-            try {
-                int userId = SessionManager.getCurrentUser().getUserId();
-                carrentalsystem.services.UserService svc
-                        = new carrentalsystem.services.UserService();
-                svc.deleteAccount(userId);
-                SessionManager.endSession();
-
-                javax.swing.SwingUtilities.invokeLater(() -> {
-                    // Go back to login screen
-                    new carrentalsystem.auth.LoginFrame().setVisible(true);
-                    javax.swing.SwingUtilities.getWindowAncestor(this).dispose();
-                });
-            } catch (Exception e) {
-                javax.swing.SwingUtilities.invokeLater(()
-                        -> javax.swing.JOptionPane.showMessageDialog(this,
-                                "Error deleting account: " + e.getMessage()));
-            }
-        }).start();
-    }//GEN-LAST:event_btnDeleteActionPerformed
 
     private void txtEmailActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtEmailActionPerformed
         // TODO add your handling code here:
@@ -565,34 +532,130 @@ public class ProfilePanel extends javax.swing.JPanel {
 
     private void btnSwitchAccActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSwitchAccActionPerformed
         // TODO add your handling code here:
-        int confirm = javax.swing.JOptionPane.showConfirmDialog(this,
-                "Are you sure you want to switch accounts? You will be logged out.",
+        carrentalsystem.models.User currentUser
+                = carrentalsystem.core.SessionManager.getCurrentUser();
+        if (currentUser == null) {
+            return;
+        }
+
+        // ── STEP 1: Fetch all other active users ──────────────
+        java.util.List<carrentalsystem.models.User> users;
+        try {
+            carrentalsystem.services.UserService svc
+                    = new carrentalsystem.services.UserService();
+            users = svc.getAllActiveUsers(currentUser.getUserId());
+        } catch (Exception e) {
+            javax.swing.JOptionPane.showMessageDialog(this,
+                    "Could not load accounts: " + e.getMessage());
+            return;
+        }
+
+        if (users.isEmpty()) {
+            javax.swing.JOptionPane.showMessageDialog(this,
+                    "No other accounts found.",
+                    "Switch Account",
+                    javax.swing.JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+
+        // ── STEP 2: Show account picker ───────────────────────
+        // Build display strings: "Full Name (email)"
+        String[] displayNames = users.stream()
+                .map(u -> u.getFullName() + "  (" + u.getEmail() + ")")
+                .toArray(String[]::new);
+
+        String selected = (String) javax.swing.JOptionPane.showInputDialog(
+                this,
+                "Select an account to switch to:",
                 "Switch Account",
-                javax.swing.JOptionPane.YES_NO_OPTION,
-                javax.swing.JOptionPane.QUESTION_MESSAGE);
+                javax.swing.JOptionPane.PLAIN_MESSAGE,
+                null,
+                displayNames,
+                displayNames[0]
+        );
 
-        if (confirm == javax.swing.JOptionPane.YES_OPTION) {
-            // 2. End the current session
-            try {
-                carrentalsystem.core.SessionManager.endSession();
-
-                // 3. Return to the Login page
-                javax.swing.SwingUtilities.invokeLater(() -> {
-                    new carrentalsystem.auth.LoginFrame().setVisible(true);
-
-                    // Close the current Dashboard window
-                    java.awt.Window ancestor = javax.swing.SwingUtilities.getWindowAncestor(this);
-                    if (ancestor != null) {
-                        ancestor.dispose();
-                    }
-                });
-            } catch (java.sql.SQLException ex) {
-                javax.swing.JOptionPane.showMessageDialog(this,
-                        "Error during logout: " + ex.getMessage(),
-                        "Logout Error",
-                        javax.swing.JOptionPane.ERROR_MESSAGE);
+        if (selected == null) {
+            return; // User cancelled
+        }
+        // Find the chosen User object by matching display string
+        carrentalsystem.models.User chosenUser = null;
+        for (int i = 0; i < displayNames.length; i++) {
+            if (displayNames[i].equals(selected)) {
+                chosenUser = users.get(i);
+                break;
             }
         }
+        if (chosenUser == null) {
+            return;
+        }
+
+        final carrentalsystem.models.User targetUser = chosenUser;
+
+        // ── STEP 3: Ask for password ──────────────────────────
+        javax.swing.JPasswordField pwdField = new javax.swing.JPasswordField(20);
+        int pwdResult = javax.swing.JOptionPane.showConfirmDialog(
+                this,
+                new Object[]{
+                    "Enter password for " + targetUser.getFullName() + ":",
+                    pwdField
+                },
+                "Verify Password",
+                javax.swing.JOptionPane.OK_CANCEL_OPTION,
+                javax.swing.JOptionPane.PLAIN_MESSAGE
+        );
+
+        if (pwdResult != javax.swing.JOptionPane.OK_OPTION) {
+            return;
+        }
+
+        String enteredPassword = new String(pwdField.getPassword()).trim();
+        if (enteredPassword.isEmpty()) {
+            javax.swing.JOptionPane.showMessageDialog(this,
+                    "Password cannot be empty.");
+            return;
+        }
+
+        // ── STEP 4: Verify password with BCrypt ──────────────
+        boolean passwordOk = org.mindrot.jbcrypt.BCrypt.checkpw(
+                enteredPassword, targetUser.getPassword());
+
+        if (!passwordOk) {
+            javax.swing.JOptionPane.showMessageDialog(this,
+                    "Incorrect password. Switch cancelled.",
+                    "Authentication Failed",
+                    javax.swing.JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // ── STEP 5: Switch the session ────────────────────────
+        new Thread(() -> {
+            try {
+                // End the current session
+                carrentalsystem.core.SessionManager.endSession();
+
+                // Start a new session for the chosen user
+                carrentalsystem.core.SessionManager.startSession(targetUser);
+
+                javax.swing.SwingUtilities.invokeLater(() -> {
+                    // Reload dashboard with the new user's data
+                    if (dashboard != null) {
+                        dashboard.reloadForUser();
+                    } else {
+                        // Fallback: open a fresh LoginFrame
+                        new carrentalsystem.auth.LoginFrame().setVisible(true);
+                        java.awt.Window ancestor
+                                = javax.swing.SwingUtilities.getWindowAncestor(this);
+                        if (ancestor != null) {
+                            ancestor.dispose();
+                        }
+                    }
+                });
+            } catch (Exception e) {
+                javax.swing.SwingUtilities.invokeLater(()
+                        -> javax.swing.JOptionPane.showMessageDialog(this,
+                                "Error switching account: " + e.getMessage()));
+            }
+        }).start();
     }//GEN-LAST:event_btnSwitchAccActionPerformed
 
     private void btnUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUpdateActionPerformed
@@ -609,7 +672,7 @@ public class ProfilePanel extends javax.swing.JPanel {
         user.setProvince(txtProvince.getText().trim());
 
         String pwdInput = new String(txtPassword.getPassword()).trim();
-        if (!pwdInput.isEmpty() && !pwdInput.equals("jPasswordField1")) {
+        if (!pwdInput.isEmpty()) {
             user.setPassword(pwdInput);
         }
 
@@ -623,8 +686,18 @@ public class ProfilePanel extends javax.swing.JPanel {
                 SessionManager.setCurrentUser(svc.getUserById(user.getUserId()));
 
                 javax.swing.SwingUtilities.invokeLater(() -> {
-                    javax.swing.JOptionPane.showMessageDialog(this, "Profile Details Updated!");
-                    loadUserData(); // Refresh the labels
+                    javax.swing.JOptionPane.showMessageDialog(this, "Profile updated successfully!");
+                    loadUserData();
+                    isEditing = true;  
+                    toggleEditMode();  
+                    if (dashboard != null) {
+                        carrentalsystem.models.User refreshed
+                                = carrentalsystem.core.SessionManager.getCurrentUser();
+                        if (refreshed != null) {
+                            dashboard.getHeaderPanel().updateProfileIcon(
+                                    refreshed.getProfileImagePath());
+                        }
+                    }
                 });
             } catch (Exception e) {
                 javax.swing.SwingUtilities.invokeLater(()
@@ -632,6 +705,100 @@ public class ProfilePanel extends javax.swing.JPanel {
             }
         }).start();
     }//GEN-LAST:event_btnUpdateActionPerformed
+
+    private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
+        // TODO add your handling code here:
+        int confirm = javax.swing.JOptionPane.showConfirmDialog(this,
+                "Are you sure you want to permanently delete your account?\nThis cannot be undone.",
+                "Delete Account",
+                javax.swing.JOptionPane.YES_NO_OPTION,
+                javax.swing.JOptionPane.WARNING_MESSAGE);
+
+        if (confirm != javax.swing.JOptionPane.YES_OPTION) {
+            return;
+        }
+
+        new Thread(() -> {
+            try {
+                int userId = carrentalsystem.core.SessionManager.getCurrentUser().getUserId();
+                carrentalsystem.services.UserService svc
+                        = new carrentalsystem.services.UserService();
+                svc.deleteAccount(userId);
+                carrentalsystem.core.SessionManager.endSession();
+
+                javax.swing.SwingUtilities.invokeLater(() -> {
+                    new carrentalsystem.auth.LoginFrame().setVisible(true);
+                    java.awt.Window ancestor
+                            = javax.swing.SwingUtilities.getWindowAncestor(this);
+                    if (ancestor != null) {
+                        ancestor.dispose();
+                    }
+                });
+            } catch (Exception e) {
+                javax.swing.SwingUtilities.invokeLater(()
+                        -> javax.swing.JOptionPane.showMessageDialog(this,
+                                "Error deleting account: " + e.getMessage()));
+            }
+        }).start();
+    }//GEN-LAST:event_btnDeleteActionPerformed
+
+    private void lblEditMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblEditMouseClicked
+        // TODO add your handling code here:
+        toggleEditMode();
+    }//GEN-LAST:event_lblEditMouseClicked
+
+    private void lblIconProfileMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblIconProfileMouseClicked
+        // TODO add your handling code here:
+        // Only allow image change when in edit mode
+        if (!isEditing) {
+            javax.swing.JOptionPane.showMessageDialog(this,
+                    "Click the ✏ edit icon first to enable editing.",
+                    "Edit Mode Required",
+                    javax.swing.JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+
+        // Open file chooser
+        javax.swing.JFileChooser chooser = new javax.swing.JFileChooser();
+        chooser.setDialogTitle("Choose Profile Picture");
+        chooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter(
+                "Image Files (JPG, PNG)", "jpg", "jpeg", "png"));
+        chooser.setAcceptAllFileFilterUsed(false);
+
+        int result = chooser.showOpenDialog(this);
+        if (result != javax.swing.JFileChooser.APPROVE_OPTION) {
+            return;
+        }
+
+        java.io.File selectedFile = chooser.getSelectedFile();
+        if (selectedFile == null || !selectedFile.exists()) {
+            return;
+        }
+
+        // Copy the image to the project's upload directory
+        String savedPath = carrentalsystem.utils.ImageUtil.copyImage(selectedFile);
+        if (savedPath == null) {
+            javax.swing.JOptionPane.showMessageDialog(this,
+                    "Could not save image. Please try again.");
+            return;
+        }
+
+        // Update the profile icon in ProfilePanel immediately
+        carrentalsystem.utils.ImageUtil.applyScaledImage(lblIconProfile, savedPath, 80, 80);
+
+        // Update the header icon immediately
+        if (dashboard != null) {
+            dashboard.getHeaderPanel().updateProfileIcon(savedPath);
+        }
+
+        // Save the path to the current user's model object
+        // (will be persisted to DB when user clicks Update)
+        carrentalsystem.models.User user
+                = carrentalsystem.core.SessionManager.getCurrentUser();
+        if (user != null) {
+            user.setProfileImagePath(savedPath);
+        }
+    }//GEN-LAST:event_lblIconProfileMouseClicked
 
     public static void main(String[] args) {
         // Set the look and feel to your system's style (Windows/Mac)
@@ -671,6 +838,7 @@ public class ProfilePanel extends javax.swing.JPanel {
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel lblAboutUs;
     private javax.swing.JLabel lblDescription;
+    private javax.swing.JLabel lblEdit;
     private javax.swing.JLabel lblIconProfile;
     private javax.swing.JLabel lblIssue;
     private javax.swing.JLabel lblLocation;

@@ -33,6 +33,10 @@ public class MainDashboard extends javax.swing.JFrame {
     private NotificationsPanel notificationsPanel;
     private InboxPanel inboxPanel1;
     private ProfilePanel profilePanel1;
+    private RentalCalendar rentalCalendar1;
+    private SettingsBrowsingPanel settingsBrowsing1;
+    private SettingsRentalsPanel settingsRentals1;
+    private String query;
     
     /**
      * Creates new form MainDashboard
@@ -111,6 +115,8 @@ public class MainDashboard extends javax.swing.JFrame {
             cl.show(pnlMainContent, "profileCard"); 
             if (sideMenu != null) sideMenu.setVisible(false);
         });
+        
+        headerPanel.setSearchAction(query -> filterCarFeed(query));
 
         // Set Window properties
         setExtendedState(JFrame.MAXIMIZED_BOTH);
@@ -238,8 +244,39 @@ public class MainDashboard extends javax.swing.JFrame {
 
         pnlProfileWrapper.add(profilePanel1, gbcProfile);
         pnlMainContent.add(pnlProfileWrapper, "profileCard"); 
-
         
+        // Reservations Panel
+        rentalCalendar1 = new RentalCalendar();
+        java.awt.Dimension calSize = new java.awt.Dimension(1100, 700);
+        rentalCalendar1.setPreferredSize(calSize);
+        rentalCalendar1.setMinimumSize(calSize);
+        rentalCalendar1.setMaximumSize(calSize);
+
+        pnlRentalCalendarWrapper.setLayout(new java.awt.GridBagLayout());
+        pnlRentalCalendarWrapper.setOpaque(false);
+
+        java.awt.GridBagConstraints gbcCal = new java.awt.GridBagConstraints();
+        gbcCal.gridx = 0;
+        gbcCal.gridy = 0;
+        gbcCal.weightx = 1.0;
+        gbcCal.weighty = 1.0;
+        gbcCal.fill = java.awt.GridBagConstraints.NONE;
+        gbcCal.anchor = java.awt.GridBagConstraints.CENTER;
+
+        pnlRentalCalendarWrapper.removeAll();
+        pnlRentalCalendarWrapper.add(rentalCalendar1, gbcCal);
+        
+        // Settings Panel
+        settingsBrowsing1 = new SettingsBrowsingPanel();
+        settingsRentals1 = new SettingsRentalsPanel();
+
+        pnlSettingsWrapper.setLayout(new java.awt.CardLayout());
+
+        pnlSettingsWrapper.add(settingsBrowsing1, "SUB_BROWSING");
+        pnlSettingsWrapper.add(settingsRentals1, "SUB_RENTALS");
+
+        java.awt.CardLayout settingsCL = (java.awt.CardLayout) pnlSettingsWrapper.getLayout();
+        settingsCL.show(pnlSettingsWrapper, "SUB_BROWSING");
     }
     
     /**
@@ -258,16 +295,42 @@ public class MainDashboard extends javax.swing.JFrame {
         pnlCarFeed.setPreferredSize(new java.awt.Dimension(1080, 2000));
 
         try {
-            CarService carService = new CarService();
-            List<Car> availableCars = carService.getAvailableCars(""); // Empty string for all
-
-            for (Car car : availableCars) {
+            carrentalsystem.services.CarService svc = new carrentalsystem.services.CarService();
+            java.util.List<carrentalsystem.models.Car> filtered = svc.getAvailableCars(query);
+            for (carrentalsystem.models.Car car : filtered) {
                 addCarToFeed(car);
             }
         } catch (Exception e) {
             System.err.println("Feed Error: " + e.getMessage());
         }
 
+        pnlCarFeed.revalidate();
+        pnlCarFeed.repaint();
+    }
+    
+    /**
+     * Filters the car discovery feed based on the search query from
+     * HeaderPanel.
+     */
+    public void filterCarFeed(String query) {
+        // 1. Clear the current cards in the feed
+        pnlCarFeed.removeAll();
+
+        try {
+            // 2. Use CarService to fetch filtered cars from database
+            carrentalsystem.services.CarService carService = new carrentalsystem.services.CarService();
+            // If query is "Search" or empty, get all; otherwise filter by name/brand
+            java.util.List<carrentalsystem.models.Car> filteredCars = carService.getAvailableCars(query);
+
+            // 3. Add each car card back to the UI
+            for (carrentalsystem.models.Car car : filteredCars) {
+                addCarToFeed(car);
+            }
+        } catch (Exception e) {
+            System.err.println("Search Filter Error: " + e.getMessage());
+        }
+
+        // 4. Force UI to refresh
         pnlCarFeed.revalidate();
         pnlCarFeed.repaint();
     }
@@ -302,6 +365,12 @@ public class MainDashboard extends javax.swing.JFrame {
         card.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
             public void mouseClicked(java.awt.event.MouseEvent e) {
+                int userId = carrentalsystem.core.SessionManager.getCurrentUser().getUserId();
+                try {
+                    new carrentalsystem.services.HistoryService().logBrowsingActivity(userId, car.getCarId());
+                } catch (Exception ex) {
+                    System.err.println("Failed to log history: " + ex.getMessage());
+                }
                 showCarDetails(car);
             }
         });
@@ -339,6 +408,11 @@ public class MainDashboard extends javax.swing.JFrame {
         }
     }
     
+    public void showRentalCalendar() {
+        rentalCalendar1.loadData(); // refresh before showing
+        java.awt.CardLayout cl = (java.awt.CardLayout) pnlMainContent.getLayout();
+        cl.show(pnlMainContent, "calendarCard");  // use whatever your card name is
+    }
     
     public carrentalsystem.ui.user.AddListPanel getPnlAddList1() {
         return pnlAddList1;
@@ -368,6 +442,10 @@ public class MainDashboard extends javax.swing.JFrame {
         return headerPanel;
     }
     
+    public RentalCalendar getRentalCalendar() {
+        return rentalCalendar1;
+    }
+    
     public void updateNotificationBadge() {
         try {
             int userId = carrentalsystem.core.SessionManager.getCurrentUser().getUserId();
@@ -391,6 +469,36 @@ public class MainDashboard extends javax.swing.JFrame {
         });
         timer.start();
     }
+    
+    /**
+     * Called after a Switch Account — refreshes all panels for the new user.
+     */
+    public void reloadForUser() {
+        carrentalsystem.models.User user
+                = carrentalsystem.core.SessionManager.getCurrentUser();
+        if (user == null) {
+            return;
+        }
+
+        // Refresh header (name + avatar)
+        if (headerPanel != null) {
+            headerPanel.updateProfileIcon(user.getProfileImagePath());
+        }
+
+        // Refresh profile panel
+        if (profilePanel1 != null) {
+            profilePanel1.loadUserData();
+        }
+
+        // Go back to discovery screen
+        java.awt.CardLayout cl = (java.awt.CardLayout) pnlMainContent.getLayout();
+        cl.show(pnlMainContent, "discovery");
+
+        // Refresh notification badge
+        updateNotificationBadge();
+    }
+    
+    
     
     /**
      * This method is called from within the constructor to initialize the form.
@@ -445,6 +553,8 @@ public class MainDashboard extends javax.swing.JFrame {
         pnlNotificationsWrapper = new javax.swing.JPanel();
         pnlInboxWrapper = new javax.swing.JPanel();
         pnlProfileWrapper = new javax.swing.JPanel();
+        pnlRentalCalendarWrapper = new javax.swing.JPanel();
+        pnlSettingsWrapper = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Rent A Car - Cebu, Philippines");
@@ -499,6 +609,13 @@ public class MainDashboard extends javax.swing.JFrame {
         pnlMainContent.add(pnlInboxWrapper, "inboxCard");
         pnlMainContent.add(pnlProfileWrapper, "profileCard");
 
+        pnlRentalCalendarWrapper.setOpaque(false);
+        pnlMainContent.add(pnlRentalCalendarWrapper, "calendarCard");
+
+        pnlSettingsWrapper.setPreferredSize(new java.awt.Dimension(1100, 700));
+        pnlSettingsWrapper.setLayout(new java.awt.CardLayout());
+        pnlMainContent.add(pnlSettingsWrapper, "settingsCard");
+
         getContentPane().add(pnlMainContent, java.awt.BorderLayout.CENTER);
 
         pack();
@@ -541,6 +658,8 @@ public class MainDashboard extends javax.swing.JFrame {
     private javax.swing.JPanel pnlMyRentalsWrapper;
     private javax.swing.JPanel pnlNotificationsWrapper;
     private javax.swing.JPanel pnlProfileWrapper;
+    private javax.swing.JPanel pnlRentalCalendarWrapper;
+    private javax.swing.JPanel pnlSettingsWrapper;
     private javax.swing.JScrollPane spDiscoverFeed;
     // End of variables declaration//GEN-END:variables
 }

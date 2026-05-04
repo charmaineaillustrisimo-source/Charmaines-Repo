@@ -3,6 +3,9 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JPanel.java to edit this template
  */
 package carrentalsystem.ui.user;
+
+import carrentalsystem.utils.ImageUtil;
+
 /**
  *
  * @author macbookairm1grey
@@ -17,6 +20,7 @@ public class HeaderPanel extends javax.swing.JPanel {
     private Runnable notificationsAction;
     private Runnable profileAction;
     private int unreadCount = 0;
+    private java.util.function.Consumer<String> searchCallback;
     
     public HeaderPanel() {
         initComponents();
@@ -57,7 +61,7 @@ public class HeaderPanel extends javax.swing.JPanel {
 
         if (imagePath != null && !imagePath.isEmpty()) {
             // Load the user's custom photo
-            carrentalsystem.utils.ImageUtil.applyScaledImage(btnProfile, imagePath, size, size);
+            ImageUtil.applyScaledImage(btnProfile, imagePath, size, size);
         } else {
             // Load your default "user" icon from resources
             try {
@@ -71,6 +75,10 @@ public class HeaderPanel extends javax.swing.JPanel {
                 System.err.println("Default profile icon not found!");
             }
         }
+    }
+    
+    public void setSearchAction(java.util.function.Consumer<String> action) {
+        this.searchCallback = action;
     }
     
     
@@ -159,6 +167,12 @@ public class HeaderPanel extends javax.swing.JPanel {
                 txtSearchFocusLost(evt);
             }
         });
+        txtSearch.addActionListener(this::txtSearchActionPerformed);
+        txtSearch.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                txtSearchKeyReleased(evt);
+            }
+        });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 0;
@@ -237,6 +251,22 @@ public class HeaderPanel extends javax.swing.JPanel {
             notificationsAction.run();
         }
     }//GEN-LAST:event_btnNotificationsActionPerformed
+
+    private void txtSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtSearchActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtSearchActionPerformed
+
+    private void txtSearchKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtSearchKeyReleased
+        // TODO add your handling code here:
+        String query = txtSearch.getText().trim();
+        if (searchCallback != null) {
+            if (query.isEmpty() || query.equalsIgnoreCase("Search")) {
+                searchCallback.accept("");
+            } else {
+                searchCallback.accept(query); 
+            }
+        }
+    }//GEN-LAST:event_txtSearchKeyReleased
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

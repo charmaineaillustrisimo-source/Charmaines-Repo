@@ -26,4 +26,6 @@ public interface ICarService {
     void incrementViews(int carId) throws SQLException;
 
     List<Car> getCarsByOwner(int ownerId) throws SQLException;
+    
+    
 }

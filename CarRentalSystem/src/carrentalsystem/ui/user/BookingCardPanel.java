@@ -200,7 +200,7 @@ public class BookingCardPanel extends JPanel{
                             // Tell renter: payment confirmed
                             notifSvc.notify(renterId,
                                     "Payment confirmed for " + carName + ". Enjoy your trip! Check your receipt.",
-                                    "RECEIPT");
+                                    "RENTAL");
                             break;
                         case "CANCELLED":
                             // Tell renter: not paid / cancelled

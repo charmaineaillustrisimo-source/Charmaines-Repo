@@ -16,10 +16,23 @@ import java.util.*;
 public class CarService implements ICarService{
     @Override
     public List<Car> getAvailableCars(String keyword) throws SQLException {
-        String sql = "SELECT * FROM cars WHERE status = 'ACTIVE' "
-                + "ORDER BY is_priority DESC, created_at ASC";
+        String sql = "SELECT * FROM cars WHERE status = 'ACTIVE' ";
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            sql += "AND (brand LIKE ? OR model LIKE ?) ";
+        }
+
+        sql += "ORDER BY is_priority DESC, created_at ASC";
+
         List<Car> list = new ArrayList<>();
         try (PreparedStatement ps = DBConnection.getConnection().prepareStatement(sql)) {
+
+            // 3. Set parameters for the LIKE filter
+            if (keyword != null && !keyword.trim().isEmpty()) {
+                String searchPattern = "%" + keyword.trim() + "%";
+                ps.setString(1, searchPattern);
+                ps.setString(2, searchPattern);
+            }
+
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 list.add(mapCar(rs));

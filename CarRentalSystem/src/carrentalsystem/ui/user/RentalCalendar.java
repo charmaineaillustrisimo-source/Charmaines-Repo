@@ -19,193 +19,185 @@ private java.util.Map<Integer, java.util.List<String>> bookingData = new java.ut
      */
     public RentalCalendar() {
         initComponents();
-// 1. CLEAR THE CANVAS
-    // We wipe everything NetBeans did so our manual layouts take over correctly
-    this.removeAll(); 
-    contentPanel.removeAll();
-    panelSidebarContainer.removeAll();
+        // 1. CLEAR THE CANVAS
+        // We wipe everything NetBeans did so our manual layouts take over correctly
+        this.removeAll();
+        contentPanel.removeAll();
+        panelSidebarContainer.removeAll();
 
-    // 2. OUTER PANEL (The Pink Background)
-    this.setLayout(new java.awt.BorderLayout());
-    this.setBorder(javax.swing.BorderFactory.createEmptyBorder(20, 25, 20, 25));
-    this.setBackground(new java.awt.Color(234, 221, 221));
+        // 2. OUTER PANEL (The Pink Background)
+        this.setLayout(new java.awt.BorderLayout());
+        this.setBorder(javax.swing.BorderFactory.createEmptyBorder(20, 25, 20, 25));
+        this.setBackground(new java.awt.Color(223, 208, 209));
 
-    // 3. WHITE CARD SETUP (contentPanel)
-    contentPanel.setLayout(new java.awt.BorderLayout(25, 15));
-    contentPanel.setOpaque(false); // Let the custom paintComponent handle the white round rect
-    contentPanel.setBorder(javax.swing.BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        // 3. WHITE CARD SETUP (contentPanel)
+        contentPanel.setLayout(new java.awt.BorderLayout(25, 15));
+        contentPanel.setOpaque(false); // Let the custom paintComponent handle the white round rect
+        contentPanel.setBorder(javax.swing.BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-    // 4. TOP SEARCH ROW (Inside the White Card)
-    javax.swing.JPanel searchRow = new javax.swing.JPanel(new java.awt.BorderLayout(15, 0));
-    searchRow.setOpaque(false);
-    txtSearch.setPreferredSize(new java.awt.Dimension(0, 42));
-    txtFilter.setPreferredSize(new java.awt.Dimension(120, 42));
-    searchRow.add(txtSearch, java.awt.BorderLayout.CENTER);
-    searchRow.add(txtFilter, java.awt.BorderLayout.EAST);
-    contentPanel.add(searchRow, java.awt.BorderLayout.NORTH);
 
-    // 5. THE MAIN BODY (Calendar + Sidebar)
-    javax.swing.JPanel mainBody = new javax.swing.JPanel(new java.awt.BorderLayout(20, 0));
-    mainBody.setOpaque(false);
+        // 5. THE MAIN BODY (Calendar + Sidebar)
+        javax.swing.JPanel mainBody = new javax.swing.JPanel(new java.awt.BorderLayout(20, 0));
+        mainBody.setOpaque(false);
 
-    // CALENDAR SIDE
-    calendarGrid.removeAll();
-    calendarGrid.setLayout(new java.awt.GridLayout(0, 7, 1, 1));
-    calendarGrid.setBackground(new java.awt.Color(180, 180, 180)); // Grid line color
-    
-    // Add Days (header labels Sun-Sat should be added here first)
-    setupCalendarDays(); 
-
-    // SIDEBAR SIDE (Filter + Legend)
-    javax.swing.JPanel sidebar = new javax.swing.JPanel();
-    sidebar.setLayout(new javax.swing.BoxLayout(sidebar, javax.swing.BoxLayout.Y_AXIS));
-    sidebar.setOpaque(false);
-    sidebar.setPreferredSize(new java.awt.Dimension(220, 0));
-
-    // Filter Cars Box
-    filterCars.setPreferredSize(new java.awt.Dimension(220, 350));
-    filterCars.setMaximumSize(new java.awt.Dimension(220, 350));
-    sidebar.add(filterCars);
-    sidebar.add(javax.swing.Box.createVerticalStrut(20));
-
-    // Legend Section
-    javax.swing.JPanel legendArea = new javax.swing.JPanel(new java.awt.GridLayout(0, 1, 0, 8));
-    legendArea.setOpaque(false);
-    legendArea.add(lblLegend);
-    legendArea.add(combine(lblGreenIcon, lblBooked));
-    legendArea.add(combine(lblGoldIcon, lblConfirmed));
-    legendArea.add(combine(lblBlueIcon, lblPending));
-    legendArea.add(combine(lblRedIcon, lblMaintenance));
-    sidebar.add(legendArea);
-
-    mainBody.add(calendarGrid, java.awt.BorderLayout.CENTER);
-    mainBody.add(sidebar, java.awt.BorderLayout.EAST);
-    contentPanel.add(mainBody, java.awt.BorderLayout.CENTER);
-
-    // 6. FINAL ASSEMBLY
-    this.add(topContainer, java.awt.BorderLayout.NORTH);
-    this.add(contentPanel, java.awt.BorderLayout.CENTER);
-    
-    addBooking(5, "Booked");
-        addBooking(12, "Pending");
-        addBooking(12, "Confirmed"); 
-        addBooking(25, "Maintenance");
-
-    this.revalidate();
-    this.repaint();
-    }
-
-private javax.swing.JPanel combine(javax.swing.JLabel icon, javax.swing.JLabel text) {
-    javax.swing.JPanel p = new javax.swing.JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT, 10, 0));
-    p.setOpaque(false);
-    icon.setPreferredSize(new java.awt.Dimension(40, 15)); // Matches the thin bar style
-    p.add(icon);
-    p.add(text);
-    return p;
-}
-
-private void setupCalendarDays() {
-    // 1. Set the Title based on current date
-    String monthName = currentDisplayDate.getMonth().getDisplayName(
-            java.time.format.TextStyle.FULL, java.util.Locale.ENGLISH);
-    lblMonthYear.setText("Rental Calendar - " + monthName + " " + currentDisplayDate.getYear());
-
-    // 2. Add Day Headers (Sun, Mon, etc.)
-    String[] headers = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
-    for (String h : headers) {
-        javax.swing.JLabel headerLabel = new javax.swing.JLabel(h, javax.swing.SwingConstants.CENTER);
-        headerLabel.setOpaque(true);
-        headerLabel.setBackground(new java.awt.Color(186, 150, 150));
-        headerLabel.setFont(new java.awt.Font("Serif", java.awt.Font.BOLD, 24));
-        headerLabel.setBorder(javax.swing.BorderFactory.createLineBorder(java.awt.Color.BLACK));
-        calendarGrid.add(headerLabel);
-    }
-
-    // 3. Calculate start of month
-    java.time.LocalDate firstOfMonth = currentDisplayDate.withDayOfMonth(1);
-    int startDayOfWeek = firstOfMonth.getDayOfWeek().getValue() % 7; // Sunday = 0
-    int daysInMonth = currentDisplayDate.lengthOfMonth();
-    
-    // 4. Fill Leading Empty Slots (Previous Month days)
-    java.time.LocalDate prevMonth = currentDisplayDate.minusMonths(1);
-    int prevDays = prevMonth.lengthOfMonth();
-    for (int i = startDayOfWeek - 1; i >= 0; i--) {
-        javax.swing.JPanel cell = createDayCell(prevDays - i);
-        cell.getComponent(0).setEnabled(false); 
-        calendarGrid.add(cell);
-    }
-
-    // 5. Fill Current Month Days (DYNAMIC LOGIC)
-    for (int day = 1; day <= daysInMonth; day++) {
-        javax.swing.JPanel cell = createDayCell(day);
+        // CALENDAR SIDE
+        calendarGrid.removeAll();
+        calendarGrid.setLayout(new java.awt.GridLayout(0, 7, 1, 1));
+        calendarGrid.setBackground(new java.awt.Color(180, 180, 180)); 
         
-        // Check if there is booking data for this specific day
-        if (bookingData.containsKey(day)) {
-            for (String status : bookingData.get(day)) {
-                switch (status) {
-                    case "Booked":      addRentalBar(cell, new java.awt.Color(34, 139, 34)); break;
-                    case "Confirmed":   addRentalBar(cell, new java.awt.Color(184, 134, 11)); break;
-                    case "Pending":     addRentalBar(cell, new java.awt.Color(30, 144, 255)); break;
-                    case "Maintenance": addRentalBar(cell, new java.awt.Color(178, 34, 34)); break;
+        loadData();
+        
+        // Add Days (header labels Sun-Sat should be added here first)
+        setupCalendarDays();
+
+        // SIDEBAR SIDE (Filter + Legend)
+        javax.swing.JPanel sidebar = new javax.swing.JPanel();
+        sidebar.setLayout(new javax.swing.BoxLayout(sidebar, javax.swing.BoxLayout.Y_AXIS));
+        sidebar.setOpaque(false);
+        sidebar.setPreferredSize(new java.awt.Dimension(220, 0));
+
+        // Filter Cars Box
+        filterCars.setPreferredSize(new java.awt.Dimension(220, 350));
+        filterCars.setMaximumSize(new java.awt.Dimension(220, 350));
+        sidebar.add(filterCars);
+        sidebar.add(javax.swing.Box.createVerticalStrut(20));
+
+        // Legend Section
+        javax.swing.JPanel legendArea = new javax.swing.JPanel(new java.awt.GridLayout(0, 1, 0, 8));
+        legendArea.setOpaque(false);
+        legendArea.add(lblLegend);
+        legendArea.add(combine(lblGreenIcon, lblBooked));
+        legendArea.add(combine(lblGoldIcon, lblConfirmed));
+        legendArea.add(combine(lblBlueIcon, lblPending));
+        legendArea.add(combine(lblRedIcon, lblMaintenance));
+        sidebar.add(legendArea);
+
+        mainBody.add(calendarGrid, java.awt.BorderLayout.CENTER);
+        mainBody.add(sidebar, java.awt.BorderLayout.EAST);
+        contentPanel.add(mainBody, java.awt.BorderLayout.CENTER);
+
+        // 6. FINAL ASSEMBLY
+        this.add(topContainer, java.awt.BorderLayout.NORTH);
+        this.add(contentPanel, java.awt.BorderLayout.CENTER);
+
+        this.revalidate();
+        this.repaint();
+    }
+
+    private javax.swing.JPanel combine(javax.swing.JLabel icon, javax.swing.JLabel text) {
+        javax.swing.JPanel p = new javax.swing.JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT, 10, 0));
+        p.setOpaque(false);
+        icon.setPreferredSize(new java.awt.Dimension(40, 15)); // Matches the thin bar style
+        p.add(icon);
+        p.add(text);
+        return p;
+    }
+
+    private void setupCalendarDays() {
+        // 1. Set the Title based on current date
+        String monthName = currentDisplayDate.getMonth().getDisplayName(
+                java.time.format.TextStyle.FULL, java.util.Locale.ENGLISH);
+        lblMonthYear.setText("Rental Calendar - " + monthName + " " + currentDisplayDate.getYear());
+
+        // 2. Add Day Headers (Sun, Mon, etc.)
+        String[] headers = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
+        for (String h : headers) {
+            javax.swing.JLabel headerLabel = new javax.swing.JLabel(h, javax.swing.SwingConstants.CENTER);
+            headerLabel.setOpaque(true);
+            headerLabel.setBackground(new java.awt.Color(186, 150, 150));
+            headerLabel.setFont(new java.awt.Font("Serif", java.awt.Font.BOLD, 24));
+            headerLabel.setBorder(javax.swing.BorderFactory.createLineBorder(java.awt.Color.BLACK));
+            calendarGrid.add(headerLabel);
+        }
+
+        // 3. Calculate start of month
+        java.time.LocalDate firstOfMonth = currentDisplayDate.withDayOfMonth(1);
+        int startDayOfWeek = firstOfMonth.getDayOfWeek().getValue() % 7; // Sunday = 0
+        int daysInMonth = currentDisplayDate.lengthOfMonth();
+
+        // 4. Fill Leading Empty Slots (Previous Month days)
+        java.time.LocalDate prevMonth = currentDisplayDate.minusMonths(1);
+        int prevDays = prevMonth.lengthOfMonth();
+        for (int i = startDayOfWeek - 1; i >= 0; i--) {
+            javax.swing.JPanel cell = createDayCell(prevDays - i);
+            cell.getComponent(0).setEnabled(false);
+            calendarGrid.add(cell);
+        }
+
+        // 5. Fill Current Month Days (DYNAMIC LOGIC)
+        for (int day = 1; day <= daysInMonth; day++) {
+            javax.swing.JPanel cell = createDayCell(day);
+
+            // Check if there is booking data for this specific day
+            if (bookingData.containsKey(day)) {
+                for (String status : bookingData.get(day)) {
+                    switch (status) {
+                        case "Booked":
+                            addRentalBar(cell, new java.awt.Color(34, 139, 34));
+                            break;
+                        case "Confirmed":
+                            addRentalBar(cell, new java.awt.Color(184, 134, 11));
+                            break;
+                        case "Pending":
+                            addRentalBar(cell, new java.awt.Color(30, 144, 255));
+                            break;
+                        case "Maintenance":
+                            addRentalBar(cell, new java.awt.Color(178, 34, 34));
+                            break;
+                    }
                 }
             }
+
+            calendarGrid.add(cell);
         }
-        
-        calendarGrid.add(cell);
+
+        // 6. Fill Remaining Slots
+        int totalCells = 42;
+        int remaining = totalCells - calendarGrid.getComponentCount();
+        for (int i = 1; i <= remaining; i++) {
+            javax.swing.JPanel cell = createDayCell(i);
+            cell.getComponent(0).setEnabled(false);
+            calendarGrid.add(cell);
+        }
     }
 
-    // 6. Fill Remaining Slots
-    int totalCells = 42; 
-    int remaining = totalCells - calendarGrid.getComponentCount();
-    for (int i = 1; i <= remaining; i++) {
-        javax.swing.JPanel cell = createDayCell(i);
-        cell.getComponent(0).setEnabled(false);
-        calendarGrid.add(cell);
+    private javax.swing.JPanel createDayCell(int dayNumber) {
+        javax.swing.JPanel cell = new javax.swing.JPanel();
+        cell.setBackground(new java.awt.Color(220, 220, 220)); // Default light gray
+        cell.setLayout(new javax.swing.BoxLayout(cell, javax.swing.BoxLayout.Y_AXIS));
+        cell.setBorder(javax.swing.BorderFactory.createEmptyBorder(5, 5, 5, 5));
+
+        // Day Number Label
+        javax.swing.JLabel lbl = new javax.swing.JLabel(String.valueOf(dayNumber));
+        lbl.setFont(new java.awt.Font("SansSerif", java.awt.Font.BOLD, 14));
+        cell.add(lbl);
+
+        return cell;
     }
-}
 
-private javax.swing.JPanel createDayCell(int dayNumber) {
-    javax.swing.JPanel cell = new javax.swing.JPanel();
-    cell.setBackground(new java.awt.Color(220, 220, 220)); // Default light gray
-    cell.setLayout(new javax.swing.BoxLayout(cell, javax.swing.BoxLayout.Y_AXIS));
-    cell.setBorder(javax.swing.BorderFactory.createEmptyBorder(5, 5, 5, 5));
-
-    // Day Number Label
-    javax.swing.JLabel lbl = new javax.swing.JLabel(String.valueOf(dayNumber));
-    lbl.setFont(new java.awt.Font("SansSerif", java.awt.Font.BOLD, 14));
-    cell.add(lbl);
-
-    return cell;
-}
-
-// Example: Adding a "Booked" (Green) bar to a cell
 private void addRentalBar(javax.swing.JPanel cell, java.awt.Color color) {
-    javax.swing.JPanel bar = new javax.swing.JPanel();
-    bar.setBackground(color);
-    bar.setMaximumSize(new java.awt.Dimension(Integer.MAX_VALUE, 8)); // Thin bar
-    bar.setMinimumSize(new java.awt.Dimension(0, 8));
-    bar.setPreferredSize(new java.awt.Dimension(100, 8));
-    
-    cell.add(javax.swing.Box.createVerticalStrut(5)); // Space between bars
-    cell.add(bar);
-}
+        javax.swing.JPanel bar = new javax.swing.JPanel();
+        bar.setBackground(color);
+        bar.setMaximumSize(new java.awt.Dimension(Integer.MAX_VALUE, 8)); // Thin bar
+        bar.setMinimumSize(new java.awt.Dimension(0, 8));
+        bar.setPreferredSize(new java.awt.Dimension(100, 8));
 
-/**
- * Adds a booking to the calendar and refreshes the view.
- * @param day The day of the month (1-31)
- * @param status "Booked", "Confirmed", "Pending", or "Maintenance"
- */
-public void addBooking(int day, String status) {
-    // 1. Store the data in our map
-    bookingData.computeIfAbsent(day, k -> new java.util.ArrayList<>()).add(status);
-    
-    // 2. Refresh the UI
-    calendarGrid.removeAll();
-    setupCalendarDays();
-    calendarGrid.revalidate();
-    calendarGrid.repaint();
-   
-}
+        cell.add(javax.swing.Box.createVerticalStrut(5)); // Space between bars
+        cell.add(bar);
+    }
+
+
+    public void addBooking(int day, String status) {
+        // 1. Store the data in our map
+        bookingData.computeIfAbsent(day, k -> new java.util.ArrayList<>()).add(status);
+
+        // 2. Refresh the UI
+        calendarGrid.removeAll();
+        setupCalendarDays();
+        calendarGrid.revalidate();
+        calendarGrid.repaint();
+
+    }
 
 
 
@@ -241,35 +233,6 @@ public void addBooking(int day, String status) {
             }
         };
         panelSearchContainer = new javax.swing.JPanel();
-        txtSearch = txtSearch = new javax.swing.JTextField() {
-            @Override
-            protected void paintComponent(java.awt.Graphics g) {
-                java.awt.Graphics2D g2 = (java.awt.Graphics2D) g.create();
-                g2.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING, java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(getBackground());
-                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 20, 20);
-                g2.dispose();
-                super.paintComponent(g);
-            }
-        };
-        // Add these settings in the 'Post-Creation Code' section:
-        txtSearch.setOpaque(false);
-        txtSearch.setBorder(javax.swing.BorderFactory.createEmptyBorder(5, 15, 5, 15));
-        txtFilter = txtFilter = new javax.swing.JTextField() { // or javax.swing.JButton
-            @Override
-            protected void paintComponent(java.awt.Graphics g) {
-                java.awt.Graphics2D g2 = (java.awt.Graphics2D) g.create();
-                g2.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING, java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(getBackground());
-                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 20, 20);
-                g2.dispose();
-                super.paintComponent(g);
-            }
-        };
-        txtFilter.setOpaque(false);
-        txtFilter.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        txtFilter.setBorder(null);
-        txtFilter.setPreferredSize(new java.awt.Dimension(120, 40)); // Width: 120, Height: 40
         panelSidebarContainer = new javax.swing.JPanel();
         filterCars = filterCars = new javax.swing.JPanel() {
             @Override
@@ -351,7 +314,8 @@ public void addBooking(int day, String status) {
         lblSat = new javax.swing.JLabel();
         lblFri = new javax.swing.JLabel();
 
-        setBackground(new java.awt.Color(234, 221, 221));
+        setBackground(new java.awt.Color(223, 208, 209));
+        setPreferredSize(new java.awt.Dimension(1100, 700));
         setLayout(new java.awt.BorderLayout());
 
         topContainer.setOpaque(false);
@@ -386,30 +350,6 @@ public void addBooking(int day, String status) {
         panelSearchContainer.setMaximumSize(new java.awt.Dimension(1000, 80));
         panelSearchContainer.setMinimumSize(new java.awt.Dimension(1000, 80));
         panelSearchContainer.setPreferredSize(new java.awt.Dimension(1000, 80));
-
-        txtSearch.setBackground(new java.awt.Color(44, 30, 26));
-        txtSearch.setFont(new java.awt.Font("Monospaced", 1, 14)); // NOI18N
-        txtSearch.setForeground(new java.awt.Color(255, 255, 255));
-        txtSearch.setHorizontalAlignment(javax.swing.JTextField.TRAILING);
-        txtSearch.setText("Search for models, type, etc.");
-        txtSearch.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtSearchActionPerformed(evt);
-            }
-        });
-        panelSearchContainer.add(txtSearch);
-
-        txtFilter.setBackground(new java.awt.Color(89, 29, 21));
-        txtFilter.setFont(new java.awt.Font("Monospaced", 1, 14)); // NOI18N
-        txtFilter.setForeground(new java.awt.Color(232, 222, 214));
-        txtFilter.setText("Filter");
-        txtFilter.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtFilterActionPerformed(evt);
-            }
-        });
-        panelSearchContainer.add(txtFilter);
-
         contentPanel.add(panelSearchContainer, java.awt.BorderLayout.NORTH);
         panelSearchContainer.getAccessibleContext().setAccessibleDescription("");
 
@@ -574,27 +514,13 @@ public void addBooking(int day, String status) {
 
     private void btnFollowingActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnFollowingActionPerformed
         currentDisplayDate = currentDisplayDate.plusMonths(1);
-    calendarGrid.removeAll();
-    setupCalendarDays();
-    calendarGrid.revalidate();
-    calendarGrid.repaint();
+        loadData();
     }//GEN-LAST:event_btnFollowingActionPerformed
 
     private void btnPreviousActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPreviousActionPerformed
         currentDisplayDate = currentDisplayDate.minusMonths(1);
-    calendarGrid.removeAll();
-    setupCalendarDays();
-    calendarGrid.revalidate();
-    calendarGrid.repaint();
+        loadData();
     }//GEN-LAST:event_btnPreviousActionPerformed
-
-    private void txtFilterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtFilterActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtFilterActionPerformed
-
-    private void txtSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtSearchActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtSearchActionPerformed
 
     
     public static void main(String[] args) {
@@ -606,7 +532,83 @@ public void addBooking(int day, String status) {
     frame.setVisible(true);
 }
     
-    
+    /**
+     * Fetch real bookings from the DB and paint them on the calendar. Call this
+     * whenever the panel becomes visible or the month changes.
+     */
+    public void loadData() {
+        if (carrentalsystem.core.SessionManager.getCurrentUser() == null) {
+            return;
+        }
+
+        // Clear previous data
+        bookingData.clear();
+
+        new Thread(() -> {
+            try {
+                int userId = carrentalsystem.core.SessionManager.getCurrentUser().getUserId();
+                int year = currentDisplayDate.getYear();
+                int month = currentDisplayDate.getMonthValue();
+
+                carrentalsystem.services.BookingService svc
+                        = new carrentalsystem.services.BookingService();
+                java.util.List<carrentalsystem.models.Booking> bookings
+                        = svc.getBookingsForMonth(userId, year, month);
+
+                for (carrentalsystem.models.Booking b : bookings) {
+                    if (b.getStartDate() == null || b.getEndDate() == null) {
+                        continue;
+                    }
+
+                    java.time.LocalDate start = b.getStartDate().toLocalDate();
+                    java.time.LocalDate end = b.getEndDate().toLocalDate();
+
+                    // Map DB status → legend label
+                    String calStatus;
+                    switch (b.getStatus().toUpperCase()) {
+                        case "CONFIRMED":
+                            calStatus = "Confirmed";
+                            break;
+                        case "PENDING":
+                            calStatus = "Pending";
+                            break;
+                        case "SUCCESSFUL":
+                            calStatus = "Booked";
+                            break;
+                        default:
+                            calStatus = "Booked";
+                            break;
+                    }
+
+                    // Paint every day in the date range
+                    java.time.LocalDate cursor = start;
+                    while (!cursor.isAfter(end)) {
+                        // Only paint days that belong to the displayed month
+                        if (cursor.getYear() == year && cursor.getMonthValue() == month) {
+                            final int day = cursor.getDayOfMonth();
+                            final String status = calStatus;
+                            bookingData
+                                    .computeIfAbsent(day, k -> new java.util.ArrayList<>())
+                                    .add(status);
+                        }
+                        cursor = cursor.plusDays(1);
+                    }
+                }
+
+                // Refresh the grid on the EDT
+                javax.swing.SwingUtilities.invokeLater(() -> {
+                    calendarGrid.removeAll();
+                    setupCalendarDays();
+                    calendarGrid.revalidate();
+                    calendarGrid.repaint();
+                });
+
+            } catch (Exception e) {
+                System.err.println("[RentalCalendar] loadData error: " + e.getMessage());
+                e.printStackTrace();
+            }
+        }).start();
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnFollowing;
@@ -636,7 +638,5 @@ public void addBooking(int day, String status) {
     private javax.swing.JPanel panelSearchContainer;
     private javax.swing.JPanel panelSidebarContainer;
     private javax.swing.JPanel topContainer;
-    private javax.swing.JTextField txtFilter;
-    private javax.swing.JTextField txtSearch;
     // End of variables declaration//GEN-END:variables
 }

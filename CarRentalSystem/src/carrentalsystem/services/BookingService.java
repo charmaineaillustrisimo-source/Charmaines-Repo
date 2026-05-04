@@ -210,6 +210,34 @@ public class BookingService implements IBookingService{
         }
         return list;
     }
+    
+    
+    public java.util.List<Booking> getBookingsForMonth(int userId, int year, int month)
+            throws java.sql.SQLException {
+        String sql
+                = "SELECT b.*, c.brand AS car_brand, c.model AS car_model, "
+                + "  c.image_path, c.owner_id "
+                + "FROM bookings b "
+                + "JOIN cars c ON b.car_id = c.car_id "
+                + "WHERE (b.renter_id = ? OR c.owner_id = ?) "
+                + "  AND YEAR(b.start_date) = ? AND MONTH(b.start_date) = ? "
+                + "  AND b.status NOT IN ('REJECTED', 'CANCELLED') "
+                + "ORDER BY b.start_date ASC";
+
+        java.util.List<Booking> list = new java.util.ArrayList<>();
+        try (PreparedStatement ps
+                = DBConnection.getConnection().prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            ps.setInt(2, userId);
+            ps.setInt(3, year);
+            ps.setInt(4, month);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                list.add(mapBooking(rs));
+            }
+        }
+        return list;
+    }
 
     // ── Helper ───────────────────────────────────────────────
     private Booking mapBooking(ResultSet rs) throws SQLException {

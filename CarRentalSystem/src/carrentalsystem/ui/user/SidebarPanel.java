@@ -361,7 +361,10 @@ public class SidebarPanel extends javax.swing.JPanel {
 
     private void btnReservationsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnReservationsActionPerformed
         // TODO add your handling code here:
-        handleNavigation(btnReservations, "reservationsCard");
+        handleNavigation(btnReservations, "calendarCard");
+        if (dashboard != null) {
+            dashboard.showRentalCalendar();
+        }
     }//GEN-LAST:event_btnReservationsActionPerformed
 
     private void btnHomeMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnHomeMouseEntered

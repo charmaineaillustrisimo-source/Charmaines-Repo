@@ -177,9 +177,17 @@ public class InboxPanel extends javax.swing.JPanel {
                 messageService.markThreadRead(myId, otherId);
                 java.util.List<carrentalsystem.models.Message> thread = messageService.getThread(myId, otherId, 0);
                 
+                carrentalsystem.services.UserService userSvc = new carrentalsystem.services.UserService();
+                String otherUserImagePath = userSvc.getUserById(otherId).getProfileImagePath();
 
                 javax.swing.SwingUtilities.invokeLater(() -> {
-                    lblRightAvatar.setIcon(null);
+                    if (otherUserImagePath != null && !otherUserImagePath.isEmpty()) {
+                        // Use ImageUtil to create the circular crop
+                        javax.swing.JLabel circleAvatar = carrentalsystem.utils.ImageUtil.cropCircle(otherUserImagePath, 80);
+                        lblRightAvatar.setIcon(circleAvatar.getIcon());
+                    } else {
+                        lblRightAvatar.setIcon(null); // Fallback to initial letter logic in paintComponent
+                    }
                     lblRightAvatar.repaint();
                     
                     pnlMessages.removeAll();

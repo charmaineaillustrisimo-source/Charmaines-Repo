@@ -40,6 +40,8 @@
       <Events>
         <EventHandler event="focusGained" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="txtSearchFocusGained"/>
         <EventHandler event="focusLost" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="txtSearchFocusLost"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="txtSearchActionPerformed"/>
+        <EventHandler event="keyReleased" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="txtSearchKeyReleased"/>
       </Events>
       <AuxValues>
         <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new javax.swing.JTextField() {&#xa;    {&#xa;        // 1. THIS IS THE INTERNAL PADDING (Top, Left, Bottom, Right)&#xa;        // 20 pixels on the left will push the text away from the curve&#xa;        setBorder(javax.swing.BorderFactory.createEmptyBorder(5, 20, 5, 20));&#xa;        setOpaque(false);&#xa;        setBackground(new java.awt.Color(0, 0, 0, 0));&#xa;    }&#xa;&#xa;    @Override&#xa;    protected void paintComponent(java.awt.Graphics g) {&#xa;        java.awt.Graphics2D g2 = (java.awt.Graphics2D) g.create();&#xa;        g2.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING, java.awt.RenderingHints.VALUE_ANTIALIAS_ON);&#xa;        g2.setColor(java.awt.Color.WHITE);&#xa;        g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 30, 30);&#xa;        g2.dispose();&#xa;        super.paintComponent(g);&#xa;    }&#xa;    &#xa;    // REMOVED the empty setBorder method that was blocking your changes&#xa;}&#xa;"/>

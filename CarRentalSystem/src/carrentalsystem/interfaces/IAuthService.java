@@ -19,4 +19,6 @@ public interface IAuthService {
     void banUser(String email) throws SQLException;
     
     boolean usernameExists(String username) throws SQLException;
+    
+    boolean resetPassword(String username, String newPassword) throws SQLException;
 }

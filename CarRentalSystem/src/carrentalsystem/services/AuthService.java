@@ -99,6 +99,21 @@ public class AuthService implements IAuthService{
         return false;
     }
     
+    @Override
+    public boolean resetPassword(String username, String newPassword) throws java.sql.SQLException {
+        // 1. Hash the new password using BCrypt
+        String hashedPw = org.mindrot.jbcrypt.BCrypt.hashpw(newPassword, org.mindrot.jbcrypt.BCrypt.gensalt(12));
+
+        // 2. Update the users table
+        String sql = "UPDATE users SET password = ? WHERE username = ?";
+        try (java.sql.Connection conn = carrentalsystem.core.DBConnection.getConnection(); java.sql.PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, hashedPw);
+            ps.setString(2, username);
+
+            return ps.executeUpdate() > 0; // Returns true if the user was found and updated
+        }
+    }
+    
     // ── Helper ───────────────────────────────────────────────
     private User mapUser(ResultSet rs) throws SQLException {
         User u = new User();

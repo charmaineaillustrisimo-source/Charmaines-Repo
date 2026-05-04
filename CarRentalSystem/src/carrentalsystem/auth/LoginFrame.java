@@ -31,6 +31,50 @@ public class LoginFrame extends javax.swing.JFrame {
         
         
     }
+    
+    private void handleForgotPassword() {
+        // 1. Ask for the username
+        String username = javax.swing.JOptionPane.showInputDialog(this,
+                "Enter your username to reset password:",
+                "Forgot Password",
+                javax.swing.JOptionPane.QUESTION_MESSAGE);
+
+        if (username == null || username.trim().isEmpty()) {
+            return;
+        }
+
+        try {
+            // 2. Check if username exists using your existing authService
+            if (!authService.usernameExists(username)) {
+                javax.swing.JOptionPane.showMessageDialog(this, "Username not found.");
+                return;
+            }
+
+            // 3. Securely ask for the new password using a JPasswordField
+            javax.swing.JPasswordField pf = new javax.swing.JPasswordField();
+            int okCxl = javax.swing.JOptionPane.showConfirmDialog(this, pf,
+                    "Enter New Password for " + username,
+                    javax.swing.JOptionPane.OK_CANCEL_OPTION,
+                    javax.swing.JOptionPane.PLAIN_MESSAGE);
+
+            if (okCxl == javax.swing.JOptionPane.OK_OPTION) {
+                String newPassword = new String(pf.getPassword()).trim();
+
+                if (newPassword.length() < 6) {
+                    javax.swing.JOptionPane.showMessageDialog(this, "Password must be at least 6 characters.");
+                    return;
+                }
+
+                // 4. Call the service to update the database
+                carrentalsystem.services.AuthService service = new carrentalsystem.services.AuthService();
+                if (service.resetPassword(username, newPassword)) {
+                    javax.swing.JOptionPane.showMessageDialog(this, "Password reset successful! You can now log in.");
+                }
+            }
+        } catch (java.sql.SQLException e) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Database error: " + e.getMessage());
+        }
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -132,11 +176,12 @@ public class LoginFrame extends javax.swing.JFrame {
             }
         }
         ;
+        lblForgotPassword = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         getContentPane().setLayout(new java.awt.GridBagLayout());
 
-        pnlMainContainer.setPreferredSize(new java.awt.Dimension(400, 300));
+        pnlMainContainer.setPreferredSize(new java.awt.Dimension(400, 350));
         pnlMainContainer.setLayout(new java.awt.GridBagLayout());
 
         pnlGlass.setBackground(new java.awt.Color(68, 49, 38));
@@ -206,11 +251,27 @@ public class LoginFrame extends javax.swing.JFrame {
         btnLogin.addActionListener(this::btnLoginActionPerformed);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 11;
+        gridBagConstraints.gridy = 5;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTH;
-        gridBagConstraints.weighty = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(30, 50, 10, 20);
+        gridBagConstraints.insets = new java.awt.Insets(30, 0, 5, 0);
         pnlGlass.add(btnLogin, gridBagConstraints);
+
+        lblForgotPassword.setFont(new java.awt.Font("Helvetica Neue", 0, 15)); // NOI18N
+        lblForgotPassword.setForeground(new java.awt.Color(255, 255, 255));
+        lblForgotPassword.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lblForgotPassword.setText("Forgot Password?");
+        lblForgotPassword.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        lblForgotPassword.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                lblForgotPasswordMouseClicked(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 6;
+        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 10, 0);
+        pnlGlass.add(lblForgotPassword, gridBagConstraints);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -316,6 +377,11 @@ public class LoginFrame extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_txtUsernameActionPerformed
 
+    private void lblForgotPasswordMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblForgotPasswordMouseClicked
+        // TODO add your handling code here:
+        handleForgotPassword();
+    }//GEN-LAST:event_lblForgotPasswordMouseClicked
+
     /**
      * @param args the command line arguments
      */
@@ -365,6 +431,7 @@ public class LoginFrame extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnLogin;
+    private javax.swing.JLabel lblForgotPassword;
     private javax.swing.JLabel lblPassword;
     private javax.swing.JLabel lblTitle;
     private javax.swing.JLabel lblUsername;
