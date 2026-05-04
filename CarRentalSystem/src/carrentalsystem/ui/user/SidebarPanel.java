@@ -445,6 +445,36 @@ public class SidebarPanel extends javax.swing.JPanel {
 
     private void btnAddListActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddListActionPerformed
         // TODO add your handling code here:
+        carrentalsystem.models.User user = carrentalsystem.core.SessionManager.getCurrentUser();
+        if (user == null) {
+            return;
+        }
+
+        // Check if user is FREE and already has 5 or more lists
+        if ("FREE".equalsIgnoreCase(user.getTier())) {
+            try {
+                int currentLists = new carrentalsystem.services.CarService().countUserListings(user.getUserId());
+
+                if (currentLists >= 5) {
+                    // Show the blocking message
+                    javax.swing.JOptionPane.showMessageDialog(this,
+                            "You have reached the limit of 5 listings for Free users.\nUpgrade to PRO for unlimited listings!",
+                            "Limit Reached",
+                            javax.swing.JOptionPane.WARNING_MESSAGE);
+
+                    // Pop up the upgrade alert panel
+                    if (dashboard != null) {
+                        dashboard.getPnlProAlertWrapper().setVisible(true);
+                        dashboard.getLayeredPane().setComponentZOrder(dashboard.getPnlProAlertWrapper(), 0);
+                    }
+                    return; // BLOCK navigation
+                }
+            } catch (java.sql.SQLException e) {
+                e.printStackTrace();
+            }
+        }
+
+        // If they are PRO or under the limit, proceed as normal
         handleNavigation(btnAddList, "addListing");
         if (dashboard != null && dashboard.getPnlAddList1() != null) {
             dashboard.getPnlAddList1().prepareAdd();

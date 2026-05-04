@@ -170,6 +170,19 @@ public class CarService implements ICarService{
         }
         return list;
     }
+    
+    public int countUserListings(int userId) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM cars WHERE owner_id = ?";
+        try (Connection conn = DBConnection.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        }
+        return 0;
+    }
 
     // ── Helper ───────────────────────────────────────────────
     private Car mapCar(ResultSet rs) throws SQLException {

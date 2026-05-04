@@ -840,6 +840,21 @@ public class AddListPanel extends javax.swing.JPanel {
 
     private void btnCreateListingActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCreateListingActionPerformed
         // TODO add your handling code here:
+        carrentalsystem.models.User user = carrentalsystem.core.SessionManager.getCurrentUser();
+
+        // Safety check for NEW listings only (currentEditingCarId == -1)
+        if (currentEditingCarId == -1 && "FREE".equalsIgnoreCase(user.getTier())) {
+            try {
+                int count = new carrentalsystem.services.CarService().countUserListings(user.getUserId());
+                if (count >= 5) {
+                    javax.swing.JOptionPane.showMessageDialog(this, "Limit reached! Free accounts are restricted to 5 listings.");
+                    return;
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        
         //Debug
         System.out.println("[DEBUG] Create Button Clicked");
         

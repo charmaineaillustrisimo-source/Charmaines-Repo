@@ -96,7 +96,16 @@ public class InboxPanel extends javax.swing.JPanel {
         row.setMaximumSize(new java.awt.Dimension(290, 72));
         row.setCursor(java.awt.Cursor.getPredefinedCursor(java.awt.Cursor.HAND_CURSOR));
         row.setBorder(javax.swing.BorderFactory.createEmptyBorder(8, 14, 8, 14));
+        
+        // Image Avatar Profile Pic
+        String otherImagePath = null;
+        try {
+            otherImagePath = new carrentalsystem.services.UserService().getUserById(otherId).getProfileImagePath();
+        } catch (Exception ignored) {
+        }
 
+        final String finalPath = otherImagePath;
+        
         // Avatar with initial
         javax.swing.JLabel avatar = new javax.swing.JLabel() {
             @Override
@@ -106,15 +115,30 @@ public class InboxPanel extends javax.swing.JPanel {
                         java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
                 g2.setColor(new java.awt.Color(155, 121, 128));
                 g2.fillOval(0, 0, 44, 44);
-                g2.setColor(java.awt.Color.WHITE);
-                g2.setFont(new java.awt.Font("Helvetica Neue", java.awt.Font.BOLD, 18));
-                java.awt.FontMetrics fm = g2.getFontMetrics();
-                g2.drawString(initLetter,
-                        (44 - fm.stringWidth(initLetter)) / 2,
-                        (44 + fm.getAscent()) / 2 - 2);
+                
+                if (getIcon() != null) {
+                    // If image is loaded, clip it to a circle
+                    java.awt.geom.Ellipse2D.Double clip = new java.awt.geom.Ellipse2D.Double(0, 0, 44, 44);
+                    g2.setClip(clip);
+                    super.paintComponent(g2);
+                } else {
+                    // Fallback: Initial Letter
+                    g2.setColor(java.awt.Color.WHITE);
+                    g2.setFont(new java.awt.Font("Helvetica Neue", java.awt.Font.BOLD, 18));
+                    java.awt.FontMetrics fm = g2.getFontMetrics();
+                    g2.drawString(initLetter,
+                            (44 - fm.stringWidth(initLetter)) / 2,
+                            (44 + fm.getAscent()) / 2 - 2);
+                }
                 g2.dispose();
             }
         };
+        
+        if (finalPath != null && !finalPath.isEmpty()) {
+            // This loads the raw image; the paintComponent above handles the circular clipping
+            avatar.setIcon(carrentalsystem.utils.ImageUtil.loadIcon(finalPath, 44, 44));
+        }
+        
         avatar.setPreferredSize(new java.awt.Dimension(44, 44));
 
         // Text block
@@ -306,27 +330,26 @@ public class InboxPanel extends javax.swing.JPanel {
                 g2.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING,
                     java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
 
-                // 1. Draw Background Circle (matches your conversation sidebar)
+                // 1. Draw the Background Circle (Pinkish tone from your theme)
                 int size = Math.min(getWidth(), getHeight());
                 int x = (getWidth() - size) / 2;
                 int y = (getHeight() - size) / 2;
                 g2.setColor(new java.awt.Color(155, 121, 128));
                 g2.fillOval(x, y, size, size);
 
-                // 2. Logic to handle Initial Letter (matches your concept)
-                String nameText = lblRightName.getText();
-                String initLetter = (nameText != null && !nameText.isEmpty() && !nameText.equals("name"))
-                ? String.valueOf(nameText.trim().charAt(0)).toUpperCase() : "?";
-
-                // 3. Render Image if found, otherwise render Initial
+                // 2. Add the Clipping Logic here:
                 if (getIcon() != null && getIcon().getIconWidth() > 0) {
-                    java.awt.Shape clip = new java.awt.geom.Ellipse2D.Double(0, 0, getWidth(), getHeight());
-                    g2.setClip(clip);
-                    super.paintComponent(g2); // Paints the loaded avatar image
+                    java.awt.geom.Ellipse2D.Double circle = new java.awt.geom.Ellipse2D.Double(0, 0, getWidth(), getHeight());
+                    g2.setClip(circle); // This clips the icon to the circle shape
+                    super.paintComponent(g2);
                 } else {
-                    // Placeholder fallback (matches your sidebar rendering style)
+                    // 3. Fallback to Initial Letter if no image exists
+                    String nameText = lblRightName.getText();
+                    String initLetter = (nameText != null && !nameText.isEmpty() && !nameText.equals("name"))
+                    ? String.valueOf(nameText.trim().charAt(0)).toUpperCase() : "?";
+
                     g2.setColor(java.awt.Color.WHITE);
-                    g2.setFont(new java.awt.Font("Helvetica Neue", java.awt.Font.BOLD, 32)); // Larger font for right panel
+                    g2.setFont(new java.awt.Font("Helvetica Neue", java.awt.Font.BOLD, 32));
                     java.awt.FontMetrics fm = g2.getFontMetrics();
                     int txtX = (getWidth() - fm.stringWidth(initLetter)) / 2;
                     int txtY = (getHeight() + fm.getAscent()) / 2 - 4;
