@@ -46,6 +46,130 @@ public class ViewButtonPanel extends javax.swing.JFrame {
     });
         
         //Buttons for side bar
+        //Button Events
+        btnOverviewButton.addActionListener(e -> {
+            try {
+            AdminDashboard admin = new AdminDashboard();
+        admin.setVisible(true);
+        this.dispose();
+            } catch (Exception ex){
+                ex.printStackTrace();
+            }
+        });
+        
+        btnUsersButton.addActionListener(e -> {
+            try {
+            ApprovalQueuePanel approval = new ApprovalQueuePanel();
+        approval.setVisible(true);
+        this.dispose();
+            } catch (Exception ex){
+                ex.printStackTrace();
+            }
+        });
+    
+    btnBookingsButton.addActionListener (e -> {
+        try {
+            AdminBookingPanel booking = new AdminBookingPanel();
+        booking.setVisible(true);
+        this.dispose();
+            } catch (Exception ex){
+                ex.printStackTrace();
+        }
+    });
+    
+    btnSupportButton.addActionListener (e -> {
+        try {
+            AdminSupportPanel support = new AdminSupportPanel();
+        support.setVisible(true);
+        this.dispose();
+            } catch (Exception ex){
+                ex.printStackTrace();
+        }
+    });
+    
+    btnSettingsButton.addActionListener (e -> {
+        try {
+            AdminSettings settings = new AdminSettings();
+        settings.setVisible(true);
+        this.dispose();
+            } catch (Exception ex){
+                ex.printStackTrace();
+        }
+    });
+    
+    String message = "<html>" +
+                     "<b style='font-size: 14pt; color: white;'>Are you sure you want to log out?</b><br/>" +
+                     "<span style='color: white;'>Logging out will end your current session.</span><br/>" +
+                     "<span style='color: white;'>All unsaved work will be lost.</span>" +
+                     "</html>";
+
+    // Set Up the Action Listener
+    btnLogoutButton.addActionListener(e -> {
+    javax.swing.JDialog logoutDialog = new javax.swing.JDialog(this, true);
+    logoutDialog.setUndecorated(true);
+    
+    // 1. Create the Main Panel with Padding
+    javax.swing.JPanel pnlLogout = new javax.swing.JPanel();
+    pnlLogout.setBackground(new java.awt.Color(49, 49, 47));
+    pnlLogout.setBorder(javax.swing.BorderFactory.createEmptyBorder(30, 30, 30, 30));
+    // Use BoxLayout to stack elements vertically and center them
+    pnlLogout.setLayout(new javax.swing.BoxLayout(pnlLogout, javax.swing.BoxLayout.Y_AXIS));
+
+    // 2. Title Label (Centered)
+    javax.swing.JLabel lblTitle = new javax.swing.JLabel("Are you sure you want to log out?");
+    lblTitle.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 18));
+    lblTitle.setForeground(java.awt.Color.WHITE);
+    lblTitle.setAlignmentX(java.awt.Component.CENTER_ALIGNMENT); // Centers the component
+    lblTitle.setHorizontalAlignment(javax.swing.SwingConstants.CENTER); // Centers the text inside
+
+    // 3. Subtext Label (Centered with HTML for wrapping)
+    javax.swing.JLabel lblSub = new javax.swing.JLabel("<html><div style='text-align: center;'>"
+            + "Logging out will end your current session.<br>"
+            + "All unsaved work will be lost.</div></html>");
+    lblSub.setFont(new java.awt.Font("Segoe UI", java.awt.Font.PLAIN, 14));
+    lblSub.setForeground(new java.awt.Color(200, 200, 200));
+    lblSub.setAlignmentX(java.awt.Component.CENTER_ALIGNMENT);
+
+    // 4. Button Container (FlowLayout to keep buttons side-by-side)
+    javax.swing.JPanel pnlButtons = new javax.swing.JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.CENTER, 15, 0));
+    pnlButtons.setOpaque(false); // Keeps the 49, 49, 47 background visible
+
+    javax.swing.JButton btnConfirm = new javax.swing.JButton("Logout");
+    btnConfirm.setBackground(new java.awt.Color(120, 30, 30));
+    btnConfirm.setForeground(java.awt.Color.WHITE);
+    btnConfirm.setPreferredSize(new java.awt.Dimension(100, 35));
+    btnConfirm.setFocusPainted(false);
+
+    javax.swing.JButton btnCancel = new javax.swing.JButton("Cancel");
+    btnCancel.setBackground(new java.awt.Color(70, 70, 70));
+    btnCancel.setForeground(java.awt.Color.WHITE);
+    btnCancel.setPreferredSize(new java.awt.Dimension(100, 35));
+    btnCancel.setFocusPainted(false);
+
+    pnlButtons.add(btnConfirm);
+    pnlButtons.add(btnCancel);
+
+    // 5. Add components with Spacing (Rigid Areas)
+    pnlLogout.add(lblTitle);
+    pnlLogout.add(javax.swing.Box.createRigidArea(new java.awt.Dimension(0, 15))); // Gap after title
+    pnlLogout.add(lblSub);
+    pnlLogout.add(javax.swing.Box.createRigidArea(new java.awt.Dimension(0, 25))); // Gap before buttons
+    pnlLogout.add(pnlButtons);
+
+    // 6. Action Logic
+    btnConfirm.addActionListener(ev -> {
+        logoutDialog.dispose();
+        new carrentalsystem.auth.LoginFrame().setVisible(true);
+        this.dispose();
+    });
+    btnCancel.addActionListener(ev -> logoutDialog.dispose());
+
+    // 7. Dialog Final Setup
+    logoutDialog.add(pnlLogout);
+    logoutDialog.pack(); // Adjusts size automatically based on content
+    logoutDialog.setLocationRelativeTo(this); 
+    logoutDialog.setVisible(true);
+});
 
         //Position Top Bar Icons
         TopBarPanel.add(lblProfileIcon, new org.netbeans.lib.awtextra.AbsoluteConstraints(1210, 20, 50, 50));
