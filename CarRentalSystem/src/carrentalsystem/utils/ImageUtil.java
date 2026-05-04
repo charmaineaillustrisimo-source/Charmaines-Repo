@@ -182,4 +182,62 @@ public class ImageUtil {
             System.err.println("Icon not found: " + resourcePath);
         }
     }
+    
+    
+    /**
+     * Apply a circular cropped image directly onto an existing JLabel. Use this
+     * for profile pictures in ProfilePanel.
+     */
+    public static void applyCircleImage(javax.swing.JLabel label, String imagePath, int size) {
+        if (imagePath == null || imagePath.isBlank()) {
+            return;
+        }
+        try {
+            BufferedImage raw = ImageIO.read(new File(imagePath));
+            if (raw == null) {
+                return;
+            }
+
+            // Create a circular masked image
+            BufferedImage circle = new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB);
+            java.awt.Graphics2D g2 = circle.createGraphics();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setClip(new java.awt.geom.Ellipse2D.Float(0, 0, size, size));
+            Image scaled = raw.getScaledInstance(size, size, Image.SCALE_SMOOTH);
+            g2.drawImage(scaled, 0, 0, null);
+            g2.dispose();
+
+            label.setIcon(new ImageIcon(circle));
+            label.setText("");
+        } catch (Exception e) {
+            System.err.println("[ImageUtil] Circle crop failed: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Apply a circular cropped image onto a JButton (for header profile icon).
+     */
+    public static void applyCircleImage(javax.swing.JButton button, String imagePath, int size) {
+        if (imagePath == null || imagePath.isBlank()) {
+            return;
+        }
+        try {
+            BufferedImage raw = ImageIO.read(new File(imagePath));
+            if (raw == null) {
+                return;
+            }
+
+            BufferedImage circle = new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB);
+            java.awt.Graphics2D g2 = circle.createGraphics();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setClip(new java.awt.geom.Ellipse2D.Float(0, 0, size, size));
+            Image scaled = raw.getScaledInstance(size, size, Image.SCALE_SMOOTH);
+            g2.drawImage(scaled, 0, 0, null);
+            g2.dispose();
+
+            button.setIcon(new ImageIcon(circle));
+        } catch (Exception e) {
+            System.err.println("[ImageUtil] Circle crop (button) failed: " + e.getMessage());
+        }
+    }
 }

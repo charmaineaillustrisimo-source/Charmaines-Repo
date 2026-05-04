@@ -65,11 +65,19 @@ public class UserService implements IUserService{
     }
 
     @Override
-    public void upgradeToPro(int userId) throws SQLException {
-        String sql = "UPDATE users SET tier = 'PRO' WHERE user_id = ?";
+    public boolean upgradeToPro(int userId) throws SQLException {
+        // 1. Ensure the column name matches your DB ('tier' or 'role')
+        String sql = "UPDATE users SET user_tier = 'PRO' WHERE user_id = ?";
+
         try (PreparedStatement ps = DBConnection.getConnection().prepareStatement(sql)) {
             ps.setInt(1, userId);
-            ps.executeUpdate();
+            int rowsAffected = ps.executeUpdate();
+
+            // 2. Return true if the update actually happened
+            return rowsAffected > 0;
+        } catch (SQLException e) {
+            System.err.println("Upgrade Error: " + e.getMessage());
+            throw e;
         }
     }
 

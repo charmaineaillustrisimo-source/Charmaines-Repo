@@ -24,6 +24,7 @@ public class SidebarPanel extends javax.swing.JPanel {
     private JButton activeBtn = null;
     private javax.swing.JPanel pnlMainContent;
     private final MainDashboard dashboard;
+    private Runnable analyticsAction;
     
     
     // Theme Colors
@@ -90,7 +91,9 @@ public class SidebarPanel extends javax.swing.JPanel {
         }
     }
     
-    
+    public void setAnalyticsAction(Runnable action) {
+        this.analyticsAction = action;
+    }
     
     
     /**
@@ -357,6 +360,9 @@ public class SidebarPanel extends javax.swing.JPanel {
     private void btnAnalyticsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAnalyticsActionPerformed
         // TODO add your handling code here:
         handleNavigation(btnAnalytics, "analyticsCard");
+        if (dashboard != null) {
+            dashboard.showAnalytics();
+        }
     }//GEN-LAST:event_btnAnalyticsActionPerformed
 
     private void btnReservationsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnReservationsActionPerformed

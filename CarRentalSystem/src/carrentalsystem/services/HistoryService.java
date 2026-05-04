@@ -27,7 +27,7 @@ public class HistoryService implements IHistoryService {
     @Override
     public List<History> getBrowsingHistory(int userId) throws SQLException {
         List<History> historyList = new ArrayList<>();
-        String sql = "SELECT h.viewed_at, c.car_id, c.brand, c.model, c.price_per_day, c.image_path "
+        String sql = "SELECT h.viewed_at, c.car_id, c.brand, c.model, c.base_price, c.image_path "
                 + "FROM browsing_history h JOIN cars c ON h.car_id = c.car_id "
                 + "WHERE h.user_id = ? ORDER BY h.viewed_at DESC";
 
@@ -39,7 +39,7 @@ public class HistoryService implements IHistoryService {
                     h.setCarId(rs.getInt("car_id"));
                     h.setBrand(rs.getString("brand"));
                     h.setModel(rs.getString("model"));
-                    h.setPrice(rs.getDouble("price_per_day"));
+                    h.setPrice(rs.getDouble("base_price"));
                     h.setImagePath(rs.getString("image_path"));
                     h.setCreatedAt(rs.getTimestamp("viewed_at"));
                     historyList.add(h);
@@ -52,7 +52,7 @@ public class HistoryService implements IHistoryService {
     @Override
     public List<History> getRentalHistory(int userId) throws SQLException {
         List<History> rentalList = new ArrayList<>();
-        String sql = "SELECT b.created_at, c.car_id, c.brand, c.model, c.price_per_day, c.image_path "
+        String sql = "SELECT b.created_at, c.car_id, c.brand, c.model, c.base_price, c.image_path "
                 + "FROM bookings b JOIN cars c ON b.car_id = c.car_id "
                 + "WHERE b.renter_id = ? AND b.status = 'SUCCESSFUL' ORDER BY b.created_at DESC";
 
@@ -64,7 +64,7 @@ public class HistoryService implements IHistoryService {
                     h.setCarId(rs.getInt("car_id"));
                     h.setBrand(rs.getString("brand"));
                     h.setModel(rs.getString("model"));
-                    h.setPrice(rs.getDouble("price_per_day"));
+                    h.setPrice(rs.getDouble("base_price"));
                     h.setImagePath(rs.getString("image_path"));
                     h.setCreatedAt(rs.getTimestamp("created_at"));
                     rentalList.add(h);

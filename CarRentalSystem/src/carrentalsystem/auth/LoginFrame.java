@@ -379,7 +379,7 @@ public class LoginFrame extends javax.swing.JFrame {
 
     private void lblForgotPasswordMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblForgotPasswordMouseClicked
         // TODO add your handling code here:
-        handleForgotPassword();
+        handleForgotPassword(); 
     }//GEN-LAST:event_lblForgotPasswordMouseClicked
 
     /**

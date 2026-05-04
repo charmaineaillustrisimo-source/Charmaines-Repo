@@ -142,32 +142,31 @@ public class BookingService implements IBookingService{
     }
 
     public carrentalsystem.models.Booking getBookingById(int bookingId) throws SQLException {
-        String sql
-                = "SELECT b.*, "
-                + "  c.brand AS car_brand, c.model AS car_model, "
-                + "  c.owner_id "
-                + "FROM bookings b "
-                + "JOIN cars c ON c.car_id = b.car_id "
+        String sql = "SELECT b.*, c.brand AS car_brand, c.model AS car_model, c.owner_id "
+                + "FROM bookings b JOIN cars c ON c.car_id = b.car_id "
                 + "WHERE b.booking_id = ?";
-        try (PreparedStatement ps = DBConnection.getConnection().prepareStatement(sql)) {
-            ps.setInt(1, bookingId);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                carrentalsystem.models.Booking b = new carrentalsystem.models.Booking();
-                b.setBookingId(rs.getInt("booking_id"));
-                b.setCarId(rs.getInt("car_id"));
-                b.setRenterId(rs.getInt("renter_id"));
-                b.setOwnerId(rs.getInt("owner_id"));
-                b.setStartDate(rs.getDate("start_date"));
-                b.setEndDate(rs.getDate("end_date"));
-                b.setTotalPrice(rs.getDouble("total_price"));
-                b.setStatus(rs.getString("status"));
-                b.setCarBrand(rs.getString("car_brand"));
-                b.setCarModel(rs.getString("car_model"));
-                b.setPickupLocation(rs.getString("pickup_location"));
-                b.setReturnLocation(rs.getString("return_location"));
 
-                return b;
+        try (Connection conn = DBConnection.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, bookingId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    // Manually map fields to avoid "ResultSet closed" errors in helpers
+                    carrentalsystem.models.Booking b = new carrentalsystem.models.Booking();
+                    b.setBookingId(rs.getInt("booking_id"));
+                    b.setCarId(rs.getInt("car_id"));
+                    b.setRenterId(rs.getInt("renter_id"));
+                    b.setOwnerId(rs.getInt("owner_id"));
+                    b.setStartDate(rs.getDate("start_date"));
+                    b.setEndDate(rs.getDate("end_date"));
+                    b.setTotalPrice(rs.getDouble("total_price"));
+                    b.setStatus(rs.getString("status"));
+                    b.setCarBrand(rs.getString("car_brand"));
+                    b.setCarModel(rs.getString("car_model"));
+                    b.setPickupLocation(rs.getString("pickup_location"));
+                    b.setReturnLocation(rs.getString("return_location"));
+                    return b;
+                }
             }
         }
         return null;
@@ -181,14 +180,18 @@ public class BookingService implements IBookingService{
                 + "JOIN cars c ON b.car_id = c.car_id "
                 + "JOIN users u ON c.owner_id = u.user_id "
                 + "WHERE b.renter_id = ? ORDER BY b.created_at DESC";
+
         List<Booking> list = new ArrayList<>();
-        try (PreparedStatement ps = DBConnection.getConnection().prepareStatement(sql)) {
+        // Open Connection, Statement, and ResultSet in try-with-resources
+        try (Connection conn = DBConnection.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+
             ps.setInt(1, renterId);
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                Booking b = mapBooking(rs);
-                b.setOwnerName(rs.getString("owner_name"));
-                list.add(b);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Booking b = mapBooking(rs); // Map while ResultSet is open
+                    b.setOwnerName(rs.getString("owner_name"));
+                    list.add(b);
+                }
             }
         }
         return list;
@@ -200,12 +203,15 @@ public class BookingService implements IBookingService{
                 + "c.image_path, c.owner_id FROM bookings b "
                 + "JOIN cars c ON b.car_id = c.car_id "
                 + "WHERE c.owner_id = ? ORDER BY b.created_at DESC";
+
         List<Booking> list = new ArrayList<>();
-        try (PreparedStatement ps = DBConnection.getConnection().prepareStatement(sql)) {
+        try (Connection conn = DBConnection.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+
             ps.setInt(1, ownerId);
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                list.add(mapBooking(rs));
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapBooking(rs));
+                }
             }
         }
         return list;
@@ -237,6 +243,140 @@ public class BookingService implements IBookingService{
             }
         }
         return list;
+    }
+    
+    /**
+     * Total revenue from SUCCESSFUL bookings owned by this user in the past N
+     * days.
+     */
+    public double getRevenueLastDays(int ownerId, int days) throws java.sql.SQLException {
+        String sql = "SELECT COALESCE(SUM(b.total_price), 0) "
+                + "FROM bookings b JOIN cars c ON c.car_id = b.car_id "
+                + "WHERE c.owner_id = ? AND b.status = 'SUCCESSFUL' "
+                + "AND b.created_at >= DATE_SUB(NOW(), INTERVAL ? DAY)";
+
+        try (Connection conn = DBConnection.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, ownerId);
+            ps.setInt(2, days);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getDouble(1);
+                }
+            }
+        }
+        return 0.0;
+    }
+
+    /**
+     * Total views_count across all ACTIVE listings owned by this user in past N
+     * days. (views_count is incremented in CarService when a user opens
+     * CarDetailsPanel)
+     */
+    public int getListingClicksLastDays(int ownerId, int days) throws java.sql.SQLException {
+        String sql = "SELECT COALESCE(SUM(views_count), 0) FROM cars "
+                + "WHERE owner_id = ? AND status = 'ACTIVE'";
+
+        try (Connection conn = DBConnection.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, ownerId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        }
+        return 0;
+    }
+
+    /**
+     * Count of booking requests received by this owner in the past 7 days. Used
+     * for the Daily Clicks / activity graph label.
+     */
+    public int getDailyActivityCount(int ownerId) throws java.sql.SQLException {
+        String sql
+                = "SELECT COUNT(*) "
+                + "FROM bookings b "
+                + "JOIN cars c ON c.car_id = b.car_id "
+                + "WHERE c.owner_id = ? "
+                + "  AND b.created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)";
+        try (java.sql.PreparedStatement ps
+                = DBConnection.getConnection().prepareStatement(sql)) {
+            ps.setInt(1, ownerId);
+            java.sql.ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        }
+        return 0;
+    }
+    
+    /**
+ * Returns booking counts per day for the past 7 days (Mon→Sun).
+ * Index 0 = 6 days ago, index 6 = today.
+ */
+public int[] getDailyActivityLast7Days(int ownerId) throws java.sql.SQLException {
+    int[] result = new int[7];
+    String sql =
+        "SELECT DATEDIFF(NOW(), b.created_at) AS days_ago, COUNT(*) AS cnt " +
+        "FROM bookings b " +
+        "JOIN cars c ON c.car_id = b.car_id " +
+        "WHERE c.owner_id = ? " +
+        "  AND b.created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY) " +
+        "GROUP BY days_ago";
+    try (PreparedStatement ps =
+            DBConnection.getConnection().prepareStatement(sql)) {
+        ps.setInt(1, ownerId);
+        ResultSet rs = ps.executeQuery();
+        while (rs.next()) {
+            int idx = 6 - rs.getInt("days_ago"); // 0=oldest, 6=today
+            if (idx >= 0 && idx < 7) {
+                result[idx] = rs.getInt("cnt");
+            }
+        }
+    }
+    return result;
+}
+
+    /**
+     * Returns revenue broken down by status: [PENDING, CONFIRMED, SUCCESSFUL]
+     * Used for the pie chart in AnalyticsPanel.
+     */
+    public double[] getRevenueBreakdown(int ownerId) throws java.sql.SQLException {
+        double[] result = new double[3]; // [pending, confirmed, successful]
+        String sql
+                = "SELECT b.status, COALESCE(SUM(b.total_price), 0) AS total "
+                + "FROM bookings b "
+                + "JOIN cars c ON c.car_id = b.car_id "
+                + "WHERE c.owner_id = ? "
+                + "  AND b.status IN ('PENDING','CONFIRMED','SUCCESSFUL') "
+                + "  AND b.created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY) "
+                + "GROUP BY b.status";
+        try (PreparedStatement ps
+                = DBConnection.getConnection().prepareStatement(sql)) {
+            ps.setInt(1, ownerId);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                switch (rs.getString("status")) {
+                    case "PENDING":
+                        result[0] = rs.getDouble("total");
+                        break;
+                    case "CONFIRMED":
+                        result[1] = rs.getDouble("total");
+                        break;
+                    case "SUCCESSFUL":
+                        result[2] = rs.getDouble("total");
+                        break;
+                }
+            }
+        }
+        return result;
+    }
+    
+    public void recordListingClick(int carId) throws java.sql.SQLException {
+        String sql = "UPDATE cars SET views_count = views_count + 1 WHERE car_id = ?";
+        try (PreparedStatement ps = DBConnection.getConnection().prepareStatement(sql)) {
+            ps.setInt(1, carId);
+            ps.executeUpdate();
+        }
     }
 
     // ── Helper ───────────────────────────────────────────────

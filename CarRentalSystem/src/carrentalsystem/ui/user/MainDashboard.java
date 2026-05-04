@@ -37,6 +37,9 @@ public class MainDashboard extends javax.swing.JFrame {
     private SettingsBrowsingPanel settingsBrowsing1;
     private SettingsRentalsPanel settingsRentals1;
     private String query;
+    private AnalyticsPanel analyticsPanel1;
+    private ProUserAlertPanel proUserAlertPanel1;
+    
     
     /**
      * Creates new form MainDashboard
@@ -68,6 +71,8 @@ public class MainDashboard extends javax.swing.JFrame {
         this.getLayeredPane().add(sideMenu, javax.swing.JLayeredPane.POPUP_LAYER);
         sideMenu.setBounds(0, 65, 250, getHeight()); 
         sideMenu.setVisible(false);
+        
+        
         
         // Header Panel
         headerPanel = new HeaderPanel();
@@ -266,6 +271,11 @@ public class MainDashboard extends javax.swing.JFrame {
         pnlRentalCalendarWrapper.removeAll();
         pnlRentalCalendarWrapper.add(rentalCalendar1, gbcCal);
         
+        // Analytics Panel
+        analyticsPanel1 = new AnalyticsPanel();
+        proUserAlertPanel1 = new ProUserAlertPanel();
+        proUserAlertPanel1.setDashboard(this);
+        
         // Settings Panel
         settingsBrowsing1 = new SettingsBrowsingPanel();
         settingsRentals1 = new SettingsRentalsPanel();
@@ -371,6 +381,7 @@ public class MainDashboard extends javax.swing.JFrame {
                 } catch (Exception ex) {
                     System.err.println("Failed to log history: " + ex.getMessage());
                 }
+                AnalyticsPanel.recordListingClick(car.getCarId());
                 showCarDetails(car);
             }
         });
@@ -395,6 +406,47 @@ public class MainDashboard extends javax.swing.JFrame {
         // Switch the card layout
         java.awt.CardLayout cl = (java.awt.CardLayout) pnlMainContent.getLayout();
         cl.show(pnlMainContent, "detailsCard");
+    }
+    
+    public void showAnalytics() {
+        carrentalsystem.models.User user
+                = carrentalsystem.core.SessionManager.getCurrentUser();
+        if (user == null) {
+            return;
+        }
+
+        // Clear wrapper and show the correct panel based on tier
+        pnlAnalyticsWrapper.removeAll();
+        
+        pnlAnalyticsWrapper.setLayout(new java.awt.GridBagLayout());
+        java.awt.GridBagConstraints gbc = new java.awt.GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.weightx = 1.0;
+        gbc.weighty = 1.0;
+        gbc.anchor = java.awt.GridBagConstraints.CENTER;
+        gbc.fill = java.awt.GridBagConstraints.NONE;
+
+        if ("PRO".equalsIgnoreCase(user.getTier())) {
+            // PRO user — load real analytics then show
+            analyticsPanel1.loadData();
+            analyticsPanel1.setPreferredSize(new java.awt.Dimension(1440, 1080));
+            pnlAnalyticsWrapper.add(analyticsPanel1, gbc);
+        } else {
+            // FREE user — show upgrade prompt
+            proUserAlertPanel1.setPreferredSize(new java.awt.Dimension(1440, 1080));
+            pnlAnalyticsWrapper.add(proUserAlertPanel1, gbc);
+        }
+
+        pnlAnalyticsWrapper.revalidate();
+        pnlAnalyticsWrapper.repaint();
+
+        java.awt.CardLayout cl = (java.awt.CardLayout) pnlMainContent.getLayout();
+        cl.show(pnlMainContent, "analyticsCard");
+    }
+
+    public AnalyticsPanel getAnalyticsPanel() {
+        return analyticsPanel1;
     }
     
     public void openEditListing(carrentalsystem.models.Car car) {
@@ -444,6 +496,10 @@ public class MainDashboard extends javax.swing.JFrame {
     
     public RentalCalendar getRentalCalendar() {
         return rentalCalendar1;
+    }
+    
+    public javax.swing.JPanel getPnlProAlertWrapper() {
+        return pnlProAlertWrapper;
     }
     
     public void updateNotificationBadge() {
@@ -555,6 +611,8 @@ public class MainDashboard extends javax.swing.JFrame {
         pnlProfileWrapper = new javax.swing.JPanel();
         pnlRentalCalendarWrapper = new javax.swing.JPanel();
         pnlSettingsWrapper = new javax.swing.JPanel();
+        pnlProAlertWrapper = new javax.swing.JPanel();
+        pnlAnalyticsWrapper = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Rent A Car - Cebu, Philippines");
@@ -616,6 +674,16 @@ public class MainDashboard extends javax.swing.JFrame {
         pnlSettingsWrapper.setLayout(new java.awt.CardLayout());
         pnlMainContent.add(pnlSettingsWrapper, "settingsCard");
 
+        pnlProAlertWrapper.setOpaque(false);
+        pnlProAlertWrapper.setPreferredSize(new java.awt.Dimension(1100, 700));
+        pnlProAlertWrapper.setLayout(new java.awt.GridBagLayout());
+        pnlMainContent.add(pnlProAlertWrapper, "proAlertCard");
+
+        pnlAnalyticsWrapper.setOpaque(false);
+        pnlAnalyticsWrapper.setPreferredSize(new java.awt.Dimension(1440, 1080));
+        pnlAnalyticsWrapper.setLayout(new java.awt.GridBagLayout());
+        pnlMainContent.add(pnlAnalyticsWrapper, "analyticsCard");
+
         getContentPane().add(pnlMainContent, java.awt.BorderLayout.CENTER);
 
         pack();
@@ -648,6 +716,7 @@ public class MainDashboard extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel pnlAddListWrapper;
+    private javax.swing.JPanel pnlAnalyticsWrapper;
     private javax.swing.JPanel pnlBookingWrapper;
     private javax.swing.JPanel pnlCarFeed;
     private javax.swing.JPanel pnlDetailsWrapper;
@@ -657,6 +726,7 @@ public class MainDashboard extends javax.swing.JFrame {
     private javax.swing.JPanel pnlMyListingWrapper;
     private javax.swing.JPanel pnlMyRentalsWrapper;
     private javax.swing.JPanel pnlNotificationsWrapper;
+    private javax.swing.JPanel pnlProAlertWrapper;
     private javax.swing.JPanel pnlProfileWrapper;
     private javax.swing.JPanel pnlRentalCalendarWrapper;
     private javax.swing.JPanel pnlSettingsWrapper;

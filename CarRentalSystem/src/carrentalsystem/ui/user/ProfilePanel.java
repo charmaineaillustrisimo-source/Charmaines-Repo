@@ -176,40 +176,74 @@ public class ProfilePanel extends javax.swing.JPanel {
     }
 
     public void loadUserData() {
-        User user = SessionManager.getCurrentUser();
-        if (user == null) {
+        User sessionUser = SessionManager.getCurrentUser();
+        if (sessionUser == null) {
             return;
         }
         // Text bg static
-        txtName.setText(user.getFullName());
-        txtEmail.setText(user.getEmail());
-        lblName.setText(user.getFullName().split(" ")[0]);
+        txtName.setText(sessionUser.getFullName());
+        txtEmail.setText(sessionUser.getEmail());
+        lblName.setText(sessionUser.getFullName().split(" ")[0]);
+        
+        txtPassword.setText("jPasswordField1");
+        txtPassword.setEditable(false);
+        txtPassword.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(210, 210, 210), 1, true));
+        
+        // Functional Check for City
+        new Thread(() -> {
+            try {
+                carrentalsystem.services.UserService svc = new carrentalsystem.services.UserService();
+                // Fetch the FULL user object from the DB
+                User user = svc.getUserById(sessionUser.getUserId());
 
-        if (user.getCity() == null || user.getCity().isEmpty()) {
-            txtCity.setText("City");
-            txtCity.setForeground(Color.GRAY); // Visual cue for "background text"
-        } else {
-            txtCity.setText(user.getCity());
-            txtCity.setForeground(TEXT_DARK);
-        }
+                if (user != null) {
+                    // Update session so other panels have the new location too
+                    SessionManager.setCurrentUser(user);
 
-        txtCity.setText(user.getCity() != null ? user.getCity() : "City");
-        txtProvince.setText(user.getProvince() != null ? user.getProvince() : "Province");
+                    javax.swing.SwingUtilities.invokeLater(() -> {
+                        // Update Text Fields
+                        txtName.setText(user.getFullName());
+                        txtEmail.setText(user.getEmail());
+                        lblName.setText(user.getFullName().split(" ")[0]);
 
-        // Profile image
-        int size = 80;
-        String path = user.getProfileImagePath();
-        if (path != null && !path.isEmpty()) {
-            JLabel tempCircle = ImageUtil.cropCircle(path,size);
-            lblIconProfile.setIcon(tempCircle.getIcon());
-        } else {
-            lblIconProfile.setIcon(ImageUtil.loadIcon("/carrentalsystem/ui/user/Icons/DefaultAvatar.png", size, size));
-        }
- 
-       // Update header icon
-        if (dashboard != null) {
-            dashboard.getHeaderPanel().updateProfileIcon(user.getProfileImagePath());
-        }
+                        // FUNCTIONAL LOCATION CHECK[cite: 25]
+                        if (user.getCity() == null || user.getCity().trim().isEmpty()) {
+                            txtCity.setText("City");
+                            txtCity.setForeground(java.awt.Color.GRAY);
+                        } else {
+                            txtCity.setText(user.getCity());
+                            txtCity.setForeground(TEXT_DARK);
+                        }
+
+                        if (user.getProvince() == null || user.getProvince().trim().isEmpty()) {
+                            txtProvince.setText("Province");
+                            txtProvince.setForeground(java.awt.Color.GRAY);
+                        } else {
+                            txtProvince.setText(user.getProvince());
+                            txtProvince.setForeground(TEXT_DARK);
+                        }
+
+                        // Profile image
+                        int size = 80;
+                        String path = user.getProfileImagePath();
+                        if (path != null && !path.isEmpty()) {
+                            JLabel tempCircle = ImageUtil.cropCircle(path, size);
+                            lblIconProfile.setIcon(tempCircle.getIcon());
+                        } else {
+                            lblIconProfile.setIcon(ImageUtil.loadIcon("/carrentalsystem/ui/user/Icons/DefaultAvatar.png", size, size));
+                        }
+
+                        // Update header icon
+                        if (dashboard != null) {
+                            dashboard.getHeaderPanel().updateProfileIcon(user.getProfileImagePath());
+                        }
+
+                    });
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }).start();
     }
 
     private void toggleEditMode() {
@@ -233,9 +267,10 @@ public class ProfilePanel extends javax.swing.JPanel {
         txtEmail.setBorder(active);
         txtCity.setBorder(active);
         txtProvince.setBorder(active);
+        txtPassword.setBorder(active);
 
         // Show/hide Update button based on mode
-        btnUpdate.setVisible(false);
+        btnUpdate.setVisible(isEditing);
 
         // Change edit icon to indicate current state
         String iconPath = isEditing
@@ -244,7 +279,12 @@ public class ProfilePanel extends javax.swing.JPanel {
         // If you have a "save/checkmark" icon, use it here instead
 
         if (isEditing) {
+            // Clear the dummy "jPasswordField1" text so the user can type a new one
+            txtPassword.setText("");
             txtName.requestFocus();
+        } else {
+            // Reset the dummy text when exiting edit mode without saving
+            txtPassword.setText("jPasswordField1");
         }
     }
 
@@ -330,7 +370,13 @@ public class ProfilePanel extends javax.swing.JPanel {
         lblSupport.setText("Support");
 
         btnSubmit.setBackground(new java.awt.Color(0, 102, 51));
+        btnSubmit.setForeground(new java.awt.Color(255, 255, 255));
         btnSubmit.setText("Submit");
+        btnSubmit.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSubmitActionPerformed(evt);
+            }
+        });
 
         lblIssue.setFont(new java.awt.Font("Serif", 1, 16)); // NOI18N
         lblIssue.setText("Isuue");
@@ -346,10 +392,18 @@ public class ProfilePanel extends javax.swing.JPanel {
         txtareaType.setRows(5);
         txtareaType.setText("Type something here...");
         txtareaType.setWrapStyleWord(true);
+        txtareaType.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusGained(java.awt.event.FocusEvent evt) {
+                txtareaTypeFocusGained(evt);
+            }
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                txtareaTypeFocusLost(evt);
+            }
+        });
         jScrollPane1.setViewportView(txtareaType);
 
         comboSelectCategory.setFont(new java.awt.Font("Serif", 1, 20)); // NOI18N
-        comboSelectCategory.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Select Category", "Item 2", "Item 3", "Item 4" }));
+        comboSelectCategory.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Select Category", "Bug Issue", "Report a user", "Report payment issue", "Report listing issue", "Help" }));
 
         javax.swing.GroupLayout panelSupportCardLayout = new javax.swing.GroupLayout(panelSupportCard);
         panelSupportCard.setLayout(panelSupportCardLayout);
@@ -419,6 +473,19 @@ public class ProfilePanel extends javax.swing.JPanel {
         panelAccountCard.add(lblEdit, new org.netbeans.lib.awtextra.AbsoluteConstraints(490, 100, 36, 39));
 
         lblUpgrade.setIcon(new javax.swing.ImageIcon(getClass().getResource("/carrentalsystem/ui/user/Icons/Upgrade.png"))); // NOI18N
+        lblUpgrade.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        lblUpgrade.setToolTipText("Upgrade to PRO");
+        lblUpgrade.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                lblUpgradeMouseClicked(evt);
+            }
+        });
+        lblUpgrade.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                lblUpgradeMouseClicked(evt);
+            }
+        });
         panelAccountCard.add(lblUpgrade, new org.netbeans.lib.awtextra.AbsoluteConstraints(530, 100, 36, 39));
 
         txtName.setEditable(false);
@@ -468,6 +535,19 @@ public class ProfilePanel extends javax.swing.JPanel {
         txtCity.setText("City");
         txtCity.setBorder(javax.swing.BorderFactory.createCompoundBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)), javax.swing.BorderFactory.createEmptyBorder(1, 15, 1, 1)));
         txtCity.setDisabledTextColor(new java.awt.Color(204, 204, 204));
+        txtCity.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusGained(java.awt.event.FocusEvent evt) {
+                txtCityFocusGained(evt);
+            }
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                txtCityFocusLost(evt);
+            }
+        });
+        txtCity.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtCityActionPerformed(evt);
+            }
+        });
         panelAccountCard.add(txtCity, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 430, 530, 41));
 
         txtProvince.setEditable(false);
@@ -475,6 +555,14 @@ public class ProfilePanel extends javax.swing.JPanel {
         txtProvince.setText("Province");
         txtProvince.setBorder(javax.swing.BorderFactory.createCompoundBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)), javax.swing.BorderFactory.createEmptyBorder(1, 15, 1, 1)));
         txtProvince.setDisabledTextColor(new java.awt.Color(204, 204, 204));
+        txtProvince.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusGained(java.awt.event.FocusEvent evt) {
+                txtProvinceFocusGained(evt);
+            }
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                txtProvinceFocusLost(evt);
+            }
+        });
         panelAccountCard.add(txtProvince, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 480, 530, 41));
 
         btnSwitchAcc.setText("Switch Account");
@@ -784,7 +872,7 @@ public class ProfilePanel extends javax.swing.JPanel {
         }
 
         // Update the profile icon in ProfilePanel immediately
-        carrentalsystem.utils.ImageUtil.applyScaledImage(lblIconProfile, savedPath, 80, 80);
+        ImageUtil.applyCircleImage(lblIconProfile, savedPath, 80);
 
         // Update the header icon immediately
         if (dashboard != null) {
@@ -799,6 +887,115 @@ public class ProfilePanel extends javax.swing.JPanel {
             user.setProfileImagePath(savedPath);
         }
     }//GEN-LAST:event_lblIconProfileMouseClicked
+
+    private void lblUpgradeMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblUpgradeMouseClicked
+        // TODO add your handling code here:
+        // Check if the user is already PRO to avoid unnecessary popups[cite: 26]
+        carrentalsystem.models.User currentUser = carrentalsystem.core.SessionManager.getCurrentUser();
+
+        if (currentUser != null && "PRO".equalsIgnoreCase(currentUser.getTier())) {
+            javax.swing.JOptionPane.showMessageDialog(this, "You are already a PRO user!");
+        } else {
+            // Show the upgrade wrapper you created in the MainDashboard
+            if (dashboard != null) {
+                dashboard.getPnlProAlertWrapper().setVisible(true);
+                dashboard.getLayeredPane().setComponentZOrder(dashboard.getPnlProAlertWrapper(), 0);
+            }
+        }
+    }//GEN-LAST:event_lblUpgradeMouseClicked
+
+    private void txtareaTypeFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_txtareaTypeFocusGained
+        // TODO add your handling code here:
+        if (txtareaType.getText().equals("Type something here...")) {
+            txtareaType.setText("");
+            txtareaType.setForeground(Color.BLACK);
+        }
+    }//GEN-LAST:event_txtareaTypeFocusGained
+
+    private void txtareaTypeFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_txtareaTypeFocusLost
+        // TODO add your handling code here:
+        if (txtareaType.getText().trim().isEmpty()) {
+            txtareaType.setText("Type something here...");
+            txtareaType.setForeground(Color.GRAY);
+        }
+    }//GEN-LAST:event_txtareaTypeFocusLost
+
+    private void btnSubmitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSubmitActionPerformed
+        // TODO add your handling code here:
+        String category = (String) comboSelectCategory.getSelectedItem();
+        String description = txtareaType.getText().trim();
+        int userId = carrentalsystem.core.SessionManager.getCurrentUser().getUserId();
+
+        // Validations
+        if (category.equals("Select Category")) {
+            JOptionPane.showMessageDialog(this, "Please select a category.");
+            return;
+        }
+        if (description.isEmpty() || description.equals("Type something here...")) {
+            JOptionPane.showMessageDialog(this, "Please describe your issue.");
+            return;
+        }
+
+        // status is OPEN by default in DB schema
+        String sql = "INSERT INTO tickets (user_id, subject, description) VALUES (?, ?, ?)";
+
+        try (java.sql.Connection conn = carrentalsystem.core.DBConnection.getConnection(); java.sql.PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, userId);
+            ps.setString(2, category);
+            ps.setString(3, description);
+
+            if (ps.executeUpdate() > 0) {
+                JOptionPane.showMessageDialog(this, "Ticket submitted! Admin status: OPEN.");
+
+                // Trigger the notification
+                sendTicketNotification(userId, category);
+
+                // Reset UI
+                comboSelectCategory.setSelectedIndex(0);
+                txtareaType.setText("Type something here...");
+                txtareaType.setForeground(Color.GRAY);
+            }
+        } catch (java.sql.SQLException e) {
+            e.printStackTrace();
+        }
+    }//GEN-LAST:event_btnSubmitActionPerformed
+
+    private void txtCityActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtCityActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtCityActionPerformed
+
+    private void txtCityFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_txtCityFocusGained
+        // TODO add your handling code here:
+        if (txtCity.getText().equals("City")) {
+            txtCity.setText("");
+            txtCity.setForeground(TEXT_DARK);
+        }
+    }//GEN-LAST:event_txtCityFocusGained
+
+    private void txtCityFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_txtCityFocusLost
+        // TODO add your handling code here:
+        if (txtCity.getText().trim().isEmpty()) {
+            txtCity.setText("City");
+            txtCity.setForeground(java.awt.Color.GRAY);
+        }
+    }//GEN-LAST:event_txtCityFocusLost
+
+    private void txtProvinceFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_txtProvinceFocusGained
+        // TODO add your handling code here:
+        if (txtProvince.getText().equals("Province")) {
+            txtProvince.setText("");
+            txtProvince.setForeground(TEXT_DARK);
+        }
+    }//GEN-LAST:event_txtProvinceFocusGained
+
+    private void txtProvinceFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_txtProvinceFocusLost
+        // TODO add your handling code here:
+        if (txtProvince.getText().trim().isEmpty()) {
+            txtProvince.setText("Province");
+            txtProvince.setForeground(java.awt.Color.GRAY);
+        }
+    }//GEN-LAST:event_txtProvinceFocusLost
 
     public static void main(String[] args) {
         // Set the look and feel to your system's style (Windows/Mac)
@@ -827,6 +1024,22 @@ public class ProfilePanel extends javax.swing.JPanel {
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
 
+    }
+    
+    private void sendTicketNotification(int userId, String category) {
+        String msg = "Your ticket regarding '" + category + "' has been opened successfully.";
+
+        try {
+            carrentalsystem.services.NotificationService service = new carrentalsystem.services.NotificationService();
+            service.notify(userId, msg, "SYSTEM");
+
+            // Update the red dot on the bell icon[cite: 34]
+            if (dashboard != null) {
+                dashboard.updateNotificationBadge();
+            }
+        } catch (Exception e) {
+            System.err.println("Notification trigger failed: " + e.getMessage());
+        }
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

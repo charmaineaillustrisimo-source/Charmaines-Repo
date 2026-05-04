@@ -61,7 +61,7 @@ public class HeaderPanel extends javax.swing.JPanel {
 
         if (imagePath != null && !imagePath.isEmpty()) {
             // Load the user's custom photo
-            ImageUtil.applyScaledImage(btnProfile, imagePath, size, size);
+            ImageUtil.applyCircleImage(btnProfile, imagePath, size);
         } else {
             // Load your default "user" icon from resources
             try {

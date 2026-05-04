@@ -11,7 +11,7 @@ import javax.swing.border.*;
 
 /**
  *
- * @author tomac
+ * @author macbookairm1grey
  */
 public class SettingsBrowsingPanel extends javax.swing.JPanel {
 
@@ -24,15 +24,13 @@ public class SettingsBrowsingPanel extends javax.swing.JPanel {
         this.removeAll();
         this.setLayout(new BorderLayout());
 
-// Force the content background to use BorderLayout so the scrollpane fills it
+        // Force the content background to use BorderLayout so the scrollpane fills it
         panelContentBg.setLayout(new BorderLayout());
 
         // THEME COLORS
         Color darkBg = new Color(45, 35, 35);
         Color lightPink = new Color(223, 208, 209);
-        Color cardColor = new Color(220, 205, 205);
-
-        this.setLayout(new BorderLayout());
+        
         this.setBackground(darkBg);
 
         // 1. FIXED HEADER AREA
@@ -49,7 +47,7 @@ public class SettingsBrowsingPanel extends javax.swing.JPanel {
         btnActLog.setForeground(Color.WHITE);
         btnActLog.setCursor(new Cursor(Cursor.HAND_CURSOR)); // Hand icon on hover
 
-// Disable default rendering to allow custom dark color
+        // Disable default rendering to allow custom dark color
         btnActLog.setContentAreaFilled(false);
         btnActLog.setOpaque(false);
         btnActLog.setBorderPainted(false);
@@ -62,12 +60,8 @@ public class SettingsBrowsingPanel extends javax.swing.JPanel {
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
                 // Darkens slightly when clicked
-                if (((AbstractButton) c).getModel().isPressed()) {
-                    g2.setColor(darkBg.darker());
-                } else {
-                    g2.setColor(darkBg);
-                }
-
+                g2.setColor(((AbstractButton) c).getModel().isPressed() ? darkBg.darker() : darkBg);
+                
                 // Draws a rounded rectangle for the button body
                 g2.fillRoundRect(0, 0, c.getWidth(), c.getHeight(), 30, 30);
                 g2.dispose();
@@ -93,6 +87,10 @@ public class SettingsBrowsingPanel extends javax.swing.JPanel {
         gbc.gridwidth = 1;
         styleFilterBtn(btnBrowsing, "Browsing");
         styleFilterBtn(btnRentals, "Rentals");
+        
+        btnBrowsing.setForeground(lightPink);
+        btnBrowsing.putClientProperty("isActive", true);
+
         gbc.insets = new Insets(0, 40, 20, 40);
         filterSection.add(btnBrowsing, gbc);
         gbc.gridx = 1;
@@ -108,9 +106,6 @@ public class SettingsBrowsingPanel extends javax.swing.JPanel {
         panelBackground.setLayout(new BoxLayout(panelBackground, BoxLayout.Y_AXIS));
         panelBackground.setBackground(darkBg);
 
-        // Scaling the car images to be larger (320x200)
-        ImageIcon carImg = getScaledIcon("/carrentalsystem/ui/user/Icon/Car.png", 320, 200);
-
         // 3. JSCROLLPANE SETUP
         scrollPanelActivity.setViewportView(panelBackground);
         scrollPanelActivity.setBorder(null);
@@ -124,9 +119,162 @@ public class SettingsBrowsingPanel extends javax.swing.JPanel {
 
         this.revalidate();
         this.repaint();
+        
+        refreshHistory();
     }
 
-// Updated setupCard for bigger dimensions
+    public void refreshHistory() {
+        if (carrentalsystem.core.SessionManager.getCurrentUser() == null) {
+            return;
+        }
+
+        panelBackground.removeAll();
+        panelBackground.revalidate();
+        panelBackground.repaint();
+        
+        int userId = carrentalsystem.core.SessionManager.getCurrentUser().getUserId();
+
+        new Thread(() -> {
+            try {
+                // Use your new HistoryService to fetch data[cite: 21, 23]
+                carrentalsystem.interfaces.IHistoryService service = new carrentalsystem.services.HistoryService();
+                java.util.List<carrentalsystem.models.History> list = service.getBrowsingHistory(userId);
+
+                javax.swing.SwingUtilities.invokeLater(() -> {
+                    if (list.isEmpty()) {
+                        JLabel empty = new JLabel("No browsing history yet.");
+                        empty.setForeground(Color.WHITE);
+                        empty.setFont(new Font("Serif", Font.ITALIC, 22));
+                        empty.setAlignmentX(Component.CENTER_ALIGNMENT);
+                        panelBackground.add(Box.createVerticalStrut(40));
+                        panelBackground.add(empty);
+                    } else {
+                        for (carrentalsystem.models.History h : list) {
+                            panelBackground.add(createHistoryCapsule(h));
+                            panelBackground.add(Box.createVerticalStrut(20));
+                        }
+                    }
+                    panelBackground.revalidate();
+                    panelBackground.repaint();
+                });
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }).start();
+    }
+    
+    private JPanel createHistoryCapsule(carrentalsystem.models.History h) {
+        JPanel card = new JPanel(new BorderLayout(20, 0));
+        card.setBackground(new Color(220, 205, 205)); // cardColor[cite: 22, 24]
+        card.setMaximumSize(new Dimension(950, 200));
+        card.setPreferredSize(new Dimension(950, 200));
+        card.setOpaque(true);
+        card.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+        // Car Image
+        JLabel lblIcon = new JLabel();
+        if (h.getImagePath() != null && !h.getImagePath().isEmpty()) {
+            carrentalsystem.utils.ImageUtil.applyScaledImage(lblIcon, h.getImagePath(), 280, 180);
+        }
+
+        // Info Panel
+        JPanel info = new JPanel();
+        info.setOpaque(false);
+        info.setLayout(new BoxLayout(info, BoxLayout.Y_AXIS));
+
+        JLabel title = new JLabel(h.getBrand() + " " + h.getModel());
+        title.setFont(new Font("Serif", Font.BOLD, 28));
+        title.setForeground(new Color(45, 35, 35));
+
+        JLabel price = new JLabel("PHP " + String.format("%.2f", h.getPrice()) + "/day");
+        price.setFont(new Font("Serif", Font.BOLD, 22));
+        price.setForeground(new Color(45, 35, 35));
+        
+        
+        String dateStr = new java.text.SimpleDateFormat("MMM dd, yyyy HH:mm").format(h.getCreatedAt());
+        JLabel time = new JLabel("Viewed: " + dateStr);
+        time.setFont(new Font("Serif", Font.PLAIN, 16));
+        time.setForeground(new Color(80, 60, 60));
+
+        info.add(Box.createVerticalGlue());
+        info.add(title);
+        info.add(Box.createVerticalStrut(6));
+        info.add(price);
+        info.add(time);
+        info.add(Box.createVerticalGlue());
+
+        card.add(lblIcon, BorderLayout.WEST);
+        card.add(info, BorderLayout.CENTER);
+        
+        // Rounded card border
+        card.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createEmptyBorder(0, 50, 0, 50),
+                new RoundedBorder(50, new Color(220, 205, 205))
+        ));
+        
+        card.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                // 1. Increment lister's listing-click counter in analytics
+                AnalyticsPanel.recordListingClick(h.getCarId());
+
+                // 2. Record browsing history for the current user
+                new Thread(() -> {
+                    try {
+                        int uid = carrentalsystem.core.SessionManager
+                                .getCurrentUser().getUserId();
+                        new carrentalsystem.services.HistoryService()
+                                .logBrowsingActivity
+        (uid, h.getCarId());
+                    } catch (Exception ex) {
+                        System.err.println("[SettingsBrowsingPanel] logBrowsingActivity error: "
+                                + ex.getMessage());
+                    }
+                }).start();
+            }
+
+            @Override
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                card.setBackground(new Color(210, 195, 195));
+                card.repaint();
+            }
+
+            @Override
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                card.setBackground(new Color(220, 205, 205));
+                card.repaint();
+            }
+        });
+        return card;
+    }
+    
+    private void styleFilterBtn(JButton btn, String text) {
+        btn.setText(text);
+        btn.setFont(new Font("Serif", Font.BOLD, 24));
+        btn.setForeground(Color.WHITE);
+        btn.setCursor(new Cursor(Cursor.HAND_CURSOR)); // Changes cursor to hand
+
+        btn.setContentAreaFilled(false);
+        btn.setBorderPainted(false);
+        btn.setFocusPainted(false);
+        btn.setOpaque(false);
+
+        // Adds the hover effect logic
+        btn.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                // Change to a lighter pink/grey on hover
+                btn.setForeground(new Color(223, 208, 209));
+            }
+
+            @Override
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                // Back to white when mouse leaves
+                btn.setForeground(Color.WHITE);
+            }
+        });
+    }
+    
     private void setupCard(JPanel card, JLabel icon, JLabel title, JLabel price, JLabel history, JLabel status, ImageIcon img, Color color) {
         card.removeAll();
         card.setLayout(new BorderLayout(40, 0)); // More horizontal gap
@@ -166,38 +314,6 @@ public class SettingsBrowsingPanel extends javax.swing.JPanel {
         ));
     }
 
-    private void styleFilterBtn(JButton btn, String text) {
-        btn.setText(text);
-        btn.setFont(new Font("Serif", Font.BOLD, 24));
-        btn.setForeground(Color.WHITE);
-        btn.setCursor(new Cursor(Cursor.HAND_CURSOR)); // Changes cursor to hand
-
-        btn.setContentAreaFilled(false);
-        btn.setBorderPainted(false);
-        btn.setFocusPainted(false);
-        btn.setOpaque(false);
-
-        // Adds the hover effect logic
-        btn.addMouseListener(new java.awt.event.MouseAdapter() {
-            @Override
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                // Change to a lighter pink/grey on hover
-                btn.setForeground(new Color(223, 208, 209));
-            }
-
-            @Override
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                // Back to white when mouse leaves
-                btn.setForeground(Color.WHITE);
-            }
-        });
-    }
-
-    private void styleLabel(JLabel lbl, int size, boolean bold) {
-        lbl.setFont(new Font("Serif", bold ? Font.BOLD : Font.PLAIN, size));
-        lbl.setForeground(new Color(45, 35, 35));
-    }
-
     private ImageIcon getScaledIcon(String path, int w, int h) {
         try {
             java.net.URL imgURL = getClass().getResource(path);
@@ -211,7 +327,7 @@ public class SettingsBrowsingPanel extends javax.swing.JPanel {
             return null;
         }
     }
-
+    
     class RoundedBorder implements Border {
 
         private int r;
@@ -239,66 +355,9 @@ public class SettingsBrowsingPanel extends javax.swing.JPanel {
         }
     }
     
-    private JPanel createHistoryCapsule(carrentalsystem.models.History h) {
-        JPanel card = new JPanel(new BorderLayout(20, 0));
-        card.setBackground(new Color(220, 205, 205)); // cardColor[cite: 22, 24]
-        card.setMaximumSize(new Dimension(950, 200));
-        card.setPreferredSize(new Dimension(950, 200));
-        card.setOpaque(true);
-
-        // Scaling the car image[cite: 20, 24]
-        JLabel lblIcon = new JLabel();
-        if (h.getImagePath() != null && !h.getImagePath().isEmpty()) {
-            carrentalsystem.utils.ImageUtil.applyScaledImage(lblIcon, h.getImagePath(), 280, 180);
-        }
-
-        // Combined brand + model info[cite: 24]
-        JPanel info = new JPanel();
-        info.setOpaque(false);
-        info.setLayout(new BoxLayout(info, BoxLayout.Y_AXIS));
-
-        JLabel title = new JLabel(h.getBrand() + " " + h.getModel());
-        title.setFont(new Font("Serif", Font.BOLD, 28));
-
-        JLabel price = new JLabel("PHP " + String.format("%.2f", h.getPrice()) + "/day");
-
-        // Formatting the timestamp from your model[cite: 22]
-        String dateStr = new java.text.SimpleDateFormat("MMM dd, yyyy HH:mm").format(h.getCreatedAt());
-        JLabel time = new JLabel("Activity: " + dateStr);
-
-        info.add(Box.createVerticalGlue());
-        info.add(title);
-        info.add(price);
-        info.add(time);
-        info.add(Box.createVerticalGlue());
-
-        card.add(lblIcon, BorderLayout.WEST);
-        card.add(info, BorderLayout.CENTER);
-        return card;
-    }
-    
-    public void refreshHistory() {
-        panelBackground.removeAll(); // Clears the empty container
-        int userId = carrentalsystem.core.SessionManager.getCurrentUser().getUserId();
-
-        new Thread(() -> {
-            try {
-                // Use your new HistoryService to fetch data[cite: 21, 23]
-                carrentalsystem.interfaces.IHistoryService service = new carrentalsystem.services.HistoryService();
-                java.util.List<carrentalsystem.models.History> list = service.getBrowsingHistory(userId);
-
-                javax.swing.SwingUtilities.invokeLater(() -> {
-                    for (carrentalsystem.models.History h : list) {
-                        panelBackground.add(createHistoryCapsule(h));
-                        panelBackground.add(Box.createVerticalStrut(20)); // Add spacing between capsules
-                    }
-                    panelBackground.revalidate();
-                    panelBackground.repaint();
-                });
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }).start();
+    private void styleLabel(JLabel lbl, int size, boolean bold) {
+        lbl.setFont(new Font("Serif", bold ? Font.BOLD : Font.PLAIN, size));
+        lbl.setForeground(new Color(45, 35, 35));
     }
 
     /**
@@ -424,6 +483,7 @@ public class SettingsBrowsingPanel extends javax.swing.JPanel {
 
     private void btnBrowsingActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBrowsingActionPerformed
         // TODO add your handling code here:
+        refreshHistory();
     }//GEN-LAST:event_btnBrowsingActionPerformed
 
     private void btnRentalsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRentalsActionPerformed

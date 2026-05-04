@@ -14,10 +14,17 @@ public class ProUserAlertPanel extends javax.swing.JPanel {
     /**
      * Creates new form ProUserAlertPanel
      */
+    
+    private carrentalsystem.ui.user.MainDashboard dashboard;
+
     public ProUserAlertPanel() {
         initComponents();
     }
-
+    
+    public void setDashboard(carrentalsystem.ui.user.MainDashboard dashboard) {
+        this.dashboard = dashboard;
+    }
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -208,6 +215,41 @@ public class ProUserAlertPanel extends javax.swing.JPanel {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
+        int confirm = javax.swing.JOptionPane.showConfirmDialog(this,
+                "Upgrade to PRO for PHP 1,999?\nThis unlocks unlimited listings + Analytics.",
+                "Confirm Upgrade",
+                javax.swing.JOptionPane.YES_NO_OPTION,
+                javax.swing.JOptionPane.QUESTION_MESSAGE);
+
+        if (confirm != javax.swing.JOptionPane.YES_OPTION) {
+            return;
+        }
+
+        new Thread(() -> {
+            try {
+                int userId = carrentalsystem.core.SessionManager.getCurrentUser().getUserId();
+                new carrentalsystem.services.UserService().upgradeToPro(userId);
+
+                // Update in-memory user tier immediately
+                carrentalsystem.core.SessionManager.getCurrentUser().setTier("PRO");
+
+                javax.swing.SwingUtilities.invokeLater(() -> {
+                    javax.swing.JOptionPane.showMessageDialog(this,
+                            "You are now a PRO member! Refreshing Analytics...",
+                            "Upgrade Successful",
+                            javax.swing.JOptionPane.INFORMATION_MESSAGE);
+
+                    // Reload analytics — now user is PRO, AnalyticsPanel will show
+                    if (dashboard != null) {
+                        dashboard.showAnalytics();
+                    }
+                });
+            } catch (Exception e) {
+                javax.swing.SwingUtilities.invokeLater(()
+                        -> javax.swing.JOptionPane.showMessageDialog(this,
+                                "Upgrade error: " + e.getMessage()));
+            }
+        }).start();
     }//GEN-LAST:event_jButton1ActionPerformed
 
 

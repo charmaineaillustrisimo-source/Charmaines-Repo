@@ -19,24 +19,23 @@ private java.util.Map<Integer, java.util.List<String>> bookingData = new java.ut
      */
     public RentalCalendar() {
         initComponents();
-        // 1. CLEAR THE CANVAS
+        // CLEAR THE CANVAS
         // We wipe everything NetBeans did so our manual layouts take over correctly
         this.removeAll();
         contentPanel.removeAll();
         panelSidebarContainer.removeAll();
 
-        // 2. OUTER PANEL (The Pink Background)
+        // OUTER PANEL (The Pink Background)
         this.setLayout(new java.awt.BorderLayout());
         this.setBorder(javax.swing.BorderFactory.createEmptyBorder(20, 25, 20, 25));
         this.setBackground(new java.awt.Color(223, 208, 209));
 
-        // 3. WHITE CARD SETUP (contentPanel)
+        // WHITE CARD SETUP (contentPanel)
         contentPanel.setLayout(new java.awt.BorderLayout(25, 15));
         contentPanel.setOpaque(false); // Let the custom paintComponent handle the white round rect
         contentPanel.setBorder(javax.swing.BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-
-        // 5. THE MAIN BODY (Calendar + Sidebar)
+        // THE MAIN BODY (Calendar + Sidebar)
         javax.swing.JPanel mainBody = new javax.swing.JPanel(new java.awt.BorderLayout(20, 0));
         mainBody.setOpaque(false);
 
@@ -45,23 +44,18 @@ private java.util.Map<Integer, java.util.List<String>> bookingData = new java.ut
         calendarGrid.setLayout(new java.awt.GridLayout(0, 7, 1, 1));
         calendarGrid.setBackground(new java.awt.Color(180, 180, 180)); 
         
-        loadData();
-        
-        // Add Days (header labels Sun-Sat should be added here first)
-        setupCalendarDays();
-
         // SIDEBAR SIDE (Filter + Legend)
         javax.swing.JPanel sidebar = new javax.swing.JPanel();
         sidebar.setLayout(new javax.swing.BoxLayout(sidebar, javax.swing.BoxLayout.Y_AXIS));
         sidebar.setOpaque(false);
         sidebar.setPreferredSize(new java.awt.Dimension(220, 0));
-
+        
         // Filter Cars Box
         filterCars.setPreferredSize(new java.awt.Dimension(220, 350));
         filterCars.setMaximumSize(new java.awt.Dimension(220, 350));
         sidebar.add(filterCars);
         sidebar.add(javax.swing.Box.createVerticalStrut(20));
-
+        
         // Legend Section
         javax.swing.JPanel legendArea = new javax.swing.JPanel(new java.awt.GridLayout(0, 1, 0, 8));
         legendArea.setOpaque(false);
@@ -71,15 +65,17 @@ private java.util.Map<Integer, java.util.List<String>> bookingData = new java.ut
         legendArea.add(combine(lblBlueIcon, lblPending));
         legendArea.add(combine(lblRedIcon, lblMaintenance));
         sidebar.add(legendArea);
-
+        
         mainBody.add(calendarGrid, java.awt.BorderLayout.CENTER);
         mainBody.add(sidebar, java.awt.BorderLayout.EAST);
         contentPanel.add(mainBody, java.awt.BorderLayout.CENTER);
-
-        // 6. FINAL ASSEMBLY
+        
+        // FINAL ASSEMBLY
         this.add(topContainer, java.awt.BorderLayout.NORTH);
         this.add(contentPanel, java.awt.BorderLayout.CENTER);
-
+        
+        loadData();
+        
         this.revalidate();
         this.repaint();
     }
@@ -120,7 +116,10 @@ private java.util.Map<Integer, java.util.List<String>> bookingData = new java.ut
         int prevDays = prevMonth.lengthOfMonth();
         for (int i = startDayOfWeek - 1; i >= 0; i--) {
             javax.swing.JPanel cell = createDayCell(prevDays - i);
-            cell.getComponent(0).setEnabled(false);
+            cell.setOpaque(false);
+            if (cell.getComponentCount() > 0) {
+                cell.getComponent(0).setForeground(java.awt.Color.LIGHT_GRAY);
+            }
             calendarGrid.add(cell);
         }
 
@@ -130,7 +129,8 @@ private java.util.Map<Integer, java.util.List<String>> bookingData = new java.ut
 
             // Check if there is booking data for this specific day
             if (bookingData.containsKey(day)) {
-                for (String status : bookingData.get(day)) {
+                java.util.List<String> statuses = new java.util.ArrayList<>(bookingData.get(day));
+                for (String status : statuses) {
                     switch (status) {
                         case "Booked":
                             addRentalBar(cell, new java.awt.Color(34, 139, 34));
