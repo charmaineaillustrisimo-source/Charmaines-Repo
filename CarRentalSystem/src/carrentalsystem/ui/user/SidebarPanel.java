@@ -34,6 +34,11 @@ public class SidebarPanel extends javax.swing.JPanel {
 
     public SidebarPanel(javax.swing.JPanel mainContent, MainDashboard dashboard) {
         initComponents();
+        // Show "Login" label on the logout button if no user is logged in
+        if (carrentalsystem.core.SessionManager.getCurrentUser() == null) {
+            btnLogout.setText("Login / Sign Up");
+            btnLogout.setForeground(new java.awt.Color(100, 200, 255)); // light blue
+        }
         this.pnlMainContent = mainContent;
         this.dashboard = dashboard;
         
@@ -343,6 +348,7 @@ public class SidebarPanel extends javax.swing.JPanel {
 
     private void btnInboxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnInboxActionPerformed
         // TODO add your handling code here:
+        if (!dashboard.requireLogin()) return; 
         handleNavigation(btnInbox, "inboxCard");
         if (dashboard != null && dashboard.getInboxPanel() != null) {
             dashboard.getInboxPanel().loadData(); // This triggers the DB fetch
@@ -351,6 +357,7 @@ public class SidebarPanel extends javax.swing.JPanel {
 
     private void btnRentsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRentsActionPerformed
         // TODO add your handling code here:
+        if (!dashboard.requireLogin()) return;
         handleNavigation(btnRents, "myRentalsCard");
         if (dashboard != null && dashboard.getMyRentalsPanel() != null) {
             dashboard.getMyRentalsPanel().loadData();
@@ -359,6 +366,7 @@ public class SidebarPanel extends javax.swing.JPanel {
 
     private void btnAnalyticsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAnalyticsActionPerformed
         // TODO add your handling code here:
+        if (!dashboard.requireLogin()) return;
         handleNavigation(btnAnalytics, "analyticsCard");
         if (dashboard != null) {
             dashboard.showAnalytics();
@@ -367,6 +375,7 @@ public class SidebarPanel extends javax.swing.JPanel {
 
     private void btnReservationsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnReservationsActionPerformed
         // TODO add your handling code here:
+        if (!dashboard.requireLogin()) return; 
         handleNavigation(btnReservations, "calendarCard");
         if (dashboard != null) {
             dashboard.showRentalCalendar();
@@ -445,6 +454,7 @@ public class SidebarPanel extends javax.swing.JPanel {
 
     private void btnAddListActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddListActionPerformed
         // TODO add your handling code here:
+        if (!dashboard.requireLogin()) return;
         carrentalsystem.models.User user = carrentalsystem.core.SessionManager.getCurrentUser();
         if (user == null) {
             return;
@@ -493,6 +503,11 @@ public class SidebarPanel extends javax.swing.JPanel {
 
     private void btnLogoutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLogoutActionPerformed
         // TODO add your handling code here:
+        // If no user is logged in, just show login
+        if (carrentalsystem.core.SessionManager.getCurrentUser() == null) {
+            dashboard.showLogin();
+            return;
+        }
         // 1. Find the top-level JFrame (MainDashboard) to center the dialog
         java.awt.Window parentWindow = javax.swing.SwingUtilities.getWindowAncestor(this);
 
@@ -537,6 +552,7 @@ public class SidebarPanel extends javax.swing.JPanel {
 
     private void btnSettingsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSettingsActionPerformed
         // TODO add your handling code here:
+        if (!dashboard.requireLogin()) return; 
         handleNavigation(btnSettings, "settingsCard");
     }//GEN-LAST:event_btnSettingsActionPerformed
 

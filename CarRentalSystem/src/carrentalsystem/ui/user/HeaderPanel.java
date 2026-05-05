@@ -22,6 +22,9 @@ public class HeaderPanel extends javax.swing.JPanel {
     private int unreadCount = 0;
     private java.util.function.Consumer<String> searchCallback;
     
+    private javax.swing.JButton btnLogin;
+    private Runnable loginAction;
+    
     public HeaderPanel() {
         initComponents();
         // Search Bar styling[cite: 8]
@@ -81,7 +84,55 @@ public class HeaderPanel extends javax.swing.JPanel {
         this.searchCallback = action;
     }
     
-    
+    /**
+     * Call this after MainDashboard finishes setup. Shows or hides the login
+     * button based on session state.
+     */
+    public void updateGuestMode() {
+        boolean isGuest = carrentalsystem.core.SessionManager.getCurrentUser() == null;
+
+        // Hide notification bell and profile icon for guests
+        // (assumes you have lblNotif, lblProfile, or similar components)
+        // Adjust the component names to match yours
+        if (isGuest) {
+            // Show a Login button
+            if (btnLogin == null) {
+                btnLogin = new javax.swing.JButton("Login / Sign Up");
+                btnLogin.setFont(new java.awt.Font("Helvetica Neue", java.awt.Font.BOLD, 14));
+                btnLogin.setBackground(new java.awt.Color(45, 36, 34));
+                btnLogin.setForeground(java.awt.Color.WHITE);
+                btnLogin.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+                btnLogin.setBorderPainted(false);
+                btnLogin.setFocusPainted(false);
+
+                // Wire the action — calls back to MainDashboard
+                btnLogin.addActionListener(e -> {
+                    if (loginAction != null) {
+                        loginAction.run();
+                    }
+                });
+
+                // Add to your header panel in the top-right area
+                // Adjust layout position to match your HeaderPanel structure
+                add(btnLogin); // or use absolute layout with setBounds
+                revalidate();
+                repaint();
+            }
+        } else {
+            // Remove login button if present
+            if (btnLogin != null) {
+                remove(btnLogin);
+                btnLogin = null;
+                revalidate();
+                repaint();
+            }
+        }
+    }
+
+
+    public void setLoginAction(Runnable action) {
+        this.loginAction = action;
+    }
     
     
 

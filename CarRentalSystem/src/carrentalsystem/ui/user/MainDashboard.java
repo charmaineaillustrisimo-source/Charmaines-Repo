@@ -115,11 +115,15 @@ public class MainDashboard extends javax.swing.JFrame {
         });
         
         headerPanel.setProfileAction(() -> {
+            if (!requireLogin()) return;
             profilePanel1.loadUserData(); // Call the backend loader (Step 2)
             CardLayout cl = (CardLayout) pnlMainContent.getLayout();
             cl.show(pnlMainContent, "profileCard"); 
             if (sideMenu != null) sideMenu.setVisible(false);
         });
+        
+        headerPanel.setLoginAction(() -> showLogin());
+        headerPanel.updateGuestMode();
         
         headerPanel.setSearchAction(query -> filterCarFeed(query));
 
@@ -293,13 +297,6 @@ public class MainDashboard extends javax.swing.JFrame {
      * Fetches cars from database and adds them to the feed panel.
      */
     public void refreshCarFeed() {
-        if (carrentalsystem.core.SessionManager.getCurrentUser() == null) {
-            JOptionPane.showMessageDialog(this,
-                    "No user sesion active.",
-                    "Current User",
-                    JOptionPane.WARNING_MESSAGE);
-            return;
-        }
         pnlCarFeed.removeAll();
         pnlCarFeed.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT, 25, 25));
         pnlCarFeed.setPreferredSize(new java.awt.Dimension(1080, 2000));
@@ -503,15 +500,22 @@ public class MainDashboard extends javax.swing.JFrame {
     }
     
     public void updateNotificationBadge() {
+        // GUARD: Only update badge if a user is logged in
+        if (carrentalsystem.core.SessionManager.getCurrentUser() == null) {
+            if (headerPanel != null) {
+                headerPanel.setUnreadCount(0);
+            }
+            return;
+        }
+
         try {
             int userId = carrentalsystem.core.SessionManager.getCurrentUser().getUserId();
-            carrentalsystem.services.NotificationService service = new carrentalsystem.services.NotificationService();
-
+            carrentalsystem.services.NotificationService service
+                    = new carrentalsystem.services.NotificationService();
             int count = service.countUnread(userId);
-            headerPanel.setUnreadCount(count); // This triggers the repaint![cite: 6]
+            headerPanel.setUnreadCount(count);
         } catch (Exception e) {
             System.err.println("Badge Update Error: " + e.getMessage());
-            e.printStackTrace();
         }
     }
     
@@ -552,6 +556,39 @@ public class MainDashboard extends javax.swing.JFrame {
 
         // Refresh notification badge
         updateNotificationBadge();
+    }
+    
+    /**
+     * Call this before any action that requires a logged-in user. Returns true
+     * if logged in, false and shows login prompt if not.
+     */
+    public boolean requireLogin() {
+        if (carrentalsystem.core.SessionManager.getCurrentUser() != null) {
+            return true; // Already logged in, proceed
+        }
+
+        // Show a dialog asking the user to log in
+        int choice = javax.swing.JOptionPane.showConfirmDialog(
+                this,
+                "You need to be logged in to use this feature.\nGo to the Login page?",
+                "Login Required",
+                javax.swing.JOptionPane.YES_NO_OPTION,
+                javax.swing.JOptionPane.INFORMATION_MESSAGE
+        );
+
+        if (choice == javax.swing.JOptionPane.YES_OPTION) {
+            showLogin(); // Navigate to login
+        }
+        return false;
+    }
+
+    /**
+     * Shows the LoginFrame as a modal-like flow. After login, the user is
+     * returned to MainDashboard.
+     */
+    public void showLogin() {
+        carrentalsystem.auth.LoginFrame loginFrame = new carrentalsystem.auth.LoginFrame(this);
+        loginFrame.setVisible(true);
     }
     
     

@@ -4,6 +4,7 @@
  */
 package carrentalsystem.auth;
 
+import carrentalsystem.ui.user.MainDashboard;
 import javax.swing.*;
 import java.awt.*;
 import java.net.URL;
@@ -18,18 +19,27 @@ public class LoginFrame extends javax.swing.JFrame {
     /**
      * Creates new form LoginFrame
      */
-    public LoginFrame() {
+    private MainDashboard parentDashboard;
+
+    /**
+     * Constructor used when called from MainDashboard (guest flow). After
+     * login, returns to the existing dashboard instead of creating a new one.
+     */
+    public LoginFrame(carrentalsystem.ui.user.MainDashboard parent) {
+        this.parentDashboard = parent;
         initComponents();
-        //Other setup style
-        setSize(1440,1024);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setSize(1440, 1024);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); // DISPOSE not EXIT
         setLocationRelativeTo(null);
-        
-        //Pane Glass
         pnlGlass.setOpaque(false);
         pnlGlass.setBackground(new Color(68, 49, 38, 120));
-        
-        
+    }
+
+    /**
+     * Original constructor — used when app starts with LoginFrame directly.
+     */
+    public LoginFrame() {
+        this(null); // No parent dashboard
     }
     
     private void handleForgotPassword() {
