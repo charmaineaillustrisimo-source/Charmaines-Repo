@@ -357,9 +357,13 @@ public class AdminDashboard extends javax.swing.JFrame {
     }
     
     private void setupTableStyles() {
-        centerTableText(); // Reuses your existing centering logic[cite: 31]
-        applyStatusShaping(); // Reuses your existing badge logic[cite: 31]
+        //centerTableText(); // Reuses your existing centering logic[cite: 31]
+        //applyStatusShaping(); // Reuses your existing badge logic[cite: 31]
+        //tableForBookings.setRowHeight(40);
+        tableForBookings.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_ALL_COLUMNS);
+        
         tableForBookings.setRowHeight(40);
+        
     }
     
     
@@ -371,6 +375,7 @@ public class AdminDashboard extends javax.swing.JFrame {
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+        java.awt.GridBagConstraints gridBagConstraints;
 
         pnlTopBar = new javax.swing.JPanel();
         lblCarRental = new javax.swing.JLabel();
@@ -580,7 +585,7 @@ public class AdminDashboard extends javax.swing.JFrame {
 
         pnlMain.setBackground(new java.awt.Color(48, 48, 46));
         pnlMain.setForeground(new java.awt.Color(255, 255, 255));
-        pnlMain.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+        pnlMain.setLayout(new java.awt.GridBagLayout());
 
         pnlCardContainer.setBackground(new java.awt.Color(38, 38, 36));
         pnlCardContainer.setOpaque(false);
@@ -602,12 +607,25 @@ public class AdminDashboard extends javax.swing.JFrame {
         PendingApprovals.setPreferredSize(new java.awt.Dimension(220, 160));
         pnlCardContainer.add(PendingApprovals);
 
-        pnlMain.add(pnlCardContainer, new org.netbeans.lib.awtextra.AbsoluteConstraints(3, 50, -1, -1));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridwidth = 5;
+        gridBagConstraints.ipady = 10;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(2, 3, 0, 0);
+        pnlMain.add(pnlCardContainer, gridBagConstraints);
 
         lblOverview.setFont(new java.awt.Font("Segoe UI", 0, 32)); // NOI18N
         lblOverview.setForeground(new java.awt.Color(255, 255, 255));
         lblOverview.setText("Overview");
-        pnlMain.add(lblOverview, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 10, -1, -1));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(10, 32, 0, 13);
+        pnlMain.add(lblOverview, gridBagConstraints);
 
         pnlCarTypeContainer.setBackground(new java.awt.Color(38, 38, 36));
         pnlCarTypeContainer.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
@@ -622,12 +640,26 @@ public class AdminDashboard extends javax.swing.JFrame {
         lblListingsbytype.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 10, 1, 1));
         pnlCarTypeContainer.add(lblListingsbytype);
 
-        pnlMain.add(pnlCarTypeContainer, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 236, 400, -1));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridwidth = 3;
+        gridBagConstraints.ipadx = 199;
+        gridBagConstraints.ipady = 162;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(6, 30, 0, 0);
+        pnlMain.add(pnlCarTypeContainer, gridBagConstraints);
 
         lblRecentBookings.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
         lblRecentBookings.setForeground(new java.awt.Color(255, 255, 255));
         lblRecentBookings.setText("Recent Bookings");
-        pnlMain.add(lblRecentBookings, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 450, -1, -1));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(14, 30, 0, 0);
+        pnlMain.add(lblRecentBookings, gridBagConstraints);
 
         pnlBookings.setBackground(new java.awt.Color(48, 48, 46));
         pnlBookings.setPreferredSize(new java.awt.Dimension(980, 500));
@@ -636,7 +668,6 @@ public class AdminDashboard extends javax.swing.JFrame {
         spBookings.setBackground(new java.awt.Color(46, 46, 48));
         spBookings.setPreferredSize(new java.awt.Dimension(980, 500));
 
-        tableForBookings.setBackground(new java.awt.Color(48, 48, 46));
         tableForBookings.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
         tableForBookings.setForeground(new java.awt.Color(48, 48, 46));
         tableForBookings.setModel(new javax.swing.table.DefaultTableModel(
@@ -658,14 +689,23 @@ public class AdminDashboard extends javax.swing.JFrame {
                 return types [columnIndex];
             }
         });
-        tableForBookings.setPreferredSize(new java.awt.Dimension(500, 64));
+        tableForBookings.setPreferredSize(null);
         tableForBookings.setRowHeight(50);
         tableForBookings.setSelectionBackground(new java.awt.Color(60, 60, 60));
         spBookings.setViewportView(tableForBookings);
 
         pnlBookings.add(spBookings, java.awt.BorderLayout.CENTER);
 
-        pnlMain.add(pnlBookings, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 490, -1, -1));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridwidth = 6;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(10, 30, 0, 145);
+        pnlMain.add(pnlBookings, gridBagConstraints);
 
         pnlSupportTicket1.setBackground(new java.awt.Color(38, 38, 36));
         pnlSupportTicket1.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
@@ -680,7 +720,14 @@ public class AdminDashboard extends javax.swing.JFrame {
         lblOpenSourceTickets1.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 10, 1, 1));
         pnlSupportTicket1.add(lblOpenSourceTickets1);
 
-        pnlMain.add(pnlSupportTicket1, new org.netbeans.lib.awtextra.AbsoluteConstraints(450, 236, -1, -1));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.ipadx = 269;
+        gridBagConstraints.ipady = 162;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(6, 20, 0, 0);
+        pnlMain.add(pnlSupportTicket1, gridBagConstraints);
 
         getContentPane().add(pnlMain, java.awt.BorderLayout.CENTER);
 
