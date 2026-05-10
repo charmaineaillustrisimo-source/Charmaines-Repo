@@ -117,6 +117,41 @@ public class MessageService implements IMessageService{
         }
         return 0;
     }
+    
+    @Override
+    public java.util.List<carrentalsystem.models.Message> getChatHistory(int userId1, int userId2, int carId) throws java.sql.SQLException {
+        java.util.List<carrentalsystem.models.Message> history = new java.util.ArrayList<>();
+
+        // This query finds messages where (User A sent to User B) OR (User B sent to User A)
+        // It also filters by carId if you want to keep chats specific to a certain car listing
+        String sql = "SELECT * FROM messages WHERE "
+                + "((sender_id = ? AND receiver_id = ?) OR (sender_id = ? AND receiver_id = ?)) "
+                + "AND (car_id = ? OR ? = -1) "
+                + "ORDER BY created_at ASC";
+
+        try (java.sql.Connection conn = carrentalsystem.core.DBConnection.getConnection(); java.sql.PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, userId1);
+            ps.setInt(2, userId2);
+            ps.setInt(3, userId2);
+            ps.setInt(4, userId1);
+            ps.setInt(5, carId);
+            ps.setInt(6, carId); // Second carId is for the "-1" logic check
+
+            java.sql.ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                carrentalsystem.models.Message msg = new carrentalsystem.models.Message();
+                msg.setMessageId(rs.getInt("message_id"));
+                msg.setSenderId(rs.getInt("sender_id"));
+                msg.setReceiverId(rs.getInt("receiver_id"));
+                msg.setCarId(rs.getInt("car_id"));
+                msg.setContent(rs.getString("content"));
+                msg.setCreatedAt(rs.getTimestamp("created_at"));
+                history.add(msg);
+            }
+        }
+        return history;
+    }
 
     // ── private mapper ──────────────────────────────────────
     private Message mapMessage(ResultSet rs) throws SQLException {

@@ -19,131 +19,20 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 
-public class ApprovalQueuePanel extends javax.swing.JFrame {
+public class ListingApplicantsPanel extends javax.swing.JFrame {
     
-    private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(ApprovalQueuePanel.class.getName());
+    private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(ListingApplicantsPanel.class.getName());
     private final IAdminService adminService = new AdminService();
     private List<carrentalsystem.models.User> currentUsers;
 
     
-    public ApprovalQueuePanel() {
+    public ListingApplicantsPanel() {
         initComponents();
-        setupTableStyles();
         setupNavigation();
         setupIcons();
         
-        // Initial data load
-        loadUsersFromDatabase();
         
         this.setExtendedState(javax.swing.JFrame.MAXIMIZED_BOTH);
-    }
-    
-    private void setupTableStyles() {
-        Color panelBg = new Color(48, 48, 46);
-
-        // Style the ScrollPane
-        spUser.setBackground(panelBg);
-        spUser.getViewport().setBackground(panelBg);
-        spUser.setBorder(BorderFactory.createEmptyBorder());
-
-        // Style the Table
-        tableUsers.setBackground(panelBg);
-        tableUsers.setForeground(Color.WHITE);
-        tableUsers.setRowHeight(60);
-        tableUsers.setSelectionBackground(new Color(70, 70, 70));
-        tableUsers.setShowGrid(false);
-        tableUsers.setIntercellSpacing(new Dimension(0, 0));
-
-        // Center all column text and set white foreground
-        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer() {
-            @Override
-            public Component getTableCellRendererComponent(JTable table, Object value,
-                    boolean isSelected, boolean hasFocus, int row, int column) {
-                Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-                c.setForeground(Color.WHITE);
-                setBackground(isSelected ? new Color(70, 70, 70) : panelBg);
-                setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(80, 80, 80)));
-                return c;
-            }
-        };
-        centerRenderer.setHorizontalAlignment(JLabel.CENTER);
-
-        for (int i = 0; i < tableUsers.getColumnCount(); i++) {
-            tableUsers.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
-        }
-
-        // Add Click Listener for the "Actions" column
-        tableUsers.addMouseListener(new java.awt.event.MouseAdapter() {
-            @Override
-            public void mouseClicked(java.awt.event.MouseEvent e) {
-                int row = tableUsers.rowAtPoint(e.getPoint());
-                int col = tableUsers.columnAtPoint(e.getPoint());
-                if (col == 4 && row != -1) {
-                    showUserOptions(row);
-                }
-            }
-        });
-    }
-    
-    public void loadUsersFromDatabase() {
-        DefaultTableModel model = (DefaultTableModel) tableUsers.getModel();
-        model.setRowCount(0);
-
-        try {
-            // Note: Ensure you have added 'getAllUsers' to your AdminService
-            currentUsers = adminService.getAllUsers();
-
-            for (carrentalsystem.models.User user : currentUsers) {
-                model.addRow(new Object[]{
-                    user.getFullName(),
-                    user.getEmail(),
-                    user.getTier(),
-                    "Check Details", // Dynamic listing count logic can go here
-                    "MANAGE"
-                });
-            }
-        } catch (SQLException e) {
-            System.err.println("Load Users Error: " + e.getMessage());
-        }
-    }
-    
-    private void showUserOptions(int row) {
-        carrentalsystem.models.User user = currentUsers.get(row);
-        String[] options = {"Send Warning", "Ban User", "Change Plan", "Cancel"};
-
-        int choice = JOptionPane.showOptionDialog(this,
-                "Manage Account: " + user.getFullName(), "User Moderation",
-                JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE,
-                null, options, options[0]);
-
-        try {
-            switch (choice) {
-                case 0: // Warning
-                    String msg = JOptionPane.showInputDialog(this, "Enter Warning Message:");
-                    if (msg != null && !msg.trim().isEmpty()) {
-                        adminService.warnUser(user.getUserId(), msg);
-                        JOptionPane.showMessageDialog(this, "Warning sent.");
-                    }
-                    break;
-                case 1: // Ban
-                    int confirm = JOptionPane.showConfirmDialog(this, "Ban " + user.getFullName() + "?", "Confirm Ban", JOptionPane.YES_NO_OPTION);
-                    if (confirm == JOptionPane.YES_OPTION) {
-                        adminService.banUser(user.getUserId());
-                    }
-                    break;
-                case 2: // Change Tier
-                    String[] tiers = {"FREE", "PRO"};
-                    String newTier = (String) JOptionPane.showInputDialog(this, "Select new tier:",
-                            "Update Tier", JOptionPane.QUESTION_MESSAGE, null, tiers, user.getTier());
-                    if (newTier != null) {
-                        adminService.changeUserTier(user.getUserId(), newTier);
-                    }
-                    break;
-            }
-            loadUsersFromDatabase(); // Refresh table
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this, "Action failed: " + e.getMessage());
-        }
     }
     
     private void setupNavigation() {
@@ -162,7 +51,6 @@ public class ApprovalQueuePanel extends javax.swing.JFrame {
         // 3. Users Button (Current Panel)
         btnUsersButton.addActionListener(e -> {
             // Just refresh the data instead of opening a new frame if already here
-            loadUsersFromDatabase();
         });
 
         // 4. Bookings Button
@@ -218,33 +106,42 @@ public class ApprovalQueuePanel extends javax.swing.JFrame {
             System.err.println("Icon error: " + path);
         }
     }
-
     
+    class TableButtonEditor extends javax.swing.DefaultCellEditor {
+    protected javax.swing.JButton button;
     
-    /*private void applyActionColumnRenderer() {
-    tableUsers.getColumnModel().getColumn(4).setCellRenderer(new javax.swing.table.DefaultTableCellRenderer() {
-        @Override
-        public java.awt.Component getTableCellRendererComponent(javax.swing.JTable table, Object value,
-                boolean isSelected, boolean hasFocus, int row, int column) {
+    public TableButtonEditor(javax.swing.JCheckBox checkBox) {
+        super(checkBox);
+        button = new javax.swing.JButton();
+        button.addActionListener(e -> {
+            // THIS PREVENTS THE TYPING MODE
+            fireEditingStopped();
             
-            javax.swing.JButton button = new javax.swing.JButton("View");
+            // Get the row that was clicked
+    int row = tblForApplicants.getSelectedRow();
+    if (row != -1) {
+        // Get the applicant name from Column 0
+        String applicantName = tblForApplicants.getValueAt(row, 0).toString();
             
-            // Style it to match your theme
-            button.setBackground(new java.awt.Color(60, 60, 60));
-            button.setForeground(java.awt.Color.WHITE);
-            button.setFocusPainted(false);
-            button.setBorderPainted(false);
-            button.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 14));
+            ViewingDocumentsPanel view = new ViewingDocumentsPanel();
+            view.setVisible(true);
+            
+            // 3. Close the current listing applicants panel
+            // We find the parent window of the button to close it
+            javax.swing.SwingUtilities.getWindowAncestor(button).dispose();
+            
+            javax.swing.JOptionPane.showMessageDialog(button, "Viewing documents...");
+    }
+        });
+    }
 
-            // If the row is selected, make the button slightly lighter
-            if (isSelected) {
-                button.setBackground(new java.awt.Color(80, 80, 80));
-            }
-
-            return button;
-        }
-    });
-}*/
+    @Override
+    public java.awt.Component getTableCellEditorComponent(javax.swing.JTable table, Object value,
+            boolean isSelected, int row, int column) {
+        button.setText("View");
+        return button;
+    }
+}
     
 
 
@@ -280,12 +177,9 @@ public class ApprovalQueuePanel extends javax.swing.JFrame {
         lblLogoutIcon = new javax.swing.JLabel();
         btnLogoutButton = new javax.swing.JButton();
         pnlMain = new javax.swing.JPanel();
-        lblUserManagement = new javax.swing.JLabel();
-        spUser = new javax.swing.JScrollPane();
-        tableUsers = new javax.swing.JTable();
-        pnlForApplicants = new javax.swing.JPanel();
-        lblListOfApplicants = new javax.swing.JLabel();
-        btnViewForApplicants = new javax.swing.JButton();
+        lblListofApplicants = new javax.swing.JLabel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        tblForApplicants = new javax.swing.JTable();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setBackground(new java.awt.Color(3, 33, 33));
@@ -448,78 +342,84 @@ public class ApprovalQueuePanel extends javax.swing.JFrame {
         pnlMain.setForeground(new java.awt.Color(255, 255, 255));
         pnlMain.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        lblUserManagement.setFont(new java.awt.Font("Segoe UI", 0, 32)); // NOI18N
-        lblUserManagement.setForeground(new java.awt.Color(255, 255, 255));
-        lblUserManagement.setText("User Management");
-        pnlMain.add(lblUserManagement, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 10, -1, -1));
+        lblListofApplicants.setFont(new java.awt.Font("Segoe UI", 0, 32)); // NOI18N
+        lblListofApplicants.setForeground(new java.awt.Color(255, 255, 255));
+        lblListofApplicants.setText("List of Applicants");
+        pnlMain.add(lblListofApplicants, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 10, -1, -1));
 
-        spUser.setBorder(null);
-        spUser.setPreferredSize(new java.awt.Dimension(500, 500));
-
-        tableUsers.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
-        tableUsers.setForeground(new java.awt.Color(48, 48, 46));
-        tableUsers.setModel(new javax.swing.table.DefaultTableModel(
+        tblForApplicants.setFont(new java.awt.Font("Segoe UI", 0, 20)); // NOI18N
+        tblForApplicants.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null}
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null}
             },
             new String [] {
-                "User", "Email", "Plan", "Listings", "Actions"
+                "Applicants", "View Documents"
             }
         ));
-        tableUsers.setPreferredSize(new java.awt.Dimension(610, 500));
-        spUser.setViewportView(tableUsers);
+        tblForApplicants.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_ALL_COLUMNS);
+        tblForApplicants.setPreferredSize(new java.awt.Dimension(610, 500));
+        // 1. Colors and Theme Setup
+        java.awt.Color darkBackground = new java.awt.Color(38, 38, 36);
+        tblForApplicants.setBackground(darkBackground);
+        tblForApplicants.setForeground(java.awt.Color.WHITE);
+        tblForApplicants.setGridColor(new java.awt.Color(60, 60, 60));
+        tblForApplicants.setFont(new java.awt.Font("Segoe UI", java.awt.Font.PLAIN, 18));
+        tblForApplicants.setRowHeight(35);
+        jScrollPane1.getViewport().setBackground(darkBackground);
 
-        pnlMain.add(spUser, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 70, 840, 400));
+        // 2. Table Header Styling
+        javax.swing.table.JTableHeader header = tblForApplicants.getTableHeader();
+        header.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 18));
+        header.setForeground(java.awt.Color.BLACK);
+        header.setBackground(darkBackground);
+        header.setReorderingAllowed(false);
+        header.setResizingAllowed(true);
 
-        pnlForApplicants.setBackground(new java.awt.Color(38, 38, 36));
+        // Center the header text
+        javax.swing.table.DefaultTableCellRenderer headerRenderer = (javax.swing.table.DefaultTableCellRenderer) header.getDefaultRenderer();
+        headerRenderer.setHorizontalAlignment(javax.swing.JLabel.CENTER);
 
-        lblListOfApplicants.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
-        lblListOfApplicants.setForeground(new java.awt.Color(255, 255, 255));
-        lblListOfApplicants.setText("List of Applicants");
+        // 3. Column 0 Styling (Applicants): Center the text
+        javax.swing.table.DefaultTableCellRenderer centerRenderer = new javax.swing.table.DefaultTableCellRenderer();
+        centerRenderer.setHorizontalAlignment(javax.swing.JLabel.CENTER);
+        tblForApplicants.getColumnModel().getColumn(0).setCellRenderer(centerRenderer);
 
-        btnViewForApplicants.setBackground(new java.awt.Color(48, 48, 46));
-        btnViewForApplicants.setFont(new java.awt.Font("Segoe UI", 0, 20)); // NOI18N
-        btnViewForApplicants.setForeground(new java.awt.Color(255, 255, 255));
-        btnViewForApplicants.setText("VIEW");
-        btnViewForApplicants.setBorder(null);
-        btnViewForApplicants.addActionListener(this::btnViewForApplicantsActionPerformed);
+        // 4. Column 1 Styling (View Documents): The Button
+        // Renderer: Handles how the button LOOKS
+        tblForApplicants.getColumnModel().getColumn(1).setCellRenderer(new javax.swing.table.TableCellRenderer() {
+            @Override
+            public java.awt.Component getTableCellRendererComponent(javax.swing.JTable table, Object value,
+                boolean isSelected, boolean hasFocus, int row, int column) {
 
-        javax.swing.GroupLayout pnlForApplicantsLayout = new javax.swing.GroupLayout(pnlForApplicants);
-        pnlForApplicants.setLayout(pnlForApplicantsLayout);
-        pnlForApplicantsLayout.setHorizontalGroup(
-            pnlForApplicantsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(pnlForApplicantsLayout.createSequentialGroup()
-                .addGap(17, 17, 17)
-                .addComponent(lblListOfApplicants)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(btnViewForApplicants, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(20, Short.MAX_VALUE))
-        );
-        pnlForApplicantsLayout.setVerticalGroup(
-            pnlForApplicantsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(pnlForApplicantsLayout.createSequentialGroup()
-                .addGap(24, 24, 24)
-                .addGroup(pnlForApplicantsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(lblListOfApplicants)
-                    .addComponent(btnViewForApplicants, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(23, Short.MAX_VALUE))
-        );
+                Object applicantData = table.getValueAt(row, 0);
+                if (applicantData != null && !applicantData.toString().trim().isEmpty()) {
+                    javax.swing.JButton btn = new javax.swing.JButton("View");
+                    btn.setBackground(new java.awt.Color(60, 60, 60));
+                    btn.setForeground(java.awt.Color.WHITE);
+                    return btn;
+                } else {
+                    javax.swing.JPanel emptyPanel = new javax.swing.JPanel();
+                    emptyPanel.setBackground(table.getBackground());
+                    return emptyPanel;
+                }
+            }
+        });
 
-        pnlMain.add(pnlForApplicants, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 490, 330, 80));
+        // Editor: Handles the CLICK and prevents the typing cursor
+        tblForApplicants.getColumnModel().getColumn(1).setCellEditor(new TableButtonEditor(new javax.swing.JCheckBox()));
+
+        header.repaint();
+        jScrollPane1.setViewportView(tblForApplicants);
+
+        pnlMain.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 70, 970, 500));
 
         getContentPane().add(pnlMain, java.awt.BorderLayout.CENTER);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
-    private void btnViewForApplicantsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnViewForApplicantsActionPerformed
-        ListingApplicantsPanel applicants = new ListingApplicantsPanel();
-        applicants.setVisible(true);
-        this.dispose();
-    }//GEN-LAST:event_btnViewForApplicantsActionPerformed
 /**/
     /**
      * @param args the command line arguments
@@ -543,7 +443,7 @@ public class ApprovalQueuePanel extends javax.swing.JFrame {
         //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(() -> new ApprovalQueuePanel().setVisible(true));
+        java.awt.EventQueue.invokeLater(() -> new ListingApplicantsPanel().setVisible(true));
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -554,12 +454,12 @@ public class ApprovalQueuePanel extends javax.swing.JFrame {
     private javax.swing.JButton btnSettingsButton;
     private javax.swing.JButton btnSupportButton;
     private javax.swing.JButton btnUsersButton;
-    private javax.swing.JButton btnViewForApplicants;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel lblAdmin;
     private javax.swing.JLabel lblBookingsIcon;
     private javax.swing.JLabel lblCarRental;
-    private javax.swing.JLabel lblListOfApplicants;
     private javax.swing.JLabel lblListingIcon;
+    private javax.swing.JLabel lblListofApplicants;
     private javax.swing.JLabel lblLogoutIcon;
     private javax.swing.JLabel lblMain;
     private javax.swing.JLabel lblNotifyIcon;
@@ -567,14 +467,11 @@ public class ApprovalQueuePanel extends javax.swing.JFrame {
     private javax.swing.JLabel lblProfileIcon;
     private javax.swing.JLabel lblSettingsIcon;
     private javax.swing.JLabel lblSupportIcon;
-    private javax.swing.JLabel lblUserManagement;
     private javax.swing.JLabel lblUsersIcon;
-    private javax.swing.JPanel pnlForApplicants;
     private javax.swing.JPanel pnlHighlight;
     private javax.swing.JPanel pnlMain;
     private javax.swing.JPanel pnlSideBar;
     private javax.swing.JPanel pnlTopBar;
-    private javax.swing.JScrollPane spUser;
-    private javax.swing.JTable tableUsers;
+    private javax.swing.JTable tblForApplicants;
     // End of variables declaration//GEN-END:variables
 }

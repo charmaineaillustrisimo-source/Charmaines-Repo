@@ -525,4 +525,119 @@ public class AdminService implements IAdminService{
             ps.executeUpdate();
         }
     }
+    
+    // ═══════════════════════════════════════════════════════════════════════
+    // LISTER VERIFICATION REVIEW
+    // ═══════════════════════════════════════════════════════════════════════
+    @Override
+    public java.util.List<carrentalsystem.models.ListerRequirement>
+            getListerRequirements(String status) throws java.sql.SQLException {
+
+        java.util.List<carrentalsystem.models.ListerRequirement> list
+                = new java.util.ArrayList<>();
+
+        String sql
+                = "SELECT lr.*, u.full_name, u.email "
+                + "FROM lister_requirements lr "
+                + "JOIN users u ON lr.user_id = u.user_id "
+                + "WHERE lr.status = ? "
+                + "ORDER BY lr.submitted_at DESC";
+
+        try (java.sql.Connection conn = carrentalsystem.core.DBConnection.getConnection(); java.sql.PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, status);
+            java.sql.ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                carrentalsystem.models.ListerRequirement req
+                        = new carrentalsystem.models.ListerRequirement();
+                req.setRequirementId(rs.getInt("requirement_id"));
+                req.setUserId(rs.getInt("user_id"));
+                req.setUserFullName(rs.getString("full_name"));
+                req.setUserEmail(rs.getString("email"));
+                req.setLtoDocumentPath(rs.getString("lto_document_path"));
+                req.setSelfiePhotoPath(rs.getString("selfie_photo_path"));
+                req.setValidIdPath(rs.getString("valid_id_path"));
+                req.setStatus(rs.getString("status"));
+                req.setAdminNote(rs.getString("admin_note"));
+                req.setSubmittedAt(rs.getTimestamp("submitted_at"));
+                req.setReviewedAt(rs.getTimestamp("reviewed_at"));
+                list.add(req);
+            }
+        }
+        return list;
+    }
+
+    @Override
+    public void approveListerVerification(int requirementId, int userId)
+            throws java.sql.SQLException {
+
+        String updateReq
+                = "UPDATE lister_requirements "
+                + "SET status = 'APPROVED', reviewed_at = NOW() "
+                + "WHERE requirement_id = ?";
+
+        String updateUser
+                = "UPDATE users SET lister_status = 'APPROVED' WHERE user_id = ?";
+
+        String notifSql
+                = "INSERT INTO notifications (user_id, message, type) VALUES (?, ?, 'ALERT')";
+
+        try (java.sql.Connection conn = carrentalsystem.core.DBConnection.getConnection(); java.sql.PreparedStatement ps1 = conn.prepareStatement(updateReq); java.sql.PreparedStatement ps2 = conn.prepareStatement(updateUser); java.sql.PreparedStatement ps3 = conn.prepareStatement(notifSql)) {
+
+            ps1.setInt(1, requirementId);
+            ps1.executeUpdate();
+
+            ps2.setInt(1, userId);
+            ps2.executeUpdate();
+
+            ps3.setInt(1, userId);
+            ps3.setString(2,
+                    "✅ Your lister verification has been APPROVED! "
+                    + "You can now list cars on RentACar.");
+            ps3.executeUpdate();
+        }
+    }
+
+    @Override
+    public void rejectListerVerification(int requirementId, int userId, String reason)
+            throws java.sql.SQLException {
+
+        String updateReq
+                = "UPDATE lister_requirements "
+                + "SET status = 'REJECTED', admin_note = ?, reviewed_at = NOW() "
+                + "WHERE requirement_id = ?";
+
+        String updateUser
+                = "UPDATE users SET lister_status = 'REJECTED' WHERE user_id = ?";
+
+        String notifSql
+                = "INSERT INTO notifications (user_id, message, type) VALUES (?, ?, 'ALERT')";
+
+        try (java.sql.Connection conn = carrentalsystem.core.DBConnection.getConnection(); java.sql.PreparedStatement ps1 = conn.prepareStatement(updateReq); java.sql.PreparedStatement ps2 = conn.prepareStatement(updateUser); java.sql.PreparedStatement ps3 = conn.prepareStatement(notifSql)) {
+
+            ps1.setString(1, reason);
+            ps1.setInt(2, requirementId);
+            ps1.executeUpdate();
+
+            ps2.setInt(1, userId);
+            ps2.executeUpdate();
+
+            ps3.setInt(1, userId);
+            ps3.setString(2,
+                    "❌ Your lister verification was REJECTED. Reason: " + reason
+                    + " — You may resubmit updated documents from your Profile.");
+            ps3.executeUpdate();
+        }
+    }
+
+    @Override
+    public int countPendingListerVerifications() throws java.sql.SQLException {
+        String sql
+                = "SELECT COUNT(*) FROM lister_requirements WHERE status = 'PENDING'";
+        try (java.sql.Connection conn = carrentalsystem.core.DBConnection.getConnection(); java.sql.PreparedStatement ps = conn.prepareStatement(sql)) {
+            java.sql.ResultSet rs = ps.executeQuery();
+            return rs.next() ? rs.getInt(1) : 0;
+        }
+    }
 }

@@ -25,13 +25,16 @@ public class User {
     private String city;
     private String province;
     private String profileImagePath;
+    private String listerStatus;
+    private String phoneNumber;
 
     public User() {}
 
     public User(int userId, String username, String fullName, String email,
                 String password, String role, String tier, String status,
                 boolean isVerified, Timestamp lastLogin, Timestamp createdAt, 
-                String city, String province, String profileImagePath) {
+                String city, String province, String profileImagePath, String listerStatus,
+                String phoneNumber) {
         this.userId = userId;
         this.username = username;
         this.fullName = fullName;
@@ -46,6 +49,8 @@ public class User {
         this.city = city;
         this.province = province;
         this.profileImagePath = profileImagePath;
+        this.listerStatus = listerStatus;
+        this.phoneNumber = phoneNumber;
     }
 
     // ── Getters ──────────────────────────────────────────────
@@ -63,6 +68,8 @@ public class User {
     public String getCity()         { return city; }
     public String getProvince()     { return province; }
     public String getProfileImagePath() { return profileImagePath; }
+    public String getListerStatus()     { return listerStatus; }
+    public String getPhoneNumber()      { return phoneNumber; }
 
     // ── Setters ──────────────────────────────────────────────
     public void setUserId(int userId)             { this.userId = userId; }
@@ -79,6 +86,8 @@ public class User {
     public void setCity(String city)               { this.city = city; }
     public void setProvince(String province)       { this.province = province; }
     public void setProfileImagePath(String profileImagePath) { this.profileImagePath = profileImagePath; }
+    public void   setListerStatus(String status)   { this.listerStatus = status; }
+    public void setPhoneNumber(String phoneNumber) { this.phoneNumber = phoneNumber; }
 
     @Override
     public String toString() {

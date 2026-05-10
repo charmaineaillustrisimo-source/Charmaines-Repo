@@ -43,6 +43,8 @@ public class SidebarPanel extends javax.swing.JPanel {
         this.dashboard = dashboard;
         
         setActiveButton(btnHome);
+        // At the end of the SidebarPanel constructor, ADD:
+        applyModeRestrictions();
     }
 
     public void setNavigationListener(NavigationListener listener) {
@@ -100,6 +102,37 @@ public class SidebarPanel extends javax.swing.JPanel {
         this.analyticsAction = action;
     }
     
+    /**
+     * Hides/shows buttons based on RENTER or LISTER mode. Does nothing if no
+     * user is logged in (guest sees a collapsed sidebar).
+     */
+    private void applyModeRestrictions() {
+        if (carrentalsystem.core.SessionManager.getCurrentUser() == null) {
+            return;
+        }
+
+        if (carrentalsystem.core.SessionManager.isRenterMode()) {
+            // RENTER — hide listing features
+            btnMyLists.setVisible(false);
+            lblMyLIsts.setVisible(false);
+            btnAddList.setVisible(false);
+            btnAnalytics.setVisible(false);
+            lblAnalytics.setVisible(false);
+            // show renting features
+            btnRents.setVisible(true);
+            lblRents.setVisible(true);
+        } else {
+            // LISTER — hide renting features
+            btnRents.setVisible(false);
+            lblRents.setVisible(false);
+            // show listing features
+            btnMyLists.setVisible(true);
+            lblMyLIsts.setVisible(true);
+            btnAddList.setVisible(true);
+            btnAnalytics.setVisible(true);
+            lblAnalytics.setVisible(true);
+        }
+    }
     
     /**
      * This method is called from within the constructor to initialize the form.
@@ -331,6 +364,7 @@ public class SidebarPanel extends javax.swing.JPanel {
 
     private void btnMyListsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMyListsActionPerformed
         // TODO add your handling code here:
+        if (!dashboard.requireLogin()) return;
         // 1. Handle the UI highlighting and Card switch
         handleNavigation(btnMyLists, "myListingsCard");
 
@@ -522,17 +556,14 @@ public class SidebarPanel extends javax.swing.JPanel {
 
         if (confirm == javax.swing.JOptionPane.YES_OPTION) {
             try {
-                // 3. Clear session logic
                 carrentalsystem.core.SessionManager.endSession();
-
-                // 4. Close the Dashboard and return to Login
-                if (parentWindow != null) {
-                    parentWindow.dispose();
+                this.setVisible(false);
+                if (dashboard != null) {
+                    dashboard.refreshAfterLogout();
                 }
-                new carrentalsystem.auth.LoginFrame().setVisible(true);
-
             } catch (java.sql.SQLException ex) {
-                javax.swing.JOptionPane.showMessageDialog(parentWindow,
+                javax.swing.JOptionPane.showMessageDialog(
+                        javax.swing.SwingUtilities.getWindowAncestor(this),
                         "Error during logout: " + ex.getMessage(),
                         "Database Error",
                         javax.swing.JOptionPane.ERROR_MESSAGE);

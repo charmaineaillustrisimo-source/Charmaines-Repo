@@ -68,13 +68,14 @@ try (PreparedStatement ps
             return;
         }
         String sql = "UPDATE sessions SET current_state='OFFLINE' WHERE session_id =  ?";
-try (PreparedStatement ps
+        try (PreparedStatement ps
                 = DBConnection.getConnection().prepareStatement(sql)) {
             ps.setInt(1, currentSessionId);
             ps.executeUpdate();
         }
         currentUser = null;
         currentSessionId = -1;
+        userMode = "RENTER";
     }
 
     public static User getCurrentUser() {
@@ -87,5 +88,25 @@ try (PreparedStatement ps
 
     public static int getSessionId() {
         return currentSessionId;
+    }
+    
+    // ── ADD: User mode field (RENTER or LISTER) ───────────────────────────
+    private static String userMode = "RENTER";
+
+// ── ADD: Mode methods ─────────────────────────────────────────────────
+    public static void setUserMode(String mode) {
+        userMode = mode;
+    }
+
+    public static String getUserMode() {
+        return userMode != null ? userMode : "RENTER";
+    }
+
+    public static boolean isRenterMode() {
+        return "RENTER".equalsIgnoreCase(userMode);
+    }
+
+    public static boolean isListerMode() {
+        return "LISTER".equalsIgnoreCase(userMode);
     }
 }

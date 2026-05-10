@@ -29,12 +29,20 @@ public class Booking {
     private int ownerId;       // from cars.owner_id — needed by InboxPanel
     private String pickupLocation;
     private String returnLocation;
+    private int daysCount = 1;
+    private String pickupTime;
+    private String returnTime;
+    private String purpose = "Personal";
+    private double damageAmount = 0.0;
+    private String damageNote;
+
 
     public Booking() {}
 
     public Booking(int bookingId, int carId, int renterId, Date startDate,
                    Date endDate, double totalPrice, String imagePath, String status,
-                   Timestamp createdAt) {
+                   Timestamp createdAt, int daysCount, String pickupTime, String returnTime,
+                   String purpose, double damageAmount, String damageNote) {
         this.bookingId = bookingId;
         this.carId = carId;
         this.renterId = renterId;
@@ -44,6 +52,12 @@ public class Booking {
         this.imagePath = imagePath;
         this.status = status;
         this.createdAt = createdAt;
+        this.daysCount = daysCount;
+        this.pickupTime = pickupTime;
+        this.returnTime = returnTime;
+        this.purpose = purpose;
+        this.damageAmount = damageAmount;
+        this.damageNote = damageNote;
     }
 
     // ── Getters ──────────────────────────────────────────────
@@ -63,7 +77,14 @@ public class Booking {
     public String getReturnLocation()   { return returnLocation; }
     public String getRenterName()       { return renterName; }
     public String getOwnerName()        { return ownerName; }
+    public int    getDaysCount()        { return daysCount; }
+    public String getPickupTime()       { return pickupTime; }
+    public String getReturnTime()       { return returnTime; }
+    public String getPurpose()          { return purpose; }
+    public double getDamageAmount()     { return damageAmount; }
+    public String getDamageNote()       { return damageNote; }
 
+    
     // ── Setters ──────────────────────────────────────────────
     public void setBookingId(int bookingId)           { this.bookingId = bookingId; }
     public void setCarId(int carId)                   { this.carId = carId; }
@@ -81,7 +102,13 @@ public class Booking {
     public void setReturnLocation(String v)           { this.returnLocation = v; }
     public void setRenterName(String name)            { this.renterName = name; }
     public void setOwnerName(String name)             { this.ownerName = name; }
-
+    public void   setDaysCount(int v)                 { this.daysCount = v; }
+    public void   setPickupTime(String v)             { this.pickupTime = v; }
+    public void   setReturnTime(String v)             { this.returnTime = v; }
+    public void   setPurpose(String v)                { this.purpose = v; }
+    public void   setDamageAmount(double v)           { this.damageAmount = v; }
+    public void   setDamageNote(String v)             { this.damageNote = v; }
+    
     @Override
     public String toString() {
         return "Booking{bookingId=" + bookingId + ", carId=" + carId

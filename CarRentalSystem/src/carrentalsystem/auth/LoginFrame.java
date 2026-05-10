@@ -15,7 +15,7 @@ import java.net.URL;
 public class LoginFrame extends javax.swing.JFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(LoginFrame.class.getName());
-
+    private Runnable afterLoginAction;
     /**
      * Creates new form LoginFrame
      */
@@ -85,7 +85,10 @@ public class LoginFrame extends javax.swing.JFrame {
             javax.swing.JOptionPane.showMessageDialog(this, "Database error: " + e.getMessage());
         }
     }
-
+    
+    public void setAfterLoginAction(Runnable action) {
+        this.afterLoginAction = action;
+    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -365,11 +368,35 @@ public class LoginFrame extends javax.swing.JFrame {
             carrentalsystem.core.SessionManager.getInstance().startSession(user);
             new carrentalsystem.utils.IdleTracker().start();
 
-            // ── 5. Route by role ──────────────────────────────────
+            // ── 5. Route by role ──────────────────────────────────────────────────
             if ("ADMIN".equals(user.getRole())) {
                 new carrentalsystem.ui.admin.AdminDashboard().setVisible(true);
+                this.dispose();
+
+            } else if (parentDashboard != null) {
+                // ── Called from MainDashboard guest flow ──────────────────────────
+                // Do NOT open a new dashboard. Instead, show role selection
+                // on the existing dashboard using LoginFlowHelper.
+                this.dispose(); // close LoginFrame first so it's not in the background
+                carrentalsystem.utils.LoginFlowHelper.showRoleSelectionAndProceed(
+                        parentDashboard,
+                        afterLoginAction,
+                        parentDashboard // use dashboard as dialog parent
+                );
+
             } else {
-                new carrentalsystem.ui.user.MainDashboard().setVisible(true);
+                // ── Standalone login (original behavior) ──────────────────────────
+                // Show role selection with a temporary null parent,
+                // then open a fresh MainDashboard
+                carrentalsystem.ui.user.MainDashboard newDashboard
+                        = new carrentalsystem.ui.user.MainDashboard();
+                newDashboard.setVisible(true);
+                this.dispose();
+                carrentalsystem.utils.LoginFlowHelper.showRoleSelectionAndProceed(
+                        newDashboard,
+                        null,
+                        newDashboard
+                );
             }
 
             this.dispose();

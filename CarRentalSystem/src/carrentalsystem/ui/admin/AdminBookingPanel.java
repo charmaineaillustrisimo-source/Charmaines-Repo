@@ -125,7 +125,11 @@ public class AdminBookingPanel extends javax.swing.JFrame {
         });
         btnLogoutButton.addActionListener(e -> {
             if (JOptionPane.showConfirmDialog(this, "Logout?", "Confirm", JOptionPane.YES_NO_OPTION) == 0) {
-                new LoginFrame().setVisible(true);
+                try {
+                    carrentalsystem.core.SessionManager.endSession();
+                } catch (Exception ex) {
+                }
+                new carrentalsystem.auth.LoginFrame().setVisible(true);
                 this.dispose();
             }
         });

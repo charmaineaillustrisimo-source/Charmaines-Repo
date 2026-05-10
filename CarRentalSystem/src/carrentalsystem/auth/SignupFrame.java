@@ -14,6 +14,9 @@ public class SignupFrame extends javax.swing.JFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(SignupFrame.class.getName());
     private String role;
+    private carrentalsystem.ui.user.MainDashboard parentDashboard;
+    private Runnable afterLoginAction;
+
 
     /**
      * Creates new form SignupFrame
@@ -104,7 +107,9 @@ public class SignupFrame extends javax.swing.JFrame {
                     JOptionPane.INFORMATION_MESSAGE);
 
             // Go to LoginFrame after successful signup
-            new LoginFrame().setVisible(true);
+            LoginFrame lf = new LoginFrame(parentDashboard);
+            lf.setAfterLoginAction(afterLoginAction);
+            lf.setVisible(true);
             this.dispose();
 
         } catch (java.sql.SQLException e) {
@@ -114,6 +119,20 @@ public class SignupFrame extends javax.swing.JFrame {
                     "Sign Up Failed",
                     JOptionPane.ERROR_MESSAGE);
         }
+    }
+    
+    /**
+     * Constructor for the guest flow — knows which MainDashboard to return to.
+     */
+    public SignupFrame(carrentalsystem.ui.user.MainDashboard parent, Runnable afterAction) {
+        this.parentDashboard = parent;
+        this.afterLoginAction = afterAction;
+        initComponents();
+        pnlGlass.setOpaque(false);
+        pnlGlass.setBackground(new java.awt.Color(156, 142, 128, 120));
+        setSize(1440, 1024);
+        setDefaultCloseOperation(javax.swing.JFrame.DISPOSE_ON_CLOSE); // DISPOSE not EXIT
+        setLocationRelativeTo(null);
     }
 
     /**
@@ -285,7 +304,7 @@ public class SignupFrame extends javax.swing.JFrame {
         ;
         lblLoginLink = new javax.swing.JLabel();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         getContentPane().setLayout(new java.awt.GridBagLayout());
 
         pnlMainContainer.setPreferredSize(new java.awt.Dimension(400, 300));

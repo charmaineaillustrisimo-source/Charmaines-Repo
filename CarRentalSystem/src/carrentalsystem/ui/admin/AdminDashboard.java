@@ -60,7 +60,8 @@ public class AdminDashboard extends javax.swing.JFrame {
         });
 
         btnUsersButton.addActionListener(e -> {
-            new ApprovalQueuePanel().setVisible(true);
+            ApprovalQueuePanel panel = new ApprovalQueuePanel();
+            panel.setVisible(true);
             this.dispose();
         });
 
@@ -102,6 +103,25 @@ public class AdminDashboard extends javax.swing.JFrame {
             PendingApprovals.setData("Pending Approvals", String.valueOf(pending),
                     (pending > 0 ? "needs action" : "all clear"),
                     (pending > 0 ? Color.RED : Color.GRAY));
+            
+            // ── ADD: Show pending lister verifications count ──────────────────────
+            try {
+                int pendingListers = adminService.countPendingListerVerifications();
+                if (pendingListers > 0) {
+                    // Update existing PendingApprovals card to also mention listers
+                    // OR show a separate notification banner
+                    String pendingMsg = pending > 0
+                            ? pending + " car listings + " + pendingListers + " lister verifications"
+                            : pendingListers + " lister verifications pending";
+                    PendingApprovals.setData(
+                            "Pending Approvals",
+                            String.valueOf(pending + pendingListers),
+                            pendingMsg,
+                            Color.RED);
+                }
+            } catch (java.sql.SQLException ex) {
+                System.err.println("Could not count pending lister verifications: " + ex.getMessage());
+            }
             
             PendingApprovals.setCursor(new Cursor(Cursor.HAND_CURSOR));
             PendingApprovals.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -349,9 +369,20 @@ public class AdminDashboard extends javax.swing.JFrame {
 }
     
     private void handleLogout() {
-        int confirm = JOptionPane.showConfirmDialog(this, "Are you sure you want to log out?", "Logout", JOptionPane.YES_NO_OPTION);
-        if (confirm == JOptionPane.YES_OPTION) {
-            new LoginFrame().setVisible(true);
+        int confirm = javax.swing.JOptionPane.showConfirmDialog(this,
+                "Are you sure you want to log out?",
+                "Logout Confirmation",
+                javax.swing.JOptionPane.YES_NO_OPTION,
+                javax.swing.JOptionPane.QUESTION_MESSAGE);
+
+        if (confirm == javax.swing.JOptionPane.YES_OPTION) {
+            try {
+                carrentalsystem.core.SessionManager.endSession();
+            } catch (Exception ex) {
+                System.err.println("Session end error: " + ex.getMessage());
+            }
+            // Go to standalone login — parentDashboard = null means it opens fresh
+            new carrentalsystem.auth.LoginFrame().setVisible(true);
             this.dispose();
         }
     }

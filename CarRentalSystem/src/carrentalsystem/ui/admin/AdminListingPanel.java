@@ -88,7 +88,11 @@ public class AdminListingPanel extends javax.swing.JFrame {
                 "Are you sure you want to log out?", "Confirm Logout",
                 JOptionPane.YES_NO_OPTION);
         if (confirm == JOptionPane.YES_OPTION) {
-            new LoginFrame().setVisible(true);
+            try {
+                carrentalsystem.core.SessionManager.endSession();
+            } catch (Exception ex) {
+            }
+            new carrentalsystem.auth.LoginFrame().setVisible(true);
             this.dispose();
         }
     }

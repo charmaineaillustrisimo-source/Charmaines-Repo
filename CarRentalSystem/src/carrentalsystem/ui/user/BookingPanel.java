@@ -16,6 +16,7 @@ public class BookingPanel extends javax.swing.JPanel {
     private int currentCarId;
     private MainDashboard dashboard;
     private carrentalsystem.models.Car currentCar;
+    private carrentalsystem.services.BookingService bookingService = new carrentalsystem.services.BookingService();
     
     public BookingPanel() {
         initComponents();
@@ -45,22 +46,61 @@ public class BookingPanel extends javax.swing.JPanel {
     }
     
     public void prepareBooking(carrentalsystem.models.Car car) {
-        if (car == null) return;
-        
+        if (car == null) {
+            return;
+        }
+
         this.currentCar = car;
         this.currentCarId = car.getCarId();
-        // Update the title label dynamically
-        String fullTitle = "BOOK " + car.getBrand().toUpperCase() + " " + car.getModel().toUpperCase();
+
+        String fullTitle = "BOOK " + car.getBrand().toUpperCase()
+                + " " + car.getModel().toUpperCase();
         lblTitle.setText(fullTitle);
         lblTitle.setPreferredSize(null);
-        
-        // Reset fields for a fresh booking
-        FullName.setText("");
-        Email.setText("");
-        PhoneNumber.setText("");
-        PickupDate.setText("");
-        ReturnDate.setText("");
-        
+
+        // ── Auto-fill renter info from session ────────────────────────────
+        carrentalsystem.models.User user
+                = carrentalsystem.core.SessionManager.getCurrentUser();
+        if (user != null) {
+            FullName.setText(user.getFullName());
+            Email.setText(user.getEmail());
+            PhoneNumber.setText(user.getPhoneNumber() != null ? user.getPhoneNumber() : "");
+        } else {
+            FullName.setText("");
+            Email.setText("");
+            PhoneNumber.setText("");
+        }
+
+        // ── Auto-fill TODAY as pickup date and time ────────────────────────
+        java.time.LocalDate today = java.time.LocalDate.now();
+        java.time.LocalTime nowTime = java.time.LocalTime.now();
+
+        String[] months = {"January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"};
+        String todayStr = months[today.getMonthValue() - 1]
+                + " " + today.getDayOfMonth() + ", " + today.getYear();
+
+        int hour = nowTime.getHour();
+        String ampm = hour >= 12 ? "PM" : "AM";
+        int h12 = hour % 12;
+        if (h12 == 0) {
+            h12 = 12;
+        }
+        String timeStr = String.format("%d:%02d %s", h12, nowTime.getMinute(), ampm);
+
+        PickupDate.setText(todayStr);
+        PickupTime.setText(timeStr);
+
+        // ── Default return = today + 1 day ────────────────────────────────
+        java.time.LocalDate tomorrow = today.plusDays(1);
+        String tomorrowStr = months[tomorrow.getMonthValue() - 1]
+                + " " + tomorrow.getDayOfMonth() + ", " + tomorrow.getYear();
+        ReturnDate.setText(tomorrowStr);
+        RetrunTime.setText(timeStr);
+
+        // ── Update total price display ─────────────────────────────────────
+        recalculateTotal();
+
         this.revalidate();
         this.repaint();
     }
@@ -128,6 +168,7 @@ public class BookingPanel extends javax.swing.JPanel {
             String selectedDate = monthCombo.getSelectedItem() + " " + daySpinner.getValue() + ", " + yearSpinner.getValue();
             target.setText(selectedDate);
             picker.dispose();
+            recalculateTotal();
         });
         picker.add(confirm);
         picker.setLocationRelativeTo(target);
@@ -180,6 +221,316 @@ public class BookingPanel extends javax.swing.JPanel {
         picker.add(btn);
         picker.setLocationRelativeTo(target);
         picker.setVisible(true);
+    }
+    
+    /**
+     * Calculates total price whenever dates change and shows it. Attach this to
+     * date picker confirm actions.
+     */
+    private void recalculateTotal() {
+        if (currentCar == null) {
+            return;
+        }
+        try {
+            String from = PickupDate.getText().trim();
+            String to = ReturnDate.getText().trim();
+            if (!from.isEmpty() && !to.isEmpty()
+                    && !from.equals(to)) {
+                double total = carrentalsystem.utils.PriceCalculator
+                        .calculateTotal(from, to, currentCar.getBasePrice());
+                int days = (int) Math.max(1,
+                        carrentalsystem.utils.PriceCalculator.calculateDays(from, to));
+                // ── SHORT title so it fits ─────────────────────────────────
+            String carName = currentCar.getBrand() + " "
+                    + currentCar.getModel();
+            // Truncate if too long
+            if (carName.length() > 20) {
+                carName = carName.substring(0, 18) + "..";
+            }
+            lblTitle.setText(carName + "  |  " + days + " day"
+                    + (days > 1 ? "s" : "")
+                    + "  ₱" + String.format("%,.0f", total));
+        }
+        } catch (Exception ignored) { }
+    }
+    
+    /**
+     * Shows a dummy payment dialog. Returns a Payment object if user confirms,
+     * null if user cancels.
+     */
+    private carrentalsystem.models.Payment showPaymentDialog(carrentalsystem.models.Booking booking, double total) {
+        double secDeposit = 2000.0; // Standard security deposit
+        double grandTotal = total + secDeposit;
+        
+        javax.swing.JPanel panel = new javax.swing.JPanel(new java.awt.GridBagLayout());
+        panel.setBackground(new java.awt.Color(240, 234, 229));
+        panel.setBorder(javax.swing.BorderFactory.createEmptyBorder(16, 20, 16, 20));
+        java.awt.GridBagConstraints gc = new java.awt.GridBagConstraints();
+        gc.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gc.weightx = 1.0;
+        gc.insets = new java.awt.Insets(5, 5, 5, 5);
+
+        // Title
+        javax.swing.JLabel title = new javax.swing.JLabel("💳  Complete Your Payment");
+        title.setFont(new java.awt.Font("Helvetica Neue", java.awt.Font.BOLD, 18));
+        gc.gridx = 0;
+        gc.gridy = 0;
+        gc.gridwidth = 2;
+        panel.add(title, gc);
+
+        // Total display
+        javax.swing.JLabel lblTotal = new javax.swing.JLabel(
+                "Total Amount: ₱" + String.format("%,.2f", total));
+        lblTotal.setFont(new java.awt.Font("Helvetica Neue", java.awt.Font.BOLD, 16));
+        lblTotal.setForeground(new java.awt.Color(45, 36, 34));
+        gc.gridy = 1;
+        panel.add(lblTotal, gc);
+
+        // Security deposit note
+        javax.swing.JLabel depNote = new javax.swing.JLabel(
+                "Security Deposit: ₱2,000.00  (refundable after inspection)");
+        depNote.setFont(new java.awt.Font("Helvetica Neue", java.awt.Font.PLAIN, 12));
+        depNote.setForeground(new java.awt.Color(120, 100, 90));
+        gc.gridy = 2;
+        panel.add(depNote, gc);
+
+        // Payment method
+        gc.gridy = 3;
+        gc.gridwidth = 1;
+        panel.add(new javax.swing.JLabel("Payment Method:"), gc);
+        String[] methods = {"CASH", "GCASH", "BANK_TRANSFER", "CREDIT_CARD"};
+        javax.swing.JComboBox<String> cbMethod = new javax.swing.JComboBox<>(methods);
+        gc.gridx = 1;
+        panel.add(cbMethod, gc);
+
+        // Reference number (shown for non-cash)
+        gc.gridx = 0;
+        gc.gridy = 4;
+        javax.swing.JLabel lblRef = new javax.swing.JLabel("Reference Number:");
+        panel.add(lblRef, gc);
+        javax.swing.JTextField txtRef = new javax.swing.JTextField("(CASH - N/A)");
+        txtRef.setEnabled(false);
+        gc.gridx = 1;
+        panel.add(txtRef, gc);
+
+        // Enable/disable reference based on method
+        cbMethod.addActionListener(e -> {
+            boolean isCash = "CASH".equals(cbMethod.getSelectedItem());
+            txtRef.setEnabled(!isCash);
+            txtRef.setText(isCash ? "(CASH - N/A)" : "");
+        });
+
+        // Damage section
+        gc.gridx = 0;
+        gc.gridy = 4;
+        gc.gridwidth = 2;
+        javax.swing.JLabel damageNote = new javax.swing.JLabel(
+                "<html><i style='color:#886655;font-size:11px'>"
+                + "⚠  Any damage charges will be assessed by the car owner "
+                + "AFTER the rental period ends, per the Terms & Conditions.<br>"
+                + "Renter is liable for all damages caused during the rental.</i></html>");
+        panel.add(damageNote, gc);
+
+        // Terms
+        gc.gridy = 5;
+        javax.swing.JLabel terms = new javax.swing.JLabel(
+                "<html><i style='color:gray;font-size:11px'>"
+                + "By confirming, you agree to pay the total amount above "
+                + "and accept responsibility per the signed rental agreement.</i></html>");
+        panel.add(terms, gc);
+
+        int result = javax.swing.JOptionPane.showConfirmDialog(
+                this, panel,
+                "Payment Confirmation",
+                javax.swing.JOptionPane.OK_CANCEL_OPTION,
+                javax.swing.JOptionPane.PLAIN_MESSAGE);
+
+        if (result != javax.swing.JOptionPane.OK_OPTION) {
+            return null;
+        }
+
+        carrentalsystem.models.Payment payment = new carrentalsystem.models.Payment();
+        payment.setPaymentMethod(cbMethod.getSelectedItem().toString());
+        payment.setReferenceNumber(txtRef.getText().trim());
+        payment.setBaseAmount(total);
+        payment.setSecurityDeposit(secDeposit);
+        payment.setDamageAmount(0); // set by owner later
+        payment.setTotalAmount(grandTotal);
+        payment.setAmountPaid(grandTotal);
+        payment.setRemainingBalance(0);
+        return payment;
+    }
+
+
+
+    // Helper for summary rows
+    private void addSummaryRow(javax.swing.JPanel p, String key, String val) {
+        javax.swing.JLabel k = new javax.swing.JLabel(key);
+        k.setFont(new java.awt.Font("Helvetica Neue",
+                java.awt.Font.PLAIN, 12));
+        k.setForeground(new java.awt.Color(80, 65, 60));
+        javax.swing.JLabel v = new javax.swing.JLabel(val);
+        v.setFont(new java.awt.Font("Helvetica Neue",
+                java.awt.Font.BOLD, 12));
+        v.setForeground(new java.awt.Color(45, 36, 34));
+        p.add(k);
+        p.add(v);
+    }
+    
+    /**
+     * Asks the renter to upload: - Valid Government ID (always required) -
+     * Driver's License (only if the car has NO driver)
+     *
+     * Returns true if the user submits all required documents.
+     */
+    private String[] showRenterVerificationDialog(boolean carHasDriver) {
+
+        javax.swing.JPanel panel = new javax.swing.JPanel();
+        panel.setLayout(new javax.swing.BoxLayout(panel,
+                javax.swing.BoxLayout.Y_AXIS));
+        panel.setBackground(new java.awt.Color(240, 234, 229));
+        panel.setBorder(javax.swing.BorderFactory.createEmptyBorder(16, 16, 16, 16));
+
+        // ── Title ─────────────────────────────────────────────────────────
+        javax.swing.JLabel title = new javax.swing.JLabel(
+                "<html><b style='font-size:14px'>Identity Verification Required</b><br>"
+                + "<span style='color:gray;font-size:12px'>"
+                + "The car owner needs to verify your identity before approving.<br>"
+                + "Documents are shared only with the car owner.</span><br><br></html>");
+        title.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
+        panel.add(title);
+
+        // ── Required: Valid Government ID ─────────────────────────────────
+        final String[] idPath = {null};
+        javax.swing.JButton btnID = makeVerifButton(
+                "📋  Upload Valid Government ID  (REQUIRED)");
+        btnID.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
+        btnID.addActionListener(e -> {
+            java.io.File f = chooseImageFile();
+            if (f != null) {
+                idPath[0] = f.getAbsolutePath();
+                btnID.setText("✅  " + f.getName());
+                btnID.setForeground(new java.awt.Color(0, 120, 0));
+            }
+        });
+        panel.add(btnID);
+        panel.add(javax.swing.Box.createVerticalStrut(10));
+
+        // ── Conditional: Driver's License (only if no driver) ────────────
+        final String[] licensePath = {null};
+        if (!carHasDriver) {
+            javax.swing.JLabel licNote = new javax.swing.JLabel(
+                    "<html><b>This car has NO driver provided.</b><br>"
+                    + "A valid driver's license is required to rent.</html>");
+            licNote.setFont(new java.awt.Font("Helvetica Neue",
+                    java.awt.Font.PLAIN, 12));
+            licNote.setForeground(new java.awt.Color(160, 80, 40));
+            licNote.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
+            panel.add(licNote);
+            panel.add(javax.swing.Box.createVerticalStrut(6));
+
+            javax.swing.JButton btnLicense = makeVerifButton(
+                    "🪪  Upload Driver's License  (REQUIRED — No driver)");
+            btnLicense.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
+            btnLicense.addActionListener(e -> {
+                java.io.File f = chooseImageFile();
+                if (f != null) {
+                    licensePath[0] = f.getAbsolutePath();
+                    btnLicense.setText("✅  " + f.getName());
+                    btnLicense.setForeground(new java.awt.Color(0, 120, 0));
+                }
+            });
+            panel.add(btnLicense);
+            panel.add(javax.swing.Box.createVerticalStrut(10));
+        } else {
+            javax.swing.JLabel driverNote = new javax.swing.JLabel(
+                    "<html>✔  This car includes a driver — no license needed.</html>");
+            driverNote.setFont(new java.awt.Font("Helvetica Neue",
+                    java.awt.Font.ITALIC, 12));
+            driverNote.setForeground(new java.awt.Color(0, 120, 0));
+            driverNote.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
+            panel.add(driverNote);
+            panel.add(javax.swing.Box.createVerticalStrut(10));
+        }
+
+        // ── Terms reminder ────────────────────────────────────────────────
+        javax.swing.JLabel terms = new javax.swing.JLabel(
+                "<html><i style='color:gray;font-size:11px'>"
+                + "By submitting, you confirm that the documents are genuine.<br>"
+                + "False submissions will result in immediate account suspension."
+                + "</i></html>");
+        terms.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
+        panel.add(terms);
+
+        // ── Show dialog ───────────────────────────────────────────────────
+        int result = javax.swing.JOptionPane.showConfirmDialog(
+                this, panel,
+                "Renter Verification — Identity Check",
+                javax.swing.JOptionPane.OK_CANCEL_OPTION,
+                javax.swing.JOptionPane.PLAIN_MESSAGE);
+
+        if (result != javax.swing.JOptionPane.OK_OPTION) {
+            return null;
+        }
+
+        if (idPath[0] == null) {
+            javax.swing.JOptionPane.showMessageDialog(this,
+                    "Please upload your Valid Government ID.",
+                    "Missing Document", javax.swing.JOptionPane.WARNING_MESSAGE);
+            return null;
+        }
+
+        if (!carHasDriver && licensePath[0] == null) {
+            javax.swing.JOptionPane.showMessageDialog(this,
+                    "Please upload your Driver's License.\n"
+                    + "Required for self-drive rentals.",
+                    "Missing Document", javax.swing.JOptionPane.WARNING_MESSAGE);
+            return null;
+        }
+
+        // Return paths — save to DB later after booking is created
+        return new String[]{
+            idPath[0],
+            licensePath[0] != null ? licensePath[0] : ""
+        };
+    }
+
+    private void saveRenterVerification(int bookingId, String idPath,String licensePath, boolean requiresLicense) throws java.sql.SQLException {
+        String sql
+                = "INSERT INTO renter_verifications "
+                + "(booking_id, renter_id, valid_id_path, driver_license_path, requires_license) "
+                + "VALUES (?, ?, ?, ?, ?)";
+        try (java.sql.Connection conn
+                = carrentalsystem.core.DBConnection.getConnection(); java.sql.PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, bookingId);   // ← real booking ID now
+            ps.setInt(2, carrentalsystem.core.SessionManager
+                    .getCurrentUser().getUserId());
+            ps.setString(3, idPath);
+            ps.setString(4, licensePath);
+            ps.setBoolean(5, requiresLicense);
+            ps.executeUpdate();
+        }
+    }
+
+    private javax.swing.JButton makeVerifButton(String text) {
+        javax.swing.JButton btn = new javax.swing.JButton(text);
+        btn.setFont(new java.awt.Font("Helvetica Neue",
+                java.awt.Font.PLAIN, 13));
+        btn.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        btn.setBackground(new java.awt.Color(235, 228, 220));
+        btn.setFocusPainted(false);
+        btn.setBorderPainted(true);
+        return btn;
+    }
+
+    private java.io.File chooseImageFile() {
+        javax.swing.JFileChooser fc = new javax.swing.JFileChooser();
+        fc.setDialogTitle("Select Image File");
+        fc.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter(
+                "Image Files (JPG, PNG)", "jpg", "jpeg", "png"));
+        int r = fc.showOpenDialog(this);
+        return (r == javax.swing.JFileChooser.APPROVE_OPTION)
+                ? fc.getSelectedFile() : null;
     }
 
     /**
@@ -772,59 +1123,99 @@ public class BookingPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_FullNameActionPerformed
 
     private void btnBookActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBookActionPerformed
-        // Null Check
+        // ── Null Check ────────────────────────────────────────────────────
         if (currentCar == null) {
-            javax.swing.JOptionPane.showMessageDialog(this, "Error: No car selected for booking.");
+            javax.swing.JOptionPane.showMessageDialog(this,
+                    "Error: No car selected.");
             return;
         }
-        
-        // Validation
-        if (FullName.getText().isEmpty() || Email.getText().isEmpty() || PickupDate.getText().isEmpty()) {
-            javax.swing.JOptionPane.showMessageDialog(this, "Please fill in all booking details.");
+
+        if (FullName.getText().isEmpty() || Email.getText().isEmpty()
+                || PickupDate.getText().isEmpty() || ReturnDate.getText().isEmpty()) {
+            javax.swing.JOptionPane.showMessageDialog(this,
+                    "Please fill in all booking details.");
             return;
         }
 
         try {
-            // 2. Prepare the Booking Model
-            carrentalsystem.models.Booking newBooking = new carrentalsystem.models.Booking();
+            // ── 1. Renter verification FIRST ──────────────────────────────
+            boolean carHasDriver = currentCar.isHasDriver();
+            String[] verificationPaths = showRenterVerificationDialog(carHasDriver);
+            if (verificationPaths == null) {
+                return; // user cancelled
+            }
+            // ── 2. Build booking model ─────────────────────────────────────
+            carrentalsystem.models.Booking newBooking
+                    = new carrentalsystem.models.Booking();
             newBooking.setCarId(currentCarId);
-            newBooking.setRenterId(carrentalsystem.core.SessionManager.getCurrentUser().getUserId());
-            
-            // Pass the image
+            newBooking.setRenterId(carrentalsystem.core.SessionManager
+                    .getCurrentUser().getUserId());
             newBooking.setImagePath(currentCar.getImagePath());
-            
-            // Convert String dates from pickers to SQL Dates[cite: 8]
-            java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("MMMM dd, yyyy");
-            newBooking.setStartDate(new java.sql.Date(sdf.parse(PickupDate.getText()).getTime()));
-            newBooking.setEndDate(new java.sql.Date(sdf.parse(ReturnDate.getText()).getTime()));
-
-            // Calculate total using your utility[cite: 8]
-            double total = carrentalsystem.utils.PriceCalculator.calculateTotal(
-                    PickupDate.getText(), ReturnDate.getText(), currentCar.getBasePrice());
-            newBooking.setTotalPrice(total);
             newBooking.setPickupLocation(PickupLocation.getText());
             newBooking.setReturnLocation(ReturnLocation.getText());
 
-            // 3. Save to Database via Service[cite: 4]
-            carrentalsystem.services.BookingService service = new carrentalsystem.services.BookingService();
-            int generatedId = service.submitRequest(newBooking);
+            java.text.SimpleDateFormat sdf
+                    = new java.text.SimpleDateFormat("MMMM dd, yyyy");
+            newBooking.setStartDate(new java.sql.Date(
+                    sdf.parse(PickupDate.getText()).getTime()));
+            newBooking.setEndDate(new java.sql.Date(
+                    sdf.parse(ReturnDate.getText()).getTime()));
+
+            double total = carrentalsystem.utils.PriceCalculator.calculateTotal(
+                    PickupDate.getText(), ReturnDate.getText(),
+                    currentCar.getBasePrice());
+            int days = (int) Math.max(1,
+                    carrentalsystem.utils.PriceCalculator.calculateDays(
+                            PickupDate.getText(), ReturnDate.getText()));
+            newBooking.setTotalPrice(total);
+            newBooking.setDaysCount(days);
+
+            // ── 3. Payment dialog ──────────────────────────────────────────
+            carrentalsystem.models.Payment payment
+                    = showPaymentDialog(newBooking, total);
+            if (payment == null) {
+                return;
+            }
+
+            // ── 4. Save booking to DB first ────────────────────────────────
+            carrentalsystem.services.BookingService bookingService
+                    = new carrentalsystem.services.BookingService();
+            int generatedId = bookingService.submitRequest(newBooking);
 
             if (generatedId != -1) {
-                // Navigate to Inbox instead of My Rentals
-                if (dashboard != null) {
-                    java.awt.CardLayout cl = (java.awt.CardLayout) dashboard.getPnlMainContent().getLayout();
+                newBooking.setBookingId(generatedId);
+                payment.setBookingId(generatedId);
+                payment.setRenterId(carrentalsystem.core.SessionManager
+                        .getCurrentUser().getUserId());
 
-                    // Load inbox and open the conversation with the car owner
+                // ── 5. NOW save verification with real booking ID ──────────
+                try {
+                    saveRenterVerification(
+                            generatedId,
+                            verificationPaths[0],
+                            verificationPaths[1].isEmpty() ? null : verificationPaths[1],
+                            !carHasDriver);
+                } catch (Exception ve) {
+                    System.err.println("[BookingPanel] Verification save error: "
+                            + ve.getMessage());
+                }
+
+                // ── 6. Record payment ──────────────────────────────────────
+                new carrentalsystem.services.PaymentService().recordPayment(payment);
+
+                if (dashboard != null) {
+                    dashboard.updateNotificationBadge();
                     dashboard.getInboxPanel().loadData();
-                    cl.show(dashboard.getPnlMainContent(), "inboxCard");
+                    ((java.awt.CardLayout) dashboard.getPnlMainContent().getLayout())
+                            .show(dashboard.getPnlMainContent(), "inboxCard");
                 }
             }
+
         } catch (Exception e) {
-            javax.swing.JOptionPane.showMessageDialog(this, "Error saving booking: " + e.getMessage());
+            javax.swing.JOptionPane.showMessageDialog(this,
+                    "Error saving booking: " + e.getMessage());
             e.printStackTrace();
         }
-        
-        
     }//GEN-LAST:event_btnBookActionPerformed
 
     @Override

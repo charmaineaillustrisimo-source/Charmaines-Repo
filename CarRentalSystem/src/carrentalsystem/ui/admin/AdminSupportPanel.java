@@ -154,6 +154,10 @@ public class AdminSupportPanel extends javax.swing.JFrame {
     // 6. Action Logic
     btnConfirm.addActionListener(ev -> {
         logoutDialog.dispose();
+        try {
+            carrentalsystem.core.SessionManager.endSession();
+        } catch (Exception ex) {
+        }
         new carrentalsystem.auth.LoginFrame().setVisible(true);
         this.dispose();
     });

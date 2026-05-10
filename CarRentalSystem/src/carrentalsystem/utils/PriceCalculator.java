@@ -42,4 +42,22 @@ public class PriceCalculator {
     public static String formatCurrency(double amount) {
         return String.format("PHP %,.2f", amount);
     }
+    
+    /**
+     * Calculates the number of days between two date strings. Format: "MMMM dd,
+     * yyyy" e.g. "May 08, 2026" Returns at least 1 day.
+     */
+    public static long calculateDays(String fromDateStr, String toDateStr) {
+        try {
+            java.text.SimpleDateFormat sdf
+                    = new java.text.SimpleDateFormat("MMMM dd, yyyy");
+            java.util.Date from = sdf.parse(fromDateStr);
+            java.util.Date to = sdf.parse(toDateStr);
+            long diff = to.getTime() - from.getTime();
+            long days = diff / (1000 * 60 * 60 * 24);
+            return Math.max(1, days);
+        } catch (Exception e) {
+            return 1;
+        }
+    }
 }

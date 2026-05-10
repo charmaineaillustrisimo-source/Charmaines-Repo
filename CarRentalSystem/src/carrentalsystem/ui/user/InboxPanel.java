@@ -4,6 +4,8 @@
  */
 package carrentalsystem.ui.user;
 
+import java.sql.SQLException;
+
 /**
  *
  * @author macbookairm1grey
@@ -49,25 +51,38 @@ public class InboxPanel extends javax.swing.JPanel {
                 int uid = carrentalsystem.core.SessionManager.getCurrentUser().getUserId();
                 java.util.List<carrentalsystem.models.Message> convs
                         = messageService.getConversations(uid);
+
                 javax.swing.SwingUtilities.invokeLater(() -> {
                     pnlConvList.removeAll();
                     if (convs.isEmpty()) {
                         javax.swing.JLabel empty = new javax.swing.JLabel("  No conversations yet");
                         empty.setForeground(new java.awt.Color(180, 160, 155));
-                        empty.setFont(new java.awt.Font("Helvetica Neue",
-                                java.awt.Font.PLAIN, 14));
+                        empty.setFont(new java.awt.Font("Helvetica Neue", java.awt.Font.PLAIN, 14));
                         pnlConvList.add(empty);
-                    }
-                    for (carrentalsystem.models.Message m : convs) {
+                    } else {
+                        for (carrentalsystem.models.Message m : convs) {
+                            int myId = carrentalsystem.core.SessionManager
+                                    .getCurrentUser().getUserId();
+                            int otherId = m.getSenderId() == myId
+                                    ? m.getReceiverId() : m.getSenderId();
+                            pnlConvList.add(buildConvRow(m, otherId, myId));
+                            pnlConvList.add(javax.swing.Box.createVerticalStrut(4));
+                        }
+                        pnlConvList.revalidate();
+                        pnlConvList.repaint();
+
+                        // ── AUTO-OPEN the most recent conversation ─────────
+                        carrentalsystem.models.Message first = convs.get(0);
                         int myId = carrentalsystem.core.SessionManager
                                 .getCurrentUser().getUserId();
-                        int otherId = m.getSenderId() == myId
-                                ? m.getReceiverId() : m.getSenderId();
-                        pnlConvList.add(buildConvRow(m, otherId, myId));
-                        pnlConvList.add(javax.swing.Box.createVerticalStrut(4));
+                        int otherId = first.getSenderId() == myId
+                                ? first.getReceiverId() : first.getSenderId();
+                        activeOtherUserId = otherId;
+                        activeCarId = first.getCarId();
+                        activeContactName = first.getSenderName() != null
+                                ? first.getSenderName() : "User";
+                        openThread(otherId, activeCarId, activeContactName);
                     }
-                    pnlConvList.revalidate();
-                    pnlConvList.repaint();
                 });
             } catch (Exception e) {
                 e.printStackTrace();
@@ -299,6 +314,67 @@ public class InboxPanel extends javax.swing.JPanel {
                 e.printStackTrace();
             }
         }).start();
+    }
+    
+    public void selectConversationWith(int userId) {
+        this.activeOtherUserId = userId;
+        this.activeCarId = -1; // General inquiry from Car Details
+
+        // Attempt to fetch the contact name for the headers
+        try {
+            carrentalsystem.models.User owner = new carrentalsystem.services.UserService().getUserById(userId);
+            if (owner != null) {
+                this.activeContactName = owner.getFullName();
+                lblContactName.setText(activeContactName);
+                lblRightName.setText(activeContactName);
+            }
+        } catch (java.sql.SQLException e) {
+            lblContactName.setText("Chat");
+        }
+
+        loadMessages(userId, -1);
+    }
+
+    private void loadMessages(int otherUserId, int carId) {
+        pnlMessages.removeAll();
+        int currentUserId = carrentalsystem.core.SessionManager.getCurrentUser().getUserId();
+
+        java.util.List<carrentalsystem.models.Message> messages = null;
+        try {
+            messages = messageService.getChatHistory(currentUserId, otherUserId, carId);
+        } catch (SQLException ex) {
+            System.getLogger(InboxPanel.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+        }
+        for (carrentalsystem.models.Message msg : messages) {
+            boolean isMe = (msg.getSenderId() == currentUserId);
+            
+            // Create a simple chat bubble using a JLabel
+            javax.swing.JLabel bubble = new javax.swing.JLabel(msg.getContent());
+            bubble.setOpaque(true);
+            bubble.setBorder(javax.swing.BorderFactory.createEmptyBorder(8, 12, 8, 12));
+            
+            if (isMe) {
+                bubble.setBackground(new java.awt.Color(45, 36, 34)); // Dark Brown
+                bubble.setForeground(java.awt.Color.WHITE);
+                bubble.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+            } else {
+                bubble.setBackground(new java.awt.Color(230, 225, 220)); // Light Gray/Cream
+                bubble.setForeground(java.awt.Color.BLACK);
+                bubble.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+            }
+            
+            pnlMessages.add(bubble);
+            pnlMessages.add(javax.swing.Box.createVerticalStrut(10)); // Space between bubbles
+        }
+
+        pnlMessages.revalidate();
+        pnlMessages.repaint();
+
+        // Auto-scroll to bottom
+        javax.swing.SwingUtilities.invokeLater(() -> {
+            javax.swing.JScrollBar vertical = spCenter.getVerticalScrollBar();
+            vertical.setValue(vertical.getMaximum());
+        });
     }
 
     /**

@@ -147,7 +147,11 @@ public class AdminSettings extends javax.swing.JFrame {
             this.dispose();
         });
         btnLogoutButton.addActionListener(e -> {
-            new LoginFrame().setVisible(true);
+            try {
+                carrentalsystem.core.SessionManager.endSession();
+            } catch (Exception ex) {
+            }
+            new carrentalsystem.auth.LoginFrame().setVisible(true);
             this.dispose();
         });
     }

@@ -92,24 +92,24 @@ public class MainDashboard extends javax.swing.JFrame {
         });
         
         headerPanel.setNotificationsAction(() -> {
+
+            // ── Guard: not logged in ───────────────────────────────────────
+            if (carrentalsystem.core.SessionManager.getCurrentUser() == null) {
+                showLoginOrSignupPrompt(null);
+                return;
+            }
+
             boolean isShown = notificationsPanel.isVisible();
-
             if (!isShown) {
-                // Refresh the database data before showing[cite: 3]
                 notificationsPanel.loadData();
-
                 int xPos = this.getWidth() - notificationsPanel.getWidth() - 40;
                 int yPos = headerPanel.getHeight();
                 notificationsPanel.setLocation(xPos, yPos);
-
                 notificationsPanel.setVisible(true);
-
-                // Bring to front in the Z-order[cite: 2]
                 getLayeredPane().setComponentZOrder(notificationsPanel, 0);
             } else {
                 notificationsPanel.setVisible(false);
             }
-
             getLayeredPane().revalidate();
             getLayeredPane().repaint();
         });
@@ -372,9 +372,19 @@ public class MainDashboard extends javax.swing.JFrame {
         card.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
             public void mouseClicked(java.awt.event.MouseEvent e) {
-                int userId = carrentalsystem.core.SessionManager.getCurrentUser().getUserId();
+
+                // ── Guest: not logged in ───────────────────────────────────
+                if (carrentalsystem.core.SessionManager.getCurrentUser() == null) {
+                    showLoginOrSignupPrompt(() -> showCarDetails(car));
+                    return;
+                }
+
+                // ── Logged in ──────────────────────────────────────────────
                 try {
-                    new carrentalsystem.services.HistoryService().logBrowsingActivity(userId, car.getCarId());
+                    int uid = carrentalsystem.core.SessionManager
+                            .getCurrentUser().getUserId();
+                    new carrentalsystem.services.HistoryService()
+                            .logBrowsingActivity(uid, car.getCarId());
                 } catch (Exception ex) {
                     System.err.println("Failed to log history: " + ex.getMessage());
                 }
@@ -591,7 +601,102 @@ public class MainDashboard extends javax.swing.JFrame {
         loginFrame.setVisible(true);
     }
     
-    
+    // ─────────────────────────────────────────────────────────────────────
+// GUEST → LOGIN FLOW
+// ─────────────────────────────────────────────────────────────────────
+
+/**
+ * Shows a Login / Sign Up prompt when a guest tries a protected action.
+ * afterLoginAction is what to run after successful login
+ * (e.g., show the car they clicked). Pass null if not needed.
+ */
+    public void showLoginOrSignupPrompt(Runnable afterLoginAction) {
+        Object[] options = {
+            "🔑  Login  —  I have an account",
+            "📝  Sign Up  —  Create new account",
+            "Cancel"
+        };
+
+        int choice = javax.swing.JOptionPane.showOptionDialog(
+                this,
+                "<html><center>"
+                + "<b style='font-size:14px'>Welcome to RentACar!</b><br><br>"
+                + "Please log in or create an account to continue.<br>"
+                + "</center></html>",
+                "Login Required",
+                javax.swing.JOptionPane.DEFAULT_OPTION,
+                javax.swing.JOptionPane.INFORMATION_MESSAGE,
+                null, options, options[0]
+        );
+
+        if (choice == 0) {
+            // Open existing LoginFrame with this dashboard as parent
+            carrentalsystem.auth.LoginFrame lf
+                    = new carrentalsystem.auth.LoginFrame(this);
+            lf.setAfterLoginAction(afterLoginAction);
+            lf.setVisible(true);
+
+        } else if (choice == 1) {
+            // Open SignupFrame with this dashboard as parent
+            carrentalsystem.auth.SignupFrame sf
+                    = new carrentalsystem.auth.SignupFrame(this, afterLoginAction);
+            sf.setVisible(true);
+        }
+        // choice == 2 → Cancel → do nothing
+    }
+
+    /**
+     * Called by LoginFlowHelper after successful login + role selection.
+     * Rebuilds the sidebar for the logged-in user's mode and updates the
+     * header.
+     */
+    public void refreshAfterLogin() {
+        carrentalsystem.models.User user
+                = carrentalsystem.core.SessionManager.getCurrentUser();
+        if (user == null) {
+            return;
+        }
+
+        // Rebuild sidebar (now role-aware)
+        if (sideMenu != null) {
+            this.getLayeredPane().remove(sideMenu);
+        }
+        sideMenu = new SidebarPanel(pnlMainContent, this);
+        this.getLayeredPane().add(sideMenu, javax.swing.JLayeredPane.POPUP_LAYER);
+        sideMenu.setBounds(0, 65, 250, getHeight());
+        sideMenu.setVisible(false);
+
+        // Update header
+        updateNotificationBadge();
+        if (headerPanel != null) {
+            headerPanel.updateProfileIcon(user.getProfileImagePath());
+        }
+    }
+
+    /**
+     * Called after logout. Resets to guest/browse mode without closing the
+     * window.
+     */
+    public void refreshAfterLogout() {
+        // Rebuild sidebar (guest state — no buttons)
+        if (sideMenu != null) {
+            this.getLayeredPane().remove(sideMenu);
+        }
+        sideMenu = new SidebarPanel(pnlMainContent, this);
+        this.getLayeredPane().add(sideMenu, javax.swing.JLayeredPane.POPUP_LAYER);
+        sideMenu.setBounds(0, 65, 250, getHeight());
+        sideMenu.setVisible(false);
+
+        // Reset header
+        if (headerPanel != null) {
+            headerPanel.setUnreadCount(0);
+            headerPanel.updateProfileIcon(null);
+        }
+
+        // Back to discovery feed
+        java.awt.CardLayout cl = (java.awt.CardLayout) pnlMainContent.getLayout();
+        cl.show(pnlMainContent, "discovery");
+    }
     
     /**
      * This method is called from within the constructor to initialize the form.

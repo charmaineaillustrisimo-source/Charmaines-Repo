@@ -42,4 +42,6 @@ public interface IMessageService {
      * number on the bell/inbox icon.
      */
     int countUnread(int userId) throws SQLException;
+
+    List<Message> getChatHistory(int userId1, int userId2, int carId) throws SQLException;
 }

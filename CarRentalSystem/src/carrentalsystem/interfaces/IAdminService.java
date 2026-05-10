@@ -123,4 +123,31 @@ public interface IAdminService {
     Map<String, String> getSystemSettings() throws SQLException;
 
     void updateSystemSetting(String key, String value) throws SQLException;
+    
+    // ── LISTER VERIFICATION REVIEW ─────────────────────────────────────────
+    /**
+     * Return all lister verification requests with the given status. Pass
+     * "PENDING" to get the queue that needs admin action.
+     */
+    java.util.List<carrentalsystem.models.ListerRequirement>
+            getListerRequirements(String status) throws java.sql.SQLException;
+
+    /**
+     * Approve a lister requirement — sets status to APPROVED, updates
+     * users.lister_status, notifies the user.
+     */
+    void approveListerVerification(int requirementId, int userId)
+            throws java.sql.SQLException;
+
+    /**
+     * Reject a lister requirement — sets status to REJECTED, updates
+     * users.lister_status, sends rejection reason to user.
+     */
+    void rejectListerVerification(int requirementId, int userId, String reason)
+            throws java.sql.SQLException;
+
+    /**
+     * Count of PENDING lister verification submissions. For the KPI badge.
+     */
+    int countPendingListerVerifications() throws java.sql.SQLException;
 }

@@ -26,6 +26,15 @@ public class Car {
     private boolean isPriority;   // PRO feature — appears first in feed
     private String status;        // "PENDING_APPROVAL","ACTIVE","REJECTED","ARCHIVED"
     private Timestamp createdAt;
+    private String  color;
+    private String plateNumber;
+    private boolean hasDriver = false;
+    private double driverFee = 0.0;
+    private int year;
+    private int mileageLimit = 0;
+    private String fuelPolicy = "Full to Full";
+    private String houseRules;
+
     
     public Car() {}
     
@@ -33,7 +42,9 @@ public class Car {
                String type, int seats, String fuelType,
                String transmission,  String condition, 
                String description, double basePrice, String imagePath,
-               int viewsCount, boolean isPriority, String status, Timestamp createdAt) {
+               int viewsCount, boolean isPriority, String status, Timestamp createdAt,
+               String color, String plateNumber, boolean hasDriver, double driverFee,
+               int year, int mileageLimit, String fuelPolicy, String houseRules) {
         this.carId = carId;
         this.ownerId = ownerId;
         this.brand = brand;
@@ -50,6 +61,15 @@ public class Car {
         this.isPriority = isPriority;
         this.status = "PENDING_APPROVAL";
         this.createdAt = createdAt;
+        this.color = color;
+        this.plateNumber = plateNumber;
+        this.hasDriver = hasDriver;
+        this.driverFee = driverFee;
+        this.year = year;
+        this.mileageLimit = mileageLimit;
+        this.fuelPolicy = fuelPolicy;
+        this.houseRules = houseRules;
+        
     }
 
     // ── Getters ──────────────────────────────────────────────
@@ -69,6 +89,14 @@ public class Car {
     public boolean isPriority()       { return isPriority; }
     public String getStatus()         { return status; }
     public Timestamp getCreatedAt()   { return createdAt; }
+    public String  getColor()         { return color; }
+    public String  getPlateNumber()   { return plateNumber; }
+    public boolean isHasDriver()      { return hasDriver; }
+    public double  getDriverFee()     { return driverFee; }
+    public int     getYear()          { return year; }
+    public int     getMileageLimit()  { return mileageLimit; }
+    public String  getFuelPolicy()    { return fuelPolicy; }
+    public String  getHouseRules()    { return houseRules; }
 
     // ── Setters ──────────────────────────────────────────────
     public void setCarId(int carId)                   { this.carId = carId; }
@@ -87,9 +115,19 @@ public class Car {
     public void setPriority(boolean isPriority)       { this.isPriority = isPriority; }
     public void setStatus(String status)              { this.status = status; }
     public void setCreatedAt(Timestamp createdAt)     { this.createdAt = createdAt; }
-
+    public void    setColor(String color)             { this.color = color; }
+    public void    setPlateNumber(String plateNumber) { this.plateNumber = plateNumber; }
+    public void    setHasDriver(boolean hasDriver)    { this.hasDriver = hasDriver; }
+    public void    setDriverFee(double driverFee)     { this.driverFee = driverFee; }
+    public void    setYear(int year)                  { this.year = year; }
+    public void    setMileageLimit(int v)             { this.mileageLimit = v; }
+    public void    setFuelPolicy(String v)            { this.fuelPolicy = v; }
+    public void    setHouseRules(String v)            { this.houseRules = v; }
+    
     @Override
     public String toString() {
         return "Car{" + "brand=" + brand + ", model=" + model + ", price=" + basePrice + ", status=" + status + '}';
     }
+
+    
 }

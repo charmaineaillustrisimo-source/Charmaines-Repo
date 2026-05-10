@@ -36,45 +36,41 @@ public class NotificationsPanel extends javax.swing.JPanel {
     }
     
     private javax.swing.JPanel createNotifRow(carrentalsystem.models.Notification notif) {
-        // 1. Create the rounded capsule panel
+
+        // ── 1. Build the rounded capsule panel ───────────────────────────
         javax.swing.JPanel row = new javax.swing.JPanel() {
             @Override
             protected void paintComponent(java.awt.Graphics g) {
                 java.awt.Graphics2D g2 = (java.awt.Graphics2D) g.create();
-                g2.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING, java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
-
-                // Background Color: Slightly brighter if unread
-                if (!notif.isRead()) {
-                    g2.setColor(new java.awt.Color(235, 235, 235)); // Lighter gray for "new" feel
-                } else {
-                    g2.setColor(new java.awt.Color(217, 217, 217)); // Standard gray
-                }
-
+                g2.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING,
+                        java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(!notif.isRead()
+                        ? new java.awt.Color(235, 235, 235)
+                        : new java.awt.Color(217, 217, 217));
                 g2.fillRoundRect(0, 0, getWidth(), getHeight(), 25, 25);
-
-                // Optional: Draw a small blue dot for unread notifications
                 if (!notif.isRead()) {
                     g2.setColor(new java.awt.Color(116, 185, 255));
                     g2.fillOval(getWidth() - 30, 15, 10, 10);
                 }
-
                 g2.dispose();
             }
         };
 
-        // Row Properties
         row.setPreferredSize(new java.awt.Dimension(360, 90));
         row.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
         row.setOpaque(false);
         row.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
 
-        // Data Extraction
+        // ── 2. Determine icon + header text based on type ─────────────────
         String type = notif.getType() != null ? notif.getType().toUpperCase() : "SYSTEM";
-        String iconPath = "/carrentalsystem/ui/user/Icons/CarNotifIcon.png"; // Default
+        String iconPath = "/carrentalsystem/ui/user/Icons/CarNotifIcon.png";
         String headerText = "SYSTEM ALERT";
 
-        // 2. Dynamic Mapping for Icons and Headers
         switch (type) {
+            case "RECEIPT":
+                iconPath = "/carrentalsystem/ui/user/Icons/Analytics.png";
+                headerText = "RECEIPT READY";
+                break;
             case "RENTAL":
                 iconPath = "/carrentalsystem/ui/user/Icons/CarNotifIcon.png";
                 headerText = "CAR RENTAL";
@@ -84,12 +80,16 @@ public class NotificationsPanel extends javax.swing.JPanel {
                 headerText = "NEW MESSAGE";
                 break;
             case "LISTING":
+            case "ALERT":
                 iconPath = "/carrentalsystem/ui/user/Icons/Analytics.png";
                 headerText = "LISTING UPDATE";
                 break;
+            default:
+                headerText = "SYSTEM ALERT";
+                break;
         }
 
-        // 3. UI Components (Labels)
+        // ── 3. Build UI components ────────────────────────────────────────
         javax.swing.JLabel lblIcon = new javax.swing.JLabel();
         carrentalsystem.utils.ImageUtil.setInternalIcon(lblIcon, iconPath);
         if (lblIcon.getIcon() != null) {
@@ -97,54 +97,73 @@ public class NotificationsPanel extends javax.swing.JPanel {
                     .getImage().getScaledInstance(35, 35, java.awt.Image.SCALE_SMOOTH);
             lblIcon.setIcon(new javax.swing.ImageIcon(scaled));
         }
-        row.add(lblIcon, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 10, 35, 35));
+        row.add(lblIcon,
+                new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 10, 35, 35));
 
         javax.swing.JLabel lblHeader = new javax.swing.JLabel(headerText);
-        lblHeader.setFont(new java.awt.Font("Serif", 1, 14));
-        lblHeader.setForeground(new java.awt.Color(140, 140, 140)); // Muted gray header
-        row.add(lblHeader, new org.netbeans.lib.awtextra.AbsoluteConstraints(65, 18, 200, -1));
+        lblHeader.setFont(new java.awt.Font("Serif", java.awt.Font.BOLD, 14));
+        lblHeader.setForeground(new java.awt.Color(140, 140, 140));
+        row.add(lblHeader,
+                new org.netbeans.lib.awtextra.AbsoluteConstraints(65, 18, 200, -1));
 
-        javax.swing.JLabel lblMsg = new javax.swing.JLabel("<html>" + notif.getMessage() + "</html>");
-        lblMsg.setFont(new java.awt.Font("Helvetica Neue", 0, 15));
+        javax.swing.JLabel lblMsg = new javax.swing.JLabel(
+                "<html>" + notif.getMessage() + "</html>");
+        lblMsg.setFont(new java.awt.Font("Helvetica Neue", java.awt.Font.PLAIN, 13));
         lblMsg.setForeground(java.awt.Color.BLACK);
-        row.add(lblMsg, new org.netbeans.lib.awtextra.AbsoluteConstraints(25, 45, 320, -1));
+        row.add(lblMsg,
+                new org.netbeans.lib.awtextra.AbsoluteConstraints(25, 45, 320, -1));
 
-        // Click Interaction (Navigation)
+        // ── 4. Click handler — ALL navigation lives INSIDE here ──────────
         row.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                if (dashboard != null) {
-                    java.awt.CardLayout cl = (java.awt.CardLayout) dashboard.getPnlMainContent().getLayout();
-                    String type = notif.getType() != null ? notif.getType().toUpperCase() : "SYSTEM";
+                if (dashboard == null) {
+                    return;
+                }
 
-                    // 1. Navigation Logic
-                    switch (type) {
-                        case "RENTAL":
-                        case "CHAT":
-                            // Redirects to the Inbox/Chat wrapper
-                            dashboard.getInboxPanel().loadData(); 
-                            cl.show(dashboard.getPnlMainContent(), "inboxCard");
-                            break;
-                        case "SYSTEM":
-                        case "LISTING":
-                            // Redirects to a dedicated details panel (ensure "detailsCard" is configured for notifs)
-                            cl.show(dashboard.getPnlMainContent(), "detailsCard");
-                            break;
-                    }
+                String t = notif.getType() != null
+                        ? notif.getType().toUpperCase() : "SYSTEM";
 
-                    // 2. Mark as Read and Refresh UI
-                    try {
-                        carrentalsystem.services.NotificationService service = new carrentalsystem.services.NotificationService();
-                        // Update specific notification to is_read = 1
-                        service.markAsRead(notif.getNotifId());
-                        // Hide the floating panel after selection
-                        setVisible(false);
+                // Navigation based on type
+                switch (t) {
+                    case "RECEIPT":
+                        // Open receipt dialog in-place
+                        int bookingId = extractBookingIdFromNotif(notif.getMessage());
+                        if (bookingId > 0) {
+                            carrentalsystem.ui.user.ReceiptPanel.show(
+                                    NotificationsPanel.this, bookingId);
+                        } else {
+                            javax.swing.JOptionPane.showMessageDialog(
+                                    NotificationsPanel.this,
+                                    notif.getMessage(), "Receipt",
+                                    javax.swing.JOptionPane.INFORMATION_MESSAGE);
+                        }
+                        break;
 
-                        // Refresh the badge count on the bell icon
-                        dashboard.updateNotificationBadge();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
+                    case "RENTAL":
+                    case "CHAT":
+                        dashboard.getInboxPanel().loadData();
+                        ((java.awt.CardLayout) dashboard.getPnlMainContent().getLayout())
+                                .show(dashboard.getPnlMainContent(), "inboxCard");
+                        break;
+
+                    case "ALERT":
+                    case "LISTING":
+                    case "SYSTEM":
+                    default:
+                        ((java.awt.CardLayout) dashboard.getPnlMainContent().getLayout())
+                                .show(dashboard.getPnlMainContent(), "detailsCard");
+                        break;
+                }
+
+                // Mark as read + refresh badge
+                try {
+                    new carrentalsystem.services.NotificationService()
+                            .markAsRead(notif.getNotifId());
+                    setVisible(false);
+                    dashboard.updateNotificationBadge();
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
         });
@@ -228,6 +247,21 @@ public class NotificationsPanel extends javax.swing.JPanel {
         // 6. Mandatory UI Refresh to display the new components
         pnlListContainer.revalidate();
         pnlListContainer.repaint();
+    }
+    
+    // ADD to NotificationsPanel.java
+    private int extractBookingIdFromNotif(String message) {
+        // Receipt messages contain booking ID encoded in format RC-YYYY-NNNNNN
+        // We store the booking ID in the receipt number last 6 digits
+        try {
+            java.util.regex.Matcher m = java.util.regex.Pattern
+                    .compile("RC-\\d{4}-(\\d{6})").matcher(message);
+            if (m.find()) {
+                return Integer.parseInt(m.group(1));
+            }
+        } catch (Exception ignored) {
+        }
+        return -1;
     }
     /**
      * This method is called from within the constructor to initialize the form.
