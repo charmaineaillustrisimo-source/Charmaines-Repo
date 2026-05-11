@@ -24,7 +24,10 @@ public class ApprovalQueuePanel extends javax.swing.JFrame {
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(ApprovalQueuePanel.class.getName());
     private final IAdminService adminService = new AdminService();
     private List<carrentalsystem.models.User> currentUsers;
-
+    // ── ADD: Lister verification fields ──────────────────────────────────
+    private javax.swing.JTable tableListerVerif;
+    private java.util.List<carrentalsystem.models.ListerRequirement> listerReqList
+            = new java.util.ArrayList<>();
     
     public ApprovalQueuePanel() {
         initComponents();
@@ -35,7 +38,19 @@ public class ApprovalQueuePanel extends javax.swing.JFrame {
         // Initial data load
         loadUsersFromDatabase();
         
+        setupTabbedLayout();
+        loadListerVerifications();
+
+        
         this.setExtendedState(javax.swing.JFrame.MAXIMIZED_BOTH);
+        
+        // 1. Set the background of the header area to match your panel
+      tableUsers.getTableHeader().setBackground(new Color(48, 48, 46));
+    // 2. Set the text color to white
+      tableUsers.getTableHeader().setForeground(Color.BLACK);
+
+   // 3. Optional: Make the font bold so it stands out
+       tableUsers.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 18));
     }
     
     private void setupTableStyles() {
@@ -109,7 +124,8 @@ public class ApprovalQueuePanel extends javax.swing.JFrame {
     
     private void showUserOptions(int row) {
         carrentalsystem.models.User user = currentUsers.get(row);
-        String[] options = {"Send Warning", "Ban User", "Change Plan", "Cancel"};
+        // Added "Verify ID" to the options list
+        String[] options = {"Verify ID", "Send Warning", "Ban User", "Change Plan", "Cancel"};
 
         int choice = JOptionPane.showOptionDialog(this,
                 "Manage Account: " + user.getFullName(), "User Moderation",
@@ -118,20 +134,25 @@ public class ApprovalQueuePanel extends javax.swing.JFrame {
 
         try {
             switch (choice) {
-                case 0: // Warning
+                case 0: // Verify ID (New Case)
+                    handleDocumentVerification(user);
+                    break;
+                case 1: // Warning (Was case 0)
                     String msg = JOptionPane.showInputDialog(this, "Enter Warning Message:");
                     if (msg != null && !msg.trim().isEmpty()) {
                         adminService.warnUser(user.getUserId(), msg);
                         JOptionPane.showMessageDialog(this, "Warning sent.");
                     }
                     break;
-                case 1: // Ban
-                    int confirm = JOptionPane.showConfirmDialog(this, "Ban " + user.getFullName() + "?", "Confirm Ban", JOptionPane.YES_NO_OPTION);
+                case 2: // Ban User (Was case 1)
+                    int confirm = JOptionPane.showConfirmDialog(this,
+                            "This will ban the user and remove them from active status. Confirm?",
+                            "Fraud Detection", JOptionPane.YES_NO_OPTION);
                     if (confirm == JOptionPane.YES_OPTION) {
                         adminService.banUser(user.getUserId());
                     }
                     break;
-                case 2: // Change Tier
+                case 3: // Change Tier (Was case 2)
                     String[] tiers = {"FREE", "PRO"};
                     String newTier = (String) JOptionPane.showInputDialog(this, "Select new tier:",
                             "Update Tier", JOptionPane.QUESTION_MESSAGE, null, tiers, user.getTier());
@@ -218,8 +239,239 @@ public class ApprovalQueuePanel extends javax.swing.JFrame {
             System.err.println("Icon error: " + path);
         }
     }
+    
+    /**
+     * Replaces the flat pnlMain layout with a JTabbedPane containing: Tab 1 —
+     * User Management (existing spUser table) Tab 2 — Lister Verifications (new
+     * tableListerVerif)
+     */
+    private void setupTabbedLayout() {
+
+        Color darkBg = new Color(38, 38, 36);
+        Color tabBg = new Color(48, 48, 46);
+        Color white = Color.WHITE;
+
+        // ── Build the Lister Verifications table ──────────────────────────
+        tableListerVerif = new javax.swing.JTable(
+                new javax.swing.table.DefaultTableModel(
+                        new Object[][]{},
+                        new String[]{"User", "Email", "Submitted", "Status", "Action"}
+                ) {
+            @Override
+            public boolean isCellEditable(int row, int col) {
+                return false;
+            }
+        }
+        );
+        tableListerVerif.setBackground(tabBg);
+        tableListerVerif.setForeground(white);
+        tableListerVerif.setRowHeight(55);
+        tableListerVerif.setShowGrid(false);
+        tableListerVerif.setIntercellSpacing(new Dimension(0, 0));
+        tableListerVerif.setSelectionBackground(new Color(70, 70, 70));
+        tableListerVerif.setFont(new Font("Segoe UI", Font.PLAIN, 15));
+
+        // Style headers
+        tableListerVerif.getTableHeader().setBackground(darkBg);
+        tableListerVerif.getTableHeader().setForeground(white);
+        tableListerVerif.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 15));
+
+        // Cell renderer — white text, bottom border
+        javax.swing.table.DefaultTableCellRenderer lvRenderer
+                = new javax.swing.table.DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable t, Object v,
+                    boolean sel, boolean foc, int row, int col) {
+                Component c = super.getTableCellRendererComponent(t, v, sel, foc, row, col);
+                c.setForeground(white);
+                c.setBackground(sel ? new Color(70, 70, 70) : tabBg);
+                setHorizontalAlignment(JLabel.CENTER);
+                setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0,
+                        new Color(80, 80, 80)));
+                return c;
+            }
+        };
+        for (int i = 0; i < tableListerVerif.getColumnCount(); i++) {
+            tableListerVerif.getColumnModel().getColumn(i).setCellRenderer(lvRenderer);
+        }
+
+        // Status column — colored badge
+        tableListerVerif.getColumnModel().getColumn(3)
+                .setCellRenderer(new javax.swing.table.DefaultTableCellRenderer() {
+                    @Override
+                    public Component getTableCellRendererComponent(JTable t, Object v,
+                            boolean sel, boolean foc, int row, int col) {
+                        super.getTableCellRendererComponent(t, v, sel, foc, row, col);
+                        setHorizontalAlignment(JLabel.CENTER);
+                        setOpaque(false);
+                        String status = v != null ? v.toString() : "";
+                        switch (status) {
+                            case "APPROVED":
+                                setForeground(new Color(11, 213, 91));
+                                break;
+                            case "REJECTED":
+                                setForeground(new Color(220, 80, 80));
+                                break;
+                            default:
+                                setForeground(new Color(229, 192, 123));
+                                break;
+                        }
+                        return this;
+                    }
+                });
+
+        // Action column — "REVIEW" button text styled
+        tableListerVerif.getColumnModel().getColumn(4)
+                .setCellRenderer(new javax.swing.table.DefaultTableCellRenderer() {
+                    @Override
+                    public Component getTableCellRendererComponent(JTable t, Object v,
+                            boolean sel, boolean foc, int row, int col) {
+                        super.getTableCellRendererComponent(t, v, sel, foc, row, col);
+                        setHorizontalAlignment(JLabel.CENTER);
+                        setForeground(new Color(100, 180, 255));
+                        setBackground(sel ? new Color(70, 70, 70) : tabBg);
+                        return this;
+                    }
+                });
+
+        // Click listener — review on column 4 click
+        tableListerVerif.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                int row = tableListerVerif.rowAtPoint(e.getPoint());
+                int col = tableListerVerif.columnAtPoint(e.getPoint());
+                if (col == 4 && row >= 0 && row < listerReqList.size()) {
+                    carrentalsystem.models.User selectedUser = currentUsers.get(row);
+                    handleDocumentVerification(selectedUser);
+                }
+            }
+        });
+
+        javax.swing.JScrollPane spLister = new javax.swing.JScrollPane(tableListerVerif);
+        spLister.setBackground(tabBg);
+        spLister.getViewport().setBackground(tabBg);
+        spLister.setBorder(BorderFactory.createEmptyBorder());
+
+        // ── Pending badge panel for lister tab ────────────────────────────
+        javax.swing.JPanel listerHeader = new javax.swing.JPanel(new BorderLayout(16, 0));
+        listerHeader.setBackground(darkBg);
+        listerHeader.setBorder(BorderFactory.createEmptyBorder(12, 20, 12, 20));
+
+        javax.swing.JLabel lblListerTitle = new javax.swing.JLabel("Lister Verification Queue");
+        lblListerTitle.setFont(new Font("Segoe UI", Font.PLAIN, 26));
+        lblListerTitle.setForeground(white);
+
+        javax.swing.JButton btnRefreshLister = new javax.swing.JButton("↻ Refresh");
+        btnRefreshLister.setBackground(new Color(60, 60, 60));
+        btnRefreshLister.setForeground(white);
+        btnRefreshLister.setFocusPainted(false);
+        btnRefreshLister.setBorderPainted(false);
+        btnRefreshLister.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        btnRefreshLister.addActionListener(e -> loadListerVerifications());
+
+        listerHeader.add(lblListerTitle, BorderLayout.WEST);
+        listerHeader.add(btnRefreshLister, BorderLayout.EAST);
+
+        javax.swing.JPanel listerTab = new javax.swing.JPanel(new BorderLayout());
+        listerTab.setBackground(tabBg);
+        listerTab.add(listerHeader, BorderLayout.NORTH);
+        listerTab.add(spLister, BorderLayout.CENTER);
+
+        // ── Users tab wrapper ─────────────────────────────────────────────
+        javax.swing.JPanel usersTab = new javax.swing.JPanel(new BorderLayout());
+        usersTab.setBackground(tabBg);
+
+        javax.swing.JPanel usersHeader = new javax.swing.JPanel(new BorderLayout(16, 0));
+        usersHeader.setBackground(darkBg);
+        usersHeader.setBorder(BorderFactory.createEmptyBorder(12, 20, 12, 20));
+
+        javax.swing.JLabel lblUsersTitle = new javax.swing.JLabel("User Management");
+        lblUsersTitle.setFont(new Font("Segoe UI", Font.PLAIN, 26));
+        lblUsersTitle.setForeground(white);
+
+        javax.swing.JButton btnRefreshUsers = new javax.swing.JButton("↻ Refresh");
+        btnRefreshUsers.setBackground(new Color(60, 60, 60));
+        btnRefreshUsers.setForeground(white);
+        btnRefreshUsers.setFocusPainted(false);
+        btnRefreshUsers.setBorderPainted(false);
+        btnRefreshUsers.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        btnRefreshUsers.addActionListener(e -> loadUsersFromDatabase());
+
+        usersHeader.add(lblUsersTitle, BorderLayout.WEST);
+        usersHeader.add(btnRefreshUsers, BorderLayout.EAST);
+
+        // Move the existing spUser into the users tab
+        pnlMain.remove(spUser);
+        usersTab.add(usersHeader, BorderLayout.NORTH);
+        usersTab.add(spUser, BorderLayout.CENTER);
+
+        // ── Build JTabbedPane ─────────────────────────────────────────────
+        javax.swing.JTabbedPane tabs = new javax.swing.JTabbedPane();
+        tabs.setBackground(darkBg);
+        tabs.setForeground(white);
+        tabs.setFont(new Font("Segoe UI", Font.BOLD, 14));
+
+        tabs.addTab("👥  Users", usersTab);
+        tabs.addTab("🔍  Lister Verifications", listerTab);
+
+        // ── Rebuild pnlMain ───────────────────────────────────────────────
+        pnlMain.removeAll();
+        pnlMain.setLayout(new BorderLayout());
+        pnlMain.setBackground(tabBg);
+        pnlMain.add(tabs, BorderLayout.CENTER);
+        pnlMain.revalidate();
+        pnlMain.repaint();
+    }
+    
+    /**
+     * Fetches ALL lister verification submissions (all statuses) and populates
+     * the verification table.
+     */
+    public void loadListerVerifications() {
+        try {
+            // Load ALL statuses so admin can see full history
+            // Ordered: PENDING first, then others
+            listerReqList = new java.util.ArrayList<>();
+            listerReqList.addAll(adminService.getListerRequirements("PENDING"));
+            listerReqList.addAll(adminService.getListerRequirements("APPROVED"));
+            listerReqList.addAll(adminService.getListerRequirements("REJECTED"));
+
+            javax.swing.table.DefaultTableModel model
+                    = (javax.swing.table.DefaultTableModel) tableListerVerif.getModel();
+            model.setRowCount(0);
+
+            java.text.SimpleDateFormat sdf
+                    = new java.text.SimpleDateFormat("MMM dd, yyyy HH:mm");
+
+            for (carrentalsystem.models.ListerRequirement req : listerReqList) {
+                String submittedStr = req.getSubmittedAt() != null
+                        ? sdf.format(req.getSubmittedAt()) : "—";
+                String actionLabel = "PENDING".equals(req.getStatus())
+                        ? "🔍 REVIEW" : "👁 VIEW";
+                model.addRow(new Object[]{
+                    req.getUserFullName(),
+                    req.getUserEmail(),
+                    submittedStr,
+                    req.getStatus(),
+                    actionLabel
+                });
+            }
+        } catch (java.sql.SQLException e) {
+            javax.swing.JOptionPane.showMessageDialog(this,
+                    "Error loading verifications: " + e.getMessage(),
+                    "Database Error", javax.swing.JOptionPane.ERROR_MESSAGE);
+        }
+    }
 
     
+    private void handleDocumentVerification(carrentalsystem.models.User user) {
+        // This opens the new viewing panel you just created
+        ViewingDocumentsPanel viewPanel = new ViewingDocumentsPanel(user);
+        viewPanel.setVisible(true);
+
+        // Optional: Add a listener or check back here after the window closes 
+        // to refresh the table if the user status changed
+    }
     
     /*private void applyActionColumnRenderer() {
     tableUsers.getColumnModel().getColumn(4).setCellRenderer(new javax.swing.table.DefaultTableCellRenderer() {
@@ -283,9 +535,6 @@ public class ApprovalQueuePanel extends javax.swing.JFrame {
         lblUserManagement = new javax.swing.JLabel();
         spUser = new javax.swing.JScrollPane();
         tableUsers = new javax.swing.JTable();
-        pnlForApplicants = new javax.swing.JPanel();
-        lblListOfApplicants = new javax.swing.JLabel();
-        btnViewForApplicants = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setBackground(new java.awt.Color(3, 33, 33));
@@ -454,7 +703,7 @@ public class ApprovalQueuePanel extends javax.swing.JFrame {
         pnlMain.add(lblUserManagement, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 10, -1, -1));
 
         spUser.setBorder(null);
-        spUser.setPreferredSize(new java.awt.Dimension(500, 500));
+        spUser.setPreferredSize(new java.awt.Dimension(1000, 1000));
 
         tableUsers.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
         tableUsers.setForeground(new java.awt.Color(48, 48, 46));
@@ -474,52 +723,10 @@ public class ApprovalQueuePanel extends javax.swing.JFrame {
 
         pnlMain.add(spUser, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 70, 840, 400));
 
-        pnlForApplicants.setBackground(new java.awt.Color(38, 38, 36));
-
-        lblListOfApplicants.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
-        lblListOfApplicants.setForeground(new java.awt.Color(255, 255, 255));
-        lblListOfApplicants.setText("List of Applicants");
-
-        btnViewForApplicants.setBackground(new java.awt.Color(48, 48, 46));
-        btnViewForApplicants.setFont(new java.awt.Font("Segoe UI", 0, 20)); // NOI18N
-        btnViewForApplicants.setForeground(new java.awt.Color(255, 255, 255));
-        btnViewForApplicants.setText("VIEW");
-        btnViewForApplicants.setBorder(null);
-        btnViewForApplicants.addActionListener(this::btnViewForApplicantsActionPerformed);
-
-        javax.swing.GroupLayout pnlForApplicantsLayout = new javax.swing.GroupLayout(pnlForApplicants);
-        pnlForApplicants.setLayout(pnlForApplicantsLayout);
-        pnlForApplicantsLayout.setHorizontalGroup(
-            pnlForApplicantsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(pnlForApplicantsLayout.createSequentialGroup()
-                .addGap(17, 17, 17)
-                .addComponent(lblListOfApplicants)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(btnViewForApplicants, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(20, Short.MAX_VALUE))
-        );
-        pnlForApplicantsLayout.setVerticalGroup(
-            pnlForApplicantsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(pnlForApplicantsLayout.createSequentialGroup()
-                .addGap(24, 24, 24)
-                .addGroup(pnlForApplicantsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(lblListOfApplicants)
-                    .addComponent(btnViewForApplicants, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(23, Short.MAX_VALUE))
-        );
-
-        pnlMain.add(pnlForApplicants, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 490, 330, 80));
-
         getContentPane().add(pnlMain, java.awt.BorderLayout.CENTER);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
-    private void btnViewForApplicantsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnViewForApplicantsActionPerformed
-        ListingApplicantsPanel applicants = new ListingApplicantsPanel();
-        applicants.setVisible(true);
-        this.dispose();
-    }//GEN-LAST:event_btnViewForApplicantsActionPerformed
 /**/
     /**
      * @param args the command line arguments
@@ -554,11 +761,9 @@ public class ApprovalQueuePanel extends javax.swing.JFrame {
     private javax.swing.JButton btnSettingsButton;
     private javax.swing.JButton btnSupportButton;
     private javax.swing.JButton btnUsersButton;
-    private javax.swing.JButton btnViewForApplicants;
     private javax.swing.JLabel lblAdmin;
     private javax.swing.JLabel lblBookingsIcon;
     private javax.swing.JLabel lblCarRental;
-    private javax.swing.JLabel lblListOfApplicants;
     private javax.swing.JLabel lblListingIcon;
     private javax.swing.JLabel lblLogoutIcon;
     private javax.swing.JLabel lblMain;
@@ -569,7 +774,6 @@ public class ApprovalQueuePanel extends javax.swing.JFrame {
     private javax.swing.JLabel lblSupportIcon;
     private javax.swing.JLabel lblUserManagement;
     private javax.swing.JLabel lblUsersIcon;
-    private javax.swing.JPanel pnlForApplicants;
     private javax.swing.JPanel pnlHighlight;
     private javax.swing.JPanel pnlMain;
     private javax.swing.JPanel pnlSideBar;

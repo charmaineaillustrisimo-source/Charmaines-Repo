@@ -29,7 +29,9 @@ public class AdminDashboard extends javax.swing.JFrame {
     
     public AdminDashboard() {
     initComponents();
-    setupNavigation();
+    
+    
+    spBookings.setMinimumSize(new Dimension(400, 300));
     
     // Icons
         setIcon(lblOverviewIcon, "/carrentalsystem/ui/admin/PIC/four-squares.png", 35, 35);
@@ -44,12 +46,57 @@ public class AdminDashboard extends javax.swing.JFrame {
         
     setupTableStyles();
 
-    // Fetch all data from the database using the Service[cite: 29]
-    loadDashboardData();
-
     this.setExtendedState(javax.swing.JFrame.MAXIMIZED_BOTH);
     
+    // 2. Access the Layout Manager and update constraints
+    GridBagLayout layout = (GridBagLayout) pnlMain.getLayout();
+
+// 1. Force top containers to NOT grow vertically
+GridBagConstraints gbcCar = layout.getConstraints(pnlCarTypeContainer);
+gbcCar.weighty = 0.0; // Fixes size
+gbcCar.fill = GridBagConstraints.HORIZONTAL;
+layout.setConstraints(pnlCarTypeContainer, gbcCar);
+
+GridBagConstraints gbcSupport = layout.getConstraints(pnlSupportTicket1);
+gbcSupport.weighty = 0.0; // Fixes size
+gbcSupport.fill = GridBagConstraints.HORIZONTAL;
+layout.setConstraints(pnlSupportTicket1, gbcSupport);
+
+// 2. Force the Table ScrollPane to take ALL remaining space
+GridBagConstraints gbcTable = layout.getConstraints(spBookings);
+gbcTable.weighty = 1.0; // The 1.0 weight is critical for visibility
+gbcTable.fill = GridBagConstraints.BOTH;
+layout.setConstraints(spBookings, gbcTable);
+
+pnlMain.revalidate();
+pnlMain.repaint();
+
+setupNavigation();
+    // Fetch all data from the database using the Service[cite: 29]
+    loadDashboardData();
     
+    tableForBookings.getTableHeader().setBackground(new Color(48, 48, 46));
+    tableForBookings.getTableHeader().setForeground(Color.WHITE);
+    tableForBookings.setRowHeight(30); // Makes it easier to read
+    spBookings.getViewport().setBackground(new Color(48, 48, 46));
+    
+    // 1. Set the background of the header area to match your panel
+      tableForBookings.getTableHeader().setBackground(new Color(48, 48, 46));
+    // 2. Set the text color to white
+      tableForBookings.getTableHeader().setForeground(Color.BLACK);
+
+   // 3. Optional: Make the font bold so it stands out
+       tableForBookings.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 18));
+    
+    Dimension fixedSize = new Dimension(0, 100); // 0 width is fine, it will fill horizontally
+    
+    // 1. Force the Preferred and Minimum sizes
+    pnlCarTypeContainer.setPreferredSize(new Dimension(pnlCarTypeContainer.getPreferredSize().width, 100));
+    pnlCarTypeContainer.setMinimumSize(new Dimension(pnlCarTypeContainer.getMinimumSize().width, 100));
+    
+    pnlSupportTicket1.setPreferredSize(new Dimension(pnlSupportTicket1.getPreferredSize().width, 100));
+    pnlSupportTicket1.setMinimumSize(new Dimension(pnlSupportTicket1.getMinimumSize().width, 100));
+
 }
     
     
@@ -455,6 +502,7 @@ public class AdminDashboard extends javax.swing.JFrame {
 
         lblCarRental.setFont(new java.awt.Font("Segoe UI", 0, 36)); // NOI18N
         lblCarRental.setForeground(new java.awt.Color(255, 255, 255));
+        lblCarRental.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         lblCarRental.setText("Rent A Car");
         pnlTopBar.add(lblCarRental, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 20, -1, -1));
 
@@ -491,7 +539,7 @@ public class AdminDashboard extends javax.swing.JFrame {
         btnOverviewButton.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
         btnOverviewButton.setForeground(new java.awt.Color(255, 255, 255));
         btnOverviewButton.setText("Overview");
-        btnOverviewButton.setBorder(null);
+        btnOverviewButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(10, 0, 10, 0));
         btnOverviewButton.setBorderPainted(false);
         btnOverviewButton.setContentAreaFilled(false);
         btnOverviewButton.setFocusPainted(false);
@@ -524,7 +572,7 @@ public class AdminDashboard extends javax.swing.JFrame {
         btnListingButton.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
         btnListingButton.setForeground(new java.awt.Color(255, 255, 255));
         btnListingButton.setText("Listing");
-        btnListingButton.setBorder(null);
+        btnListingButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(10, 0, 10, 0));
         btnListingButton.setBorderPainted(false);
         btnListingButton.setContentAreaFilled(false);
         btnListingButton.setFocusPainted(false);
@@ -540,7 +588,7 @@ public class AdminDashboard extends javax.swing.JFrame {
         btnUsersButton.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
         btnUsersButton.setForeground(new java.awt.Color(255, 255, 255));
         btnUsersButton.setText("Users");
-        btnUsersButton.setBorder(null);
+        btnUsersButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(10, 0, 10, 0));
         btnUsersButton.setBorderPainted(false);
         btnUsersButton.setContentAreaFilled(false);
         btnUsersButton.setFocusPainted(false);
@@ -556,7 +604,7 @@ public class AdminDashboard extends javax.swing.JFrame {
         btnBookingsButton.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
         btnBookingsButton.setForeground(new java.awt.Color(255, 255, 255));
         btnBookingsButton.setText("Bookings");
-        btnBookingsButton.setBorder(null);
+        btnBookingsButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(10, 0, 10, 0));
         btnBookingsButton.setBorderPainted(false);
         btnBookingsButton.setContentAreaFilled(false);
         btnBookingsButton.setFocusPainted(false);
@@ -572,7 +620,7 @@ public class AdminDashboard extends javax.swing.JFrame {
         btnSupportButton.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
         btnSupportButton.setForeground(new java.awt.Color(255, 255, 255));
         btnSupportButton.setText("Support");
-        btnSupportButton.setBorder(null);
+        btnSupportButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(10, 0, 10, 0));
         btnSupportButton.setBorderPainted(false);
         btnSupportButton.setContentAreaFilled(false);
         btnSupportButton.setFocusPainted(false);
@@ -588,7 +636,7 @@ public class AdminDashboard extends javax.swing.JFrame {
         btnSettingsButton.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
         btnSettingsButton.setForeground(new java.awt.Color(255, 255, 255));
         btnSettingsButton.setText("Settings");
-        btnSettingsButton.setBorder(null);
+        btnSettingsButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(10, 0, 10, 0));
         btnSettingsButton.setBorderPainted(false);
         btnSettingsButton.setContentAreaFilled(false);
         btnSettingsButton.setFocusPainted(false);
@@ -604,7 +652,7 @@ public class AdminDashboard extends javax.swing.JFrame {
         btnLogoutButton.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
         btnLogoutButton.setForeground(new java.awt.Color(255, 255, 255));
         btnLogoutButton.setText("Logout");
-        btnLogoutButton.setBorder(null);
+        btnLogoutButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(10, 0, 10, 0));
         btnLogoutButton.setBorderPainted(false);
         btnLogoutButton.setContentAreaFilled(false);
         btnLogoutButton.setFocusPainted(false);
@@ -620,7 +668,7 @@ public class AdminDashboard extends javax.swing.JFrame {
 
         pnlCardContainer.setBackground(new java.awt.Color(38, 38, 36));
         pnlCardContainer.setOpaque(false);
-        pnlCardContainer.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT, 25, 10));
+        pnlCardContainer.setLayout(new java.awt.GridLayout(1, 3, 20, 20));
 
         TotalUsers.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
         TotalUsers.setPreferredSize(new java.awt.Dimension(220, 160));
@@ -642,25 +690,45 @@ public class AdminDashboard extends javax.swing.JFrame {
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
         gridBagConstraints.gridwidth = 5;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.ipady = 10;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new java.awt.Insets(2, 3, 0, 0);
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(10, 30, 20, 30);
         pnlMain.add(pnlCardContainer, gridBagConstraints);
 
         lblOverview.setFont(new java.awt.Font("Segoe UI", 0, 32)); // NOI18N
         lblOverview.setForeground(new java.awt.Color(255, 255, 255));
         lblOverview.setText("Overview");
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.gridwidth = 2;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new java.awt.Insets(10, 32, 0, 13);
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(20, 30, 10, 30);
         pnlMain.add(lblOverview, gridBagConstraints);
 
         pnlCarTypeContainer.setBackground(new java.awt.Color(38, 38, 36));
         pnlCarTypeContainer.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
-        pnlCarTypeContainer.setPreferredSize(new java.awt.Dimension(531, 200));
+        pnlCarTypeContainer.setMaximumSize(new java.awt.Dimension(32767, 100));
+        pnlCarTypeContainer.setMinimumSize(new java.awt.Dimension(183, 100));
+        pnlCarTypeContainer.setPreferredSize(new java.awt.Dimension(531, 100));
+        {
+            // Local scope for Car Type Container
+            java.awt.GridBagLayout layout = (java.awt.GridBagLayout)pnlMain.getLayout();
+            java.awt.GridBagConstraints gbc = layout.getConstraints(pnlCarTypeContainer);
+
+            // Force the 100px height
+            pnlCarTypeContainer.setPreferredSize(new java.awt.Dimension(pnlCarTypeContainer.getPreferredSize().width, 100));
+            pnlCarTypeContainer.setMinimumSize(new java.awt.Dimension(pnlCarTypeContainer.getMinimumSize().width, 100));
+
+            // GridBag Rules
+            gbc.weighty = 0.0; 
+            gbc.fill = java.awt.GridBagConstraints.HORIZONTAL;
+            layout.setConstraints(pnlCarTypeContainer, gbc);
+        }
         pnlCarTypeContainer.setLayout(new javax.swing.BoxLayout(pnlCarTypeContainer, javax.swing.BoxLayout.Y_AXIS));
 
         lblListingsbytype.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
@@ -675,9 +743,9 @@ public class AdminDashboard extends javax.swing.JFrame {
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 2;
         gridBagConstraints.gridwidth = 3;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.ipadx = 199;
-        gridBagConstraints.ipady = 162;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTH;
         gridBagConstraints.insets = new java.awt.Insets(6, 30, 0, 0);
         pnlMain.add(pnlCarTypeContainer, gridBagConstraints);
 
@@ -693,14 +761,22 @@ public class AdminDashboard extends javax.swing.JFrame {
         pnlMain.add(lblRecentBookings, gridBagConstraints);
 
         pnlBookings.setBackground(new java.awt.Color(48, 48, 46));
-        pnlBookings.setPreferredSize(new java.awt.Dimension(980, 500));
+        pnlBookings.setPreferredSize(new java.awt.Dimension(250, 150));
         pnlBookings.setLayout(new java.awt.BorderLayout());
 
-        spBookings.setBackground(new java.awt.Color(46, 46, 48));
+        spBookings.setBackground(new java.awt.Color(38, 38, 36));
         spBookings.setPreferredSize(new java.awt.Dimension(980, 500));
+        {
+            java.awt.GridBagLayout layout = (java.awt.GridBagLayout)pnlMain.getLayout();
+            java.awt.GridBagConstraints gbc = layout.getConstraints(spBookings);
+            gbc.weighty = 1.0; // This gives the table all the extra space
+            gbc.fill = java.awt.GridBagConstraints.BOTH;
+            layout.setConstraints(spBookings, gbc);
+        }
 
+        tableForBookings.setBackground(new java.awt.Color(38, 38, 36));
         tableForBookings.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
-        tableForBookings.setForeground(new java.awt.Color(48, 48, 46));
+        tableForBookings.setForeground(new java.awt.Color(255, 255, 255));
         tableForBookings.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null},
@@ -720,9 +796,9 @@ public class AdminDashboard extends javax.swing.JFrame {
                 return types [columnIndex];
             }
         });
-        tableForBookings.setPreferredSize(null);
         tableForBookings.setRowHeight(50);
         tableForBookings.setSelectionBackground(new java.awt.Color(60, 60, 60));
+        tableForBookings.setSelectionForeground(new java.awt.Color(255, 255, 255));
         spBookings.setViewportView(tableForBookings);
 
         pnlBookings.add(spBookings, java.awt.BorderLayout.CENTER);
@@ -740,7 +816,23 @@ public class AdminDashboard extends javax.swing.JFrame {
 
         pnlSupportTicket1.setBackground(new java.awt.Color(38, 38, 36));
         pnlSupportTicket1.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
-        pnlSupportTicket1.setPreferredSize(new java.awt.Dimension(531, 200));
+        pnlSupportTicket1.setMaximumSize(new java.awt.Dimension(32767, 100));
+        pnlSupportTicket1.setMinimumSize(new java.awt.Dimension(240, 100));
+        pnlSupportTicket1.setPreferredSize(new java.awt.Dimension(450, 100));
+        {
+            // Local scope for Support Ticket - notice we use the same names safely
+            java.awt.GridBagLayout layout = (java.awt.GridBagLayout)pnlMain.getLayout();
+            java.awt.GridBagConstraints gbc = layout.getConstraints(pnlSupportTicket1);
+
+            // Force the 100px height
+            pnlSupportTicket1.setPreferredSize(new java.awt.Dimension(pnlSupportTicket1.getPreferredSize().width, 100));
+            pnlSupportTicket1.setMinimumSize(new java.awt.Dimension(pnlSupportTicket1.getMinimumSize().width, 100));
+
+            // GridBag Rules
+            gbc.weighty = 0.0;
+            gbc.fill = java.awt.GridBagConstraints.HORIZONTAL;
+            layout.setConstraints(pnlSupportTicket1, gbc);
+        }
         pnlSupportTicket1.setLayout(new javax.swing.BoxLayout(pnlSupportTicket1, javax.swing.BoxLayout.Y_AXIS));
 
         lblOpenSourceTickets1.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
@@ -754,10 +846,11 @@ public class AdminDashboard extends javax.swing.JFrame {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 3;
         gridBagConstraints.gridy = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.ipadx = 269;
-        gridBagConstraints.ipady = 162;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new java.awt.Insets(6, 20, 0, 0);
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(6, 20, 0, 30);
         pnlMain.add(pnlSupportTicket1, gridBagConstraints);
 
         getContentPane().add(pnlMain, java.awt.BorderLayout.CENTER);

@@ -29,8 +29,7 @@ public class PaymentService {
      * Save a payment record and update booking status to SUCCESSFUL.
      */
     public int recordPayment(Payment p) throws SQLException {
-        String sql
-                = "INSERT INTO payments "
+        String sql = "INSERT INTO payments "
                 + "(booking_id, renter_id, payment_method, reference_number, "
                 + " base_amount, driver_fee, fuel_charge, insurance_fee, "
                 + " damage_amount, other_charges, discount_amount, security_deposit, "
@@ -41,8 +40,10 @@ public class PaymentService {
 
             ps.setInt(1, p.getBookingId());
             ps.setInt(2, p.getRenterId());
-            ps.setString(3, p.getPaymentMethod());
-            ps.setString(4, p.getReferenceNumber());
+            ps.setString(3, p.getPaymentMethod() == null ? "CASH" : p.getPaymentMethod());
+            ps.setString(4, p.getReferenceNumber() == null ? "N/A" : p.getReferenceNumber());
+
+            // Safety: Use 0.0 if the object values are somehow null
             ps.setDouble(5, p.getBaseAmount());
             ps.setDouble(6, p.getDriverFee());
             ps.setDouble(7, p.getFuelCharge());
@@ -54,14 +55,14 @@ public class PaymentService {
             ps.setDouble(13, p.getTotalAmount());
             ps.setDouble(14, p.getAmountPaid());
             ps.setDouble(15, p.getRemainingBalance());
+
             ps.executeUpdate();
 
             ResultSet keys = ps.getGeneratedKeys();
             if (keys.next()) {
                 int id = keys.getInt(1);
                 p.setPaymentId(id);
-                // Mark booking as SUCCESSFUL and create receipt notification
-                completeBooking(p);
+                completeBooking(p); // This triggers the notification we fixed earlier
                 return id;
             }
         }

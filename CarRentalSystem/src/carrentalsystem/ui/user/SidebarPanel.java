@@ -41,7 +41,7 @@ public class SidebarPanel extends javax.swing.JPanel {
         }
         this.pnlMainContent = mainContent;
         this.dashboard = dashboard;
-        
+
         setActiveButton(btnHome);
         // At the end of the SidebarPanel constructor, ADD:
         applyModeRestrictions();
@@ -107,32 +107,53 @@ public class SidebarPanel extends javax.swing.JPanel {
      * user is logged in (guest sees a collapsed sidebar).
      */
     private void applyModeRestrictions() {
-        if (carrentalsystem.core.SessionManager.getCurrentUser() == null) {
+        // All buttons are always fully visible.
+        // Access is controlled at click-time via requireLogin() and showRoleUpgradeFlow()
+        // in each button's ActionPerformed handler — no visual dimming needed here.
+        btnMyLists.setVisible(true);
+        lblMyLIsts.setVisible(true);
+        btnAddList.setVisible(true);
+        btnAnalytics.setVisible(true);
+        lblAnalytics.setVisible(true);
+        btnRents.setVisible(true);
+        lblRents.setVisible(true);
+
+        btnMyLists.setForeground(java.awt.Color.WHITE);
+        btnAddList.setForeground(java.awt.Color.WHITE);
+        btnAnalytics.setForeground(java.awt.Color.WHITE);
+        btnRents.setForeground(java.awt.Color.WHITE);
+
+        lblMyLIsts.setEnabled(true);
+        lblAnalytics.setEnabled(true);
+        lblRents.setEnabled(true);
+    }
+    
+   
+    
+    public void updateSidebarPermissions() {
+        carrentalsystem.models.User user = carrentalsystem.core.SessionManager.getCurrentUser();
+
+        if (user == null) {
             return;
         }
 
-        if (carrentalsystem.core.SessionManager.isRenterMode()) {
-            // RENTER — hide listing features
-            btnMyLists.setVisible(false);
-            lblMyLIsts.setVisible(false);
-            btnAddList.setVisible(false);
-            btnAnalytics.setVisible(false);
-            lblAnalytics.setVisible(false);
-            // show renting features
-            btnRents.setVisible(true);
-            lblRents.setVisible(true);
-        } else {
-            // LISTER — hide renting features
-            btnRents.setVisible(false);
-            lblRents.setVisible(false);
-            // show listing features
-            btnMyLists.setVisible(true);
-            lblMyLIsts.setVisible(true);
-            btnAddList.setVisible(true);
-            btnAnalytics.setVisible(true);
-            lblAnalytics.setVisible(true);
-        }
+        String role = user.getRole();
+        String type = user.getUserType();
+
+        boolean isAdmin = "ADMIN".equalsIgnoreCase(role);
+
+        // We keep these visible now, but we will control the logic in the ActionEvents
+        btnAnalytics.setVisible(isAdmin || !"RENTER".equals(type));
+        btnReservations.setVisible(isAdmin);
+
+        // Always visible, but restricted by logic
+        btnAddList.setVisible(true);
+        btnMyLists.setVisible(true);
+        btnRents.setVisible(true);
     }
+    
+    
+    
     
     /**
      * This method is called from within the constructor to initialize the form.
@@ -363,16 +384,29 @@ public class SidebarPanel extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnMyListsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMyListsActionPerformed
-        // TODO add your handling code here:
-        if (!dashboard.requireLogin()) return;
-        // 1. Handle the UI highlighting and Card switch
-        handleNavigation(btnMyLists, "myListingsCard");
+        carrentalsystem.models.User user = carrentalsystem.core.SessionManager.getCurrentUser();
 
-        // 2. Refresh the data for the capsules
-        if (dashboard != null && dashboard.getMyListings1() != null) {
-            dashboard.getMyListings1().loadData();
+        // 1. Guard: Not logged in
+        if (user == null) {
+            dashboard.showLoginOrSignupPrompt(null);
+            return;
         }
-        
+
+        // 2. Guard: Already a Lister or Both?
+        String type = user.getUserType() != null ? user.getUserType() : "";
+        if (type.equalsIgnoreCase("LISTER") || type.equalsIgnoreCase("BOTH")) {
+            // Direct Access - Skip all prompts
+            handleNavigation(btnMyLists, "myListingsCard");
+            if (dashboard.getMyListings1() != null) {
+                dashboard.getMyListings1().loadData();
+            }
+            return;
+        }
+
+        // 3. Fallback: Run Onboarding (Only for RENTERs who want to become LISTERs)
+        carrentalsystem.utils.LoginFlowHelper.showRoleSelectionAndProceed(dashboard, () -> {
+            handleNavigation(btnMyLists, "myListingsCard");
+        }, SwingUtilities.getWindowAncestor(this));
     }//GEN-LAST:event_btnMyListsActionPerformed
 
     private void btnHomeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnHomeActionPerformed
@@ -390,8 +424,13 @@ public class SidebarPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_btnInboxActionPerformed
 
     private void btnRentsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRentsActionPerformed
-        // TODO add your handling code here:
-        if (!dashboard.requireLogin()) return;
+        if (!dashboard.requireLogin()) {
+            return;
+        }
+        if (carrentalsystem.core.SessionManager.isListerMode()) {
+            showRoleUpgradeFlow("My Rentals", "RENTER");
+            return;
+        }
         handleNavigation(btnRents, "myRentalsCard");
         if (dashboard != null && dashboard.getMyRentalsPanel() != null) {
             dashboard.getMyRentalsPanel().loadData();
@@ -399,12 +438,26 @@ public class SidebarPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_btnRentsActionPerformed
 
     private void btnAnalyticsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAnalyticsActionPerformed
-        // TODO add your handling code here:
-        if (!dashboard.requireLogin()) return;
-        handleNavigation(btnAnalytics, "analyticsCard");
-        if (dashboard != null) {
-            dashboard.showAnalytics();
+        carrentalsystem.models.User user = carrentalsystem.core.SessionManager.getCurrentUser();
+
+        if (user == null) {
+            dashboard.showLoginOrSignupPrompt(null);
+            return;
         }
+
+        // GUARD: Check if already a Lister or Both
+        String type = user.getUserType() != null ? user.getUserType() : "";
+        if (type.equalsIgnoreCase("LISTER") || type.equalsIgnoreCase("BOTH")) {
+            handleNavigation(btnAnalytics, "analyticsCard");
+            dashboard.showAnalytics();
+            return;
+        }
+
+        // REDIRECT: Use the centralized helper for onboarding
+        carrentalsystem.utils.LoginFlowHelper.showRoleSelectionAndProceed(dashboard, () -> {
+            handleNavigation(btnAnalytics, "analyticsCard");
+            dashboard.showAnalytics();
+        }, SwingUtilities.getWindowAncestor(this));
     }//GEN-LAST:event_btnAnalyticsActionPerformed
 
     private void btnReservationsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnReservationsActionPerformed
@@ -487,42 +540,48 @@ public class SidebarPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_btnAddListMouseExited
 
     private void btnAddListActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddListActionPerformed
-        // TODO add your handling code here:
-        if (!dashboard.requireLogin()) return;
         carrentalsystem.models.User user = carrentalsystem.core.SessionManager.getCurrentUser();
+
+        // 1. Guard: Login Check
         if (user == null) {
+            dashboard.showLoginOrSignupPrompt(null);
             return;
         }
 
-        // Check if user is FREE and already has 5 or more lists
+        // 2. PRO Tier Limit Check (Only for FREE users)
         if ("FREE".equalsIgnoreCase(user.getTier())) {
             try {
                 int currentLists = new carrentalsystem.services.CarService().countUserListings(user.getUserId());
-
                 if (currentLists >= 5) {
-                    // Show the blocking message
                     javax.swing.JOptionPane.showMessageDialog(this,
                             "You have reached the limit of 5 listings for Free users.\nUpgrade to PRO for unlimited listings!",
                             "Limit Reached",
                             javax.swing.JOptionPane.WARNING_MESSAGE);
-
-                    // Pop up the upgrade alert panel
                     if (dashboard != null) {
                         dashboard.getPnlProAlertWrapper().setVisible(true);
                         dashboard.getLayeredPane().setComponentZOrder(dashboard.getPnlProAlertWrapper(), 0);
                     }
-                    return; // BLOCK navigation
+                    return; // Stop them from proceeding
                 }
             } catch (java.sql.SQLException e) {
                 e.printStackTrace();
             }
         }
 
-        // If they are PRO or under the limit, proceed as normal
-        handleNavigation(btnAddList, "addListing");
-        if (dashboard != null && dashboard.getPnlAddList1() != null) {
+        // 3. Role Guard: Already a Lister or Both?
+        String type = user.getUserType() != null ? user.getUserType() : "";
+        if (type.equalsIgnoreCase("LISTER") || type.equalsIgnoreCase("BOTH")) {
+            handleNavigation(btnAddList, "addListing");
             dashboard.getPnlAddList1().prepareAdd();
+            return;
         }
+
+        // 4. Fallback: Run Onboarding (Only if they are just a RENTER)
+        carrentalsystem.utils.LoginFlowHelper.showRoleSelectionAndProceed(dashboard, () -> {
+            handleNavigation(btnAddList, "addListing");
+            dashboard.getPnlAddList1().prepareAdd();
+        }, SwingUtilities.getWindowAncestor(this));
+
     }//GEN-LAST:event_btnAddListActionPerformed
 
     private void btnLogoutMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnLogoutMouseEntered
@@ -536,37 +595,23 @@ public class SidebarPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_btnLogoutMouseExited
 
     private void btnLogoutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLogoutActionPerformed
-        // TODO add your handling code here:
-        // If no user is logged in, just show login
+        // If no user is logged in, the button acts as "Login"
         if (carrentalsystem.core.SessionManager.getCurrentUser() == null) {
             dashboard.showLogin();
             return;
         }
-        // 1. Find the top-level JFrame (MainDashboard) to center the dialog
-        java.awt.Window parentWindow = javax.swing.SwingUtilities.getWindowAncestor(this);
 
-        // 2. Show the confirmation dialog relative to the whole frame
+        // Otherwise, handle Logout
         int confirm = javax.swing.JOptionPane.showConfirmDialog(
-                parentWindow, // Passing the frame here centers the popup over the dashboard
-                "Are you sure you want to log out?",
-                "Logout Confirmation",
-                javax.swing.JOptionPane.YES_NO_OPTION,
-                javax.swing.JOptionPane.QUESTION_MESSAGE
-        );
+                this, "Are you sure you want to log out?", "Logout",
+                javax.swing.JOptionPane.YES_NO_OPTION);
 
         if (confirm == javax.swing.JOptionPane.YES_OPTION) {
             try {
                 carrentalsystem.core.SessionManager.endSession();
-                this.setVisible(false);
-                if (dashboard != null) {
-                    dashboard.refreshAfterLogout();
-                }
+                dashboard.refreshAfterLogout();
             } catch (java.sql.SQLException ex) {
-                javax.swing.JOptionPane.showMessageDialog(
-                        javax.swing.SwingUtilities.getWindowAncestor(this),
-                        "Error during logout: " + ex.getMessage(),
-                        "Database Error",
-                        javax.swing.JOptionPane.ERROR_MESSAGE);
+                ex.printStackTrace();
             }
         }
     }//GEN-LAST:event_btnLogoutActionPerformed
@@ -586,7 +631,201 @@ public class SidebarPanel extends javax.swing.JPanel {
         if (!dashboard.requireLogin()) return; 
         handleNavigation(btnSettings, "settingsCard");
     }//GEN-LAST:event_btnSettingsActionPerformed
+    
+    /**
+     * Call after login/logout/role-change to refresh sidebar state.
+     */
+    public void refresh() {
+        carrentalsystem.models.User u = carrentalsystem.core.SessionManager.getCurrentUser();
+        btnLogout.setText(u == null ? "Login / Sign Up" : "Logout");
+        btnLogout.setForeground(u == null
+                ? new java.awt.Color(100, 200, 255)
+                : java.awt.Color.WHITE);
+        applyModeRestrictions();
+        repaint();
+    }
+    
+    // ── ROLE UPGRADE FLOW ─────────────────────────────────────────────────
+    /**
+     * Called when a user clicks a button locked by their current role.
+     * featureName = e.g. "My Listings" requiredRole = "LISTER" or "RENTER"
+     */
+    private void showRoleUpgradeFlow(String featureName, String requiredRole) {
+        carrentalsystem.models.User u = carrentalsystem.core.SessionManager.getCurrentUser();
+        if (u == null) {
+            return;
+        }
 
+        int want = javax.swing.JOptionPane.showConfirmDialog(dashboard,
+                "<html><b>" + featureName + "</b> requires <b>Car Lister</b> access.<br><br>"
+                + "To list cars, you must upload your Government ID and Vehicle Documents for approval.<br>"
+                + "Would you like to start the verification process now?</html>",
+                "Verification Required",
+                javax.swing.JOptionPane.YES_NO_OPTION);
+
+        if (want == javax.swing.JOptionPane.YES_OPTION) {
+            if (showProfessionalVerificationDialog()) {
+                javax.swing.JOptionPane.showMessageDialog(dashboard,
+                        "Submission Successful! Please wait for an Admin to review your documents.");
+                applyModeRestrictions(); // Re-dims/refreshes the UI
+            }
+        }
+    }
+
+    /**
+     * Scrollable Terms & Conditions dialog. Returns true if user accepted.
+     */
+    private boolean showTermsAndConditions(String roleLabel) {
+        String terms
+                = "TERMS AND CONDITIONS — " + roleLabel.toUpperCase() + "\n\n"
+                + "1. GENERAL\n"
+                + "   By using Rent A Car you agree to these terms.\n\n"
+                + "2. RENTER RESPONSIBILITIES\n"
+                + "   \u2022 You must be at least 18 years old with a valid driver's license.\n"
+                + "   \u2022 You are responsible for the vehicle during the rental period.\n"
+                + "   \u2022 Any damage beyond normal wear must be reported immediately.\n"
+                + "   \u2022 Subletting the rented vehicle to others is strictly prohibited.\n\n"
+                + "3. LISTER RESPONSIBILITIES\n"
+                + "   \u2022 You must be the registered owner of any vehicle you list.\n"
+                + "   \u2022 All vehicle information must be accurate and up-to-date.\n"
+                + "   \u2022 Your vehicle must be roadworthy and properly insured.\n"
+                + "   \u2022 You must respond to booking requests within 24 hours.\n"
+                + "   \u2022 Listings are subject to admin approval before going live.\n\n"
+                + "4. PAYMENTS\n"
+                + "   \u2022 All transactions are in Philippine Peso (PHP).\n"
+                + "   \u2022 Free users may list up to 5 vehicles.\n"
+                + "   \u2022 PRO users get unlimited listings and priority placement.\n\n"
+                + "5. PROHIBITED CONDUCT\n"
+                + "   \u2022 Providing false information is grounds for account suspension.\n"
+                + "   \u2022 Fraudulent bookings result in permanent banning.\n\n"
+                + "6. LIABILITY\n"
+                + "   \u2022 Rent A Car is a marketplace and is not liable for disputes\n"
+                + "     between renters and listers.\n\n"
+                + "By clicking OK you confirm you have read and agree to the above.";
+
+        javax.swing.JTextArea ta = new javax.swing.JTextArea(terms);
+        ta.setEditable(false);
+        ta.setLineWrap(true);
+        ta.setWrapStyleWord(true);
+        ta.setFont(new java.awt.Font("Helvetica Neue", java.awt.Font.PLAIN, 13));
+        ta.setMargin(new java.awt.Insets(10, 10, 10, 10));
+
+        javax.swing.JScrollPane sp = new javax.swing.JScrollPane(ta);
+        sp.setPreferredSize(new java.awt.Dimension(520, 320));
+
+        int r = javax.swing.JOptionPane.showConfirmDialog(
+                dashboard, sp,
+                "Terms & Conditions — " + roleLabel,
+                javax.swing.JOptionPane.OK_CANCEL_OPTION,
+                javax.swing.JOptionPane.PLAIN_MESSAGE);
+
+        if (r != javax.swing.JOptionPane.OK_OPTION) {
+            javax.swing.JOptionPane.showMessageDialog(dashboard,
+                    "You must accept the Terms & Conditions to proceed.",
+                    "Declined", javax.swing.JOptionPane.WARNING_MESSAGE);
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Lister requirements checklist — all boxes must be ticked.
+     */
+    private boolean showProfessionalVerificationDialog() {
+        javax.swing.JPanel pnl = new javax.swing.JPanel(new java.awt.GridLayout(0, 1, 5, 10));
+        pnl.setBorder(javax.swing.BorderFactory.createEmptyBorder(10, 20, 10, 20));
+
+        pnl.add(new javax.swing.JLabel("<html><b>Lister Verification</b><br>Please upload clear photos of the following:</html>"));
+
+        // File path storage
+        final String[] paths = new String[3]; // [0] ID, [1] LTO, [2] Selfie
+
+        // Create buttons for file selection
+        javax.swing.JButton btnID = new javax.swing.JButton("Upload Government ID");
+        javax.swing.JButton btnLTO = new javax.swing.JButton("Upload LTO OR/CR Documents");
+        javax.swing.JButton btnSelfie = new javax.swing.JButton("Upload Selfie with ID");
+
+        // Action Listeners for buttons (using JFileChooser)
+        btnID.addActionListener(e -> {
+            java.io.File f = chooseFile();
+            if (f != null) {
+                paths[0] = f.getAbsolutePath();
+                btnID.setText("✅ ID: " + f.getName());
+            }
+        });
+        btnLTO.addActionListener(e -> {
+            java.io.File f = chooseFile();
+            if (f != null) {
+                paths[1] = f.getAbsolutePath();
+                btnLTO.setText("✅ LTO: " + f.getName());
+            }
+        });
+        btnSelfie.addActionListener(e -> {
+            java.io.File f = chooseFile();
+            if (f != null) {
+                paths[2] = f.getAbsolutePath();
+                btnSelfie.setText("✅ Selfie: " + f.getName());
+            }
+        });
+
+        pnl.add(btnID);
+        pnl.add(btnLTO);
+        pnl.add(btnSelfie);
+
+        int result = javax.swing.JOptionPane.showConfirmDialog(dashboard, pnl,
+                "Professional Verification Required", javax.swing.JOptionPane.OK_CANCEL_OPTION, javax.swing.JOptionPane.PLAIN_MESSAGE);
+
+        if (result == javax.swing.JOptionPane.OK_OPTION) {
+            if (paths[0] == null || paths[1] == null || paths[2] == null) {
+                javax.swing.JOptionPane.showMessageDialog(dashboard, "All documents are required.");
+                return false;
+            }
+
+            // ── USE YOUR MODEL HERE ──
+            carrentalsystem.models.ListerRequirement req = new carrentalsystem.models.ListerRequirement();
+            req.setUserId(carrentalsystem.core.SessionManager.getCurrentUser().getUserId());
+            req.setValidIdPath(paths[0]);
+            req.setLtoDocumentPath(paths[1]);
+            req.setSelfiePhotoPath(paths[2]);
+            req.setStatus("PENDING");
+
+            return saveRequirementsToDatabase(req);
+        }
+        return false;
+    }
+
+    // Helper to choose files
+    private java.io.File chooseFile() {
+        javax.swing.JFileChooser fc = new javax.swing.JFileChooser();
+        return (fc.showOpenDialog(this) == javax.swing.JFileChooser.APPROVE_OPTION) ? fc.getSelectedFile() : null;
+    }
+    
+    private boolean saveRequirementsToDatabase(carrentalsystem.models.ListerRequirement req) {
+        String sql = "INSERT INTO lister_requirements (user_id, valid_id_path, lto_document_path, selfie_photo_path, status) VALUES (?, ?, ?, ?, ?)";
+        try (java.sql.Connection conn = carrentalsystem.core.DBConnection.getConnection(); java.sql.PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, req.getUserId());
+            ps.setString(2, req.getValidIdPath());
+            ps.setString(3, req.getLtoDocumentPath());
+            ps.setString(4, req.getSelfiePhotoPath());
+            ps.setString(5, "PENDING");
+            ps.executeUpdate();
+
+            // Also update the User's lister_status in the users table
+            String userSql = "UPDATE users SET lister_status = 'PENDING' WHERE user_id = ?";
+            try (java.sql.PreparedStatement ps2 = conn.prepareStatement(userSql)) {
+                ps2.setInt(1, req.getUserId());
+                ps2.executeUpdate();
+            }
+
+            // Update local session
+            carrentalsystem.core.SessionManager.getCurrentUser().setListerStatus("PENDING");
+            return true;
+        } catch (java.sql.SQLException e) {
+            javax.swing.JOptionPane.showMessageDialog(dashboard, "Database Error: " + e.getMessage());
+            return false;
+        }
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAddList;

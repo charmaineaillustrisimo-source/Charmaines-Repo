@@ -126,6 +126,21 @@ public class UserService implements IUserService{
         }
         return list;
     }
+    
+    public void updateUserType(int userId, String newType) throws SQLException {
+        String sql = "UPDATE users SET user_type = ? WHERE user_id = ?";
+
+        try (Connection conn = carrentalsystem.core.DBConnection.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, newType); // 'LISTER' or 'BOTH'
+            ps.setInt(2, userId);
+
+            int rowsAffected = ps.executeUpdate();
+            if (rowsAffected == 0) {
+                throw new SQLException("Updating user type failed, no rows affected.");
+            }
+        }
+    }
 
 
     // ── Helper ───────────────────────────────────────────────
@@ -144,7 +159,8 @@ public class UserService implements IUserService{
         u.setCreatedAt(rs.getTimestamp("created_at"));
         u.setProfileImagePath(rs.getString("profile_image_path"));
         u.setCity(rs.getString("city"));
-    u.setProvince(rs.getString("province"));
+        u.setProvince(rs.getString("province"));
+        u.setUserType(rs.getString("user_type"));
         return u;
     }
 }

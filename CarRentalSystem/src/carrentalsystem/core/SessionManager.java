@@ -26,8 +26,9 @@ public class SessionManager {
 
     public static void startSession(User user) throws SQLException {
         currentUser = user;
+        setModeFromUser(user);
         String sql = "INSERT INTO sessions (user_id, current_state) VALUES (?,'ONLINE')";
-try (PreparedStatement ps = DBConnection.getConnection().prepareStatement(
+        try (PreparedStatement ps = DBConnection.getConnection().prepareStatement(
                 sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setInt(1, user.getUserId());
             ps.executeUpdate();
@@ -75,7 +76,7 @@ try (PreparedStatement ps
         }
         currentUser = null;
         currentSessionId = -1;
-        userMode = "RENTER";
+        //userMode = "RENTER";
     }
 
     public static User getCurrentUser() {
@@ -108,5 +109,37 @@ try (PreparedStatement ps
 
     public static boolean isListerMode() {
         return "LISTER".equalsIgnoreCase(userMode);
+    }
+    
+    public static boolean isBothMode() {
+        return "BOTH".equalsIgnoreCase(userMode);
+    }
+
+    /**
+     * Sets userMode automatically based on the logged-in user's DB role. Call
+     * this once after startSession(). USER / RENTER → "RENTER" LISTER →
+     * "LISTER" BOTH → "BOTH"
+     */
+    public static void setModeFromUser(User user) {
+        if (user == null) {
+            userMode = "RENTER";
+            return;
+        }
+        String role = user.getRole();
+        if (role == null) {
+            userMode = "RENTER";
+            return;
+        }
+        switch (role.toUpperCase()) {
+            case "LISTER":
+                userMode = "LISTER";
+                break;
+            case "BOTH":
+                userMode = "BOTH";
+                break;
+            default:
+                userMode = "RENTER";
+                break;
+        }
     }
 }

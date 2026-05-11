@@ -91,35 +91,62 @@ public class HeaderPanel extends javax.swing.JPanel {
     public void updateGuestMode() {
         boolean isGuest = carrentalsystem.core.SessionManager.getCurrentUser() == null;
 
-        // Hide notification bell and profile icon for guests
-        // (assumes you have lblNotif, lblProfile, or similar components)
-        // Adjust the component names to match yours
         if (isGuest) {
-            // Show a Login button
+
             if (btnLogin == null) {
+                // 1. Create the Button
                 btnLogin = new javax.swing.JButton("Login / Sign Up");
                 btnLogin.setFont(new java.awt.Font("Helvetica Neue", java.awt.Font.BOLD, 14));
-                btnLogin.setBackground(new java.awt.Color(45, 36, 34));
+                btnLogin.setBackground(new java.awt.Color(45, 36, 34)); // Dark Taupe
                 btnLogin.setForeground(java.awt.Color.WHITE);
                 btnLogin.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-                btnLogin.setBorderPainted(false);
                 btnLogin.setFocusPainted(false);
 
-                // Wire the action — calls back to MainDashboard
+                // Add a border that creates a 20px gap on the right
+                btnLogin.setBorder(javax.swing.BorderFactory.createCompoundBorder(
+                        javax.swing.BorderFactory.createLineBorder(java.awt.Color.WHITE, 1, true),
+                        javax.swing.BorderFactory.createEmptyBorder(8, 15, 8, 20) // 20px right margin
+                ));
+
+                // 2, 3, 4. Implement the JOptionPane Algorithm
                 btnLogin.addActionListener(e -> {
-                    if (loginAction != null) {
-                        loginAction.run();
+                    String[] options = {"Login", "Sign Up", "Cancel"};
+                    int choice = javax.swing.JOptionPane.showOptionDialog(
+                            null,
+                            "Would you like to log in to an existing account or create a new one?",
+                            "Explore More",
+                            javax.swing.JOptionPane.YES_NO_CANCEL_OPTION,
+                            javax.swing.JOptionPane.QUESTION_MESSAGE,
+                            null,
+                            options,
+                            options[0]
+                    );
+
+                    if (choice == 0) { // Login
+                        javax.swing.SwingUtilities.getWindowAncestor(this).dispose();
+                        new carrentalsystem.auth.LoginFrame().setVisible(true);
+                    } else if (choice == 1) { // Sign Up
+                        javax.swing.SwingUtilities.getWindowAncestor(this).dispose();
+                        new carrentalsystem.auth.SignupFrame().setVisible(true);
                     }
                 });
 
-                // Add to your header panel in the top-right area
-                // Adjust layout position to match your HeaderPanel structure
-                add(btnLogin); // or use absolute layout with setBounds
+                // 5. Add to GridBagLayout (matching your HeaderPanel.form structure)
+                java.awt.GridBagConstraints gbc = new java.awt.GridBagConstraints();
+                gbc.gridx = 5; // Position where btnProfile was
+                gbc.gridy = 0;
+                gbc.gridheight = 2;
+                gbc.anchor = java.awt.GridBagConstraints.EAST;
+                gbc.insets = new java.awt.Insets(0, 0, 0, 20); // Force 20px from side
+
+                add(btnLogin, gbc);
                 revalidate();
                 repaint();
             }
         } else {
-            // Remove login button if present
+            // Logged in: Show standard icons and remove guest button
+            btnNotifications.setVisible(true);
+            btnProfile.setVisible(true);
             if (btnLogin != null) {
                 remove(btnLogin);
                 btnLogin = null;

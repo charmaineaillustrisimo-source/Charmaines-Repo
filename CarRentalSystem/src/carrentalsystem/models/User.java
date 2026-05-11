@@ -27,6 +27,7 @@ public class User {
     private String profileImagePath;
     private String listerStatus;
     private String phoneNumber;
+    private String userType;
 
     public User() {}
 
@@ -34,7 +35,7 @@ public class User {
                 String password, String role, String tier, String status,
                 boolean isVerified, Timestamp lastLogin, Timestamp createdAt, 
                 String city, String province, String profileImagePath, String listerStatus,
-                String phoneNumber) {
+                String phoneNumber, String userType) {
         this.userId = userId;
         this.username = username;
         this.fullName = fullName;
@@ -51,6 +52,7 @@ public class User {
         this.profileImagePath = profileImagePath;
         this.listerStatus = listerStatus;
         this.phoneNumber = phoneNumber;
+        this.userType = userType;
     }
 
     // ── Getters ──────────────────────────────────────────────
@@ -70,6 +72,7 @@ public class User {
     public String getProfileImagePath() { return profileImagePath; }
     public String getListerStatus()     { return listerStatus; }
     public String getPhoneNumber()      { return phoneNumber; }
+    public String getUserType()         { return userType; }
 
     // ── Setters ──────────────────────────────────────────────
     public void setUserId(int userId)             { this.userId = userId; }
@@ -88,6 +91,7 @@ public class User {
     public void setProfileImagePath(String profileImagePath) { this.profileImagePath = profileImagePath; }
     public void   setListerStatus(String status)   { this.listerStatus = status; }
     public void setPhoneNumber(String phoneNumber) { this.phoneNumber = phoneNumber; }
+    public void setUserType(String userType)       { this.userType = userType; }
 
     @Override
     public String toString() {

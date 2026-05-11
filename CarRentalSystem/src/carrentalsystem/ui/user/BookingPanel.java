@@ -1138,74 +1138,63 @@ public class BookingPanel extends javax.swing.JPanel {
         }
 
         try {
-            // ── 1. Renter verification FIRST ──────────────────────────────
+            // ── 1. Renter verification FIRST ──
             boolean carHasDriver = currentCar.isHasDriver();
             String[] verificationPaths = showRenterVerificationDialog(carHasDriver);
             if (verificationPaths == null) {
-                return; // user cancelled
-            }
-            // ── 2. Build booking model ─────────────────────────────────────
-            carrentalsystem.models.Booking newBooking
-                    = new carrentalsystem.models.Booking();
-            newBooking.setCarId(currentCarId);
-            newBooking.setRenterId(carrentalsystem.core.SessionManager
-                    .getCurrentUser().getUserId());
-            newBooking.setImagePath(currentCar.getImagePath());
-            newBooking.setPickupLocation(PickupLocation.getText());
-            newBooking.setReturnLocation(ReturnLocation.getText());
-
-            java.text.SimpleDateFormat sdf
-                    = new java.text.SimpleDateFormat("MMMM dd, yyyy");
-            newBooking.setStartDate(new java.sql.Date(
-                    sdf.parse(PickupDate.getText()).getTime()));
-            newBooking.setEndDate(new java.sql.Date(
-                    sdf.parse(ReturnDate.getText()).getTime()));
-
-            double total = carrentalsystem.utils.PriceCalculator.calculateTotal(
-                    PickupDate.getText(), ReturnDate.getText(),
-                    currentCar.getBasePrice());
-            int days = (int) Math.max(1,
-                    carrentalsystem.utils.PriceCalculator.calculateDays(
-                            PickupDate.getText(), ReturnDate.getText()));
-            newBooking.setTotalPrice(total);
-            newBooking.setDaysCount(days);
-
-            // ── 3. Payment dialog ──────────────────────────────────────────
-            carrentalsystem.models.Payment payment
-                    = showPaymentDialog(newBooking, total);
-            if (payment == null) {
                 return;
             }
 
-            // ── 4. Save booking to DB first ────────────────────────────────
-            carrentalsystem.services.BookingService bookingService
-                    = new carrentalsystem.services.BookingService();
-            int generatedId = bookingService.submitRequest(newBooking);
+            // ── 2. Build booking model ──
+            carrentalsystem.models.Booking b = new carrentalsystem.models.Booking();
+            b.setCarId(currentCar.getCarId());
+            b.setRenterId(carrentalsystem.core.SessionManager.getCurrentUser().getUserId());
+            b.setOwnerId(currentCar.getOwnerId());
+            b.setImagePath(currentCar.getImagePath());
+            b.setPickupLocation(PickupLocation.getText());
+            b.setReturnLocation(ReturnLocation.getText());
+            b.setStatus("PENDING"); // <--- MANDATORY: Start as PENDING
+
+            java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("MMMM dd, yyyy");
+            b.setStartDate(new java.sql.Date(sdf.parse(PickupDate.getText()).getTime()));
+            b.setEndDate(new java.sql.Date(sdf.parse(ReturnDate.getText()).getTime()));
+
+            double total = carrentalsystem.utils.PriceCalculator.calculateTotal(
+                    PickupDate.getText(), ReturnDate.getText(), currentCar.getBasePrice());
+            int days = (int) Math.max(1, carrentalsystem.utils.PriceCalculator.calculateDays(
+                    PickupDate.getText(), ReturnDate.getText()));
+            b.setTotalPrice(total);
+            b.setDaysCount(days);
+
+            // ── 3. Save booking to DB (PENDING status) ──
+            carrentalsystem.services.BookingService bookingService = new carrentalsystem.services.BookingService();
+            int generatedId = bookingService.submitRequest(b); // Ensure this method saves status as 'PENDING'
 
             if (generatedId != -1) {
-                newBooking.setBookingId(generatedId);
-                payment.setBookingId(generatedId);
-                payment.setRenterId(carrentalsystem.core.SessionManager
-                        .getCurrentUser().getUserId());
+                b.setBookingId(generatedId);
 
-                // ── 5. NOW save verification with real booking ID ──────────
-                try {
-                    saveRenterVerification(
-                            generatedId,
-                            verificationPaths[0],
-                            verificationPaths[1].isEmpty() ? null : verificationPaths[1],
-                            !carHasDriver);
-                } catch (Exception ve) {
-                    System.err.println("[BookingPanel] Verification save error: "
-                            + ve.getMessage());
-                }
+                // ── 4. Save verification documents ──
+                saveRenterVerification(generatedId, verificationPaths[0],
+                        verificationPaths[1].isEmpty() ? null : verificationPaths[1], !carHasDriver);
 
-                // ── 6. Record payment ──────────────────────────────────────
-                new carrentalsystem.services.PaymentService().recordPayment(payment);
+                // ── 5. AUTO-SUBMIT BOOKING CARD VIA MESSAGE ──
+                // We send a message with the bookingId linked so the card appears in the chat
+                String autoMsg = "Requesting to book " + currentCar.getBrand() + " " + currentCar.getModel();
+                // CORRECT: 5 arguments (senderId, receiverId, carId, content, bookingId)
+                new carrentalsystem.services.MessageService().sendMessage(
+                        b.getRenterId(),
+                        b.getOwnerId(),
+                        b.getCarId(), // Added this
+                        autoMsg,
+                        generatedId);
 
+                javax.swing.JOptionPane.showMessageDialog(dashboard,
+                        "Booking request sent! Please wait for the owner's approval in your Inbox.");
+
+                // ── 6. Redirect to Inbox to see the card ──
                 if (dashboard != null) {
-                    dashboard.updateNotificationBadge();
                     dashboard.getInboxPanel().loadData();
+                    dashboard.getInboxPanel().openThread(b.getOwnerId(), b.getCarId(), "Car Owner");
                     ((java.awt.CardLayout) dashboard.getPnlMainContent().getLayout())
                             .show(dashboard.getPnlMainContent(), "inboxCard");
                 }

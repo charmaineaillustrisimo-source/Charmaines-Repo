@@ -30,99 +30,101 @@ public class LoginFlowHelper {
             Runnable afterAction,
             Component parentFrame) {
 
-        carrentalsystem.models.User user
-                = carrentalsystem.core.SessionManager.getCurrentUser();
+        carrentalsystem.models.User user = carrentalsystem.core.SessionManager.getCurrentUser();
         if (user == null) {
             return;
         }
 
-        String firstName = user.getFullName().split(" ")[0];
-
-        // ── Ask: Rent or List? ────────────────────────────────────────────
-        Object[] options = {"🚗  Rent a Car", "📋  List My Car for Rent"};
-
-        int choice = JOptionPane.showOptionDialog(
-                parentFrame,
-                "<html><center>"
-                + "<b style='font-size:14px'>Welcome, " + firstName + "!</b><br><br>"
-                + "What would you like to do?<br>"
-                + "<small>(You can switch roles anytime from your profile.)</small>"
-                + "</center></html>",
-                "What will you do today?",
-                JOptionPane.DEFAULT_OPTION,
-                JOptionPane.QUESTION_MESSAGE,
-                null, options, options[0]
-        );
-
-        if (choice == 0) {
-            // ── RENTER path ───────────────────────────────────────────────
-            if (!showRenterTerms(parentFrame)) {
-                handleDeclined(parentFrame);
-                return;
-            }
-            carrentalsystem.core.SessionManager.setUserMode("RENTER");
-            dashboard.refreshAfterLogin();
+        // 1. GATEKEEPER: Skip if already has a type
+        if (user.getUserType() != null && !user.getUserType().trim().isEmpty() && !user.getUserType().equalsIgnoreCase("null")) {
+            dashboard.loadData();
+            dashboard.setVisible(true);
             if (afterAction != null) {
                 afterAction.run();
             }
+            return;
+        }
 
-        } else if (choice == 1) {
-            // ── LISTER path ───────────────────────────────────────────────
-            if (!showListerTerms(parentFrame)) {
-                handleDeclined(parentFrame);
+        String firstName = user.getFullName().split(" ")[0];
+        Object[] options = {"🚗  Rent a Car", "📋  List My Car for Rent"};
+
+        // Start the master loop
+        while (true) {
+            int choice = JOptionPane.showOptionDialog(
+                    parentFrame,
+                    "<html><center><b style='font-size:14px'>Welcome, " + firstName + "!</b><br><br>"
+                    + "What would you like to do?</center></html>",
+                    "Select Your Path",
+                    JOptionPane.DEFAULT_OPTION,
+                    JOptionPane.QUESTION_MESSAGE,
+                    null, options, options[0]
+            );
+
+            // If they close the window, end the session
+            if (choice == JOptionPane.CLOSED_OPTION) {
+                try {
+                    carrentalsystem.core.SessionManager.endSession();
+                } catch (Exception ignore) {
+                }
                 return;
             }
 
-            // Check if requirements already submitted
-            if (!"PENDING".equals(user.getListerStatus())
-                    && !"APPROVED".equals(user.getListerStatus())) {
-                // Not yet submitted — show requirements dialog
-                boolean submitted = showListerRequirementsDialog(parentFrame, user);
-                if (!submitted) {
-                    JOptionPane.showMessageDialog(parentFrame,
-                            "Requirements not submitted.\n"
-                            + "You will be logged in as RENTER for now.\n"
-                            + "You can submit requirements anytime from your Profile.",
-                            "Switched to Renter Mode",
-                            JOptionPane.INFORMATION_MESSAGE);
+            if (choice == 0) {
+                // ── RENTER PATH ──────────────────────────────────────────────
+                if (!showRenterTerms(parentFrame)) {
+                    handleDeclined(parentFrame);
+                    continue; // Go back to the top (Role Selection)
+                }
+
+                try {
+                    saveUserType(user.getUserId(), "RENTER");
                     carrentalsystem.core.SessionManager.setUserMode("RENTER");
-                    dashboard.refreshAfterLogin();
+                    dashboard.loadData();
+                    dashboard.setVisible(true);
                     if (afterAction != null) {
                         afterAction.run();
                     }
+                    break; // EXIT LOOP SUCCESS
+                } catch (SQLException ex) {
+                    JOptionPane.showMessageDialog(parentFrame, "Database Error: " + ex.getMessage());
                     return;
                 }
-            } else if ("PENDING".equals(user.getListerStatus())) {
-                JOptionPane.showMessageDialog(parentFrame,
-                        "Your lister verification is still under review.\n"
-                        + "You can list cars once admin approves your documents.\n"
-                        + "You will be logged in as RENTER for now.",
-                        "Verification Pending",
-                        JOptionPane.INFORMATION_MESSAGE);
-                carrentalsystem.core.SessionManager.setUserMode("RENTER");
-                dashboard.refreshAfterLogin();
-                if (afterAction != null) {
-                    afterAction.run();
+
+            } else if (choice == 1) {
+                // ── LISTER PATH ──────────────────────────────────────────────
+                if (!showListerTerms(parentFrame)) {
+                    handleDeclined(parentFrame);
+                    continue; // Go back to the top (Role Selection)
                 }
-                return;
-            }
 
-            carrentalsystem.core.SessionManager.setUserMode("LISTER");
-            dashboard.refreshAfterLogin();
-            // Listers go to My Listings, not the car they may have clicked
-            java.awt.CardLayout cl
-                    = (java.awt.CardLayout) dashboard.getPnlMainContent().getLayout();
-            cl.show(dashboard.getPnlMainContent(), "myListingsCard");
-            if (dashboard.getMyListings1() != null) {
-                dashboard.getMyListings1().loadData();
-            }
+                // If they haven't submitted requirements yet
+                if (!"PENDING".equals(user.getListerStatus()) && !"APPROVED".equals(user.getListerStatus())) {
+                    boolean submitted = showListerRequirementsDialog(parentFrame, user);
 
-        } else {
-            try {
-                // User closed the role dialog — log out, stay on browse screen
-                carrentalsystem.core.SessionManager.endSession();
-            } catch (SQLException ex) {
-                System.getLogger(LoginFlowHelper.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+                    if (!submitted) {
+                        JOptionPane.showMessageDialog(parentFrame,
+                                "Requirements are mandatory to become a Lister. Please select a role again.");
+                        // ── THE LOGIC CHANGE ──
+                        // Instead of setting them to RENTER, we just 'continue'
+                        // This restarts the 'while(true)' loop from the very top
+                        continue;
+                    }
+                }
+
+                try {
+                    saveUserType(user.getUserId(), "LISTER");
+                    carrentalsystem.core.SessionManager.setUserMode("LISTER");
+                    dashboard.loadData();
+                    dashboard.setVisible(true);
+
+                    // Switch to Lister-specific view
+                    java.awt.CardLayout cl = (java.awt.CardLayout) dashboard.getPnlMainContent().getLayout();
+                    cl.show(dashboard.getPnlMainContent(), "myListingsCard");
+                    break; // EXIT LOOP SUCCESS
+                } catch (SQLException ex) {
+                    JOptionPane.showMessageDialog(parentFrame, "Database Error: " + ex.getMessage());
+                    return;
+                }
             }
         }
     }
@@ -418,6 +420,24 @@ public class LoginFlowHelper {
             // Also update the in-memory session user
             carrentalsystem.core.SessionManager.getCurrentUser()
                     .setListerStatus("PENDING");
+        }
+    }
+    
+    private static void saveUserType(int userId, String type) throws SQLException {
+        String sql = "UPDATE users SET user_type = ? WHERE user_id = ?";
+
+        try (java.sql.Connection conn = carrentalsystem.core.DBConnection.getConnection(); java.sql.PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, type);
+            ps.setInt(2, userId);
+            ps.executeUpdate();
+
+            // CRITICAL: Also update the local session object so the dashboard 
+            // knows the user is no longer 'null' without needing a restart.
+            carrentalsystem.models.User currentUser = carrentalsystem.core.SessionManager.getCurrentUser();
+            if (currentUser != null) {
+                currentUser.setUserType(type);
+            }
         }
     }
 }

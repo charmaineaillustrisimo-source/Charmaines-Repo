@@ -18,7 +18,6 @@ public class CarDetailsPanel extends javax.swing.JPanel {
     private MainDashboard dashboard;
     private carrentalsystem.models.Car currentCar;                           
     private carrentalsystem.services.UserService userService = new carrentalsystem.services.UserService(); 
-    private javax.swing.JPanel pnlReviews = new javax.swing.JPanel();
     private javax.swing.JLabel lblAvgRating = new javax.swing.JLabel("No reviews yet");
     
     public CarDetailsPanel() {
@@ -28,6 +27,10 @@ public class CarDetailsPanel extends javax.swing.JPanel {
         // Restore dark button color (initComponents overrides the anonymous initializer)
         btnRentNow.setBackground(new java.awt.Color(98, 89, 85));
         btnRentNow.setForeground(java.awt.Color.WHITE);
+        
+        // Contact Owner
+        btnContactOwner.setBackground(new java.awt.Color(98, 89, 85));
+        btnContactOwner.setForeground(java.awt.Color.WHITE);
 
         // Spec pills need opaque=false for rounded painting to show
         lblTransmission.setOpaque(false);
@@ -55,30 +58,12 @@ public class CarDetailsPanel extends javax.swing.JPanel {
         lblPlateNumber.setForeground(detailColor);
         lblMileage.setForeground(detailColor);
     
-
-        // Reviews title
-        javax.swing.JLabel lblReviewsTitle = new javax.swing.JLabel("⭐ Customer Reviews");
-        lblReviewsTitle.setFont(new java.awt.Font("Helvetica Neue", java.awt.Font.BOLD, 15));
-        lblReviewsTitle.setForeground(new java.awt.Color(45, 36, 34));
-
-        // Reviews container with scroll
-        pnlReviews = new javax.swing.JPanel();
-        pnlReviews.setLayout(new javax.swing.BoxLayout(
-                pnlReviews, javax.swing.BoxLayout.Y_AXIS));
-        pnlReviews.setOpaque(false);
-
-        javax.swing.JScrollPane spReviews = new javax.swing.JScrollPane(pnlReviews);
         spReviews.setBorder(null);
         spReviews.setOpaque(false);
         spReviews.getViewport().setOpaque(false);
-        spReviews.setPreferredSize(new java.awt.Dimension(460, 160));
 
-        // ── Add to panel using AbsoluteConstraints (matches your layout) ──────
-        // Adjust the x/y coordinates to fit below your existing spec rows.
-        add(lblReviewsTitle,
-                new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 628, 300, 28));
-        add(spReviews,
-                new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 660, 860, 180));
+        pnlReviews.setOpaque(false);
+        pnlReviews.setBackground(Color.WHITE);
         
     }
     
@@ -197,27 +182,41 @@ public class CarDetailsPanel extends javax.swing.JPanel {
     private javax.swing.JPanel buildReviewRow(carrentalsystem.models.Review r) {
         javax.swing.JPanel row = new javax.swing.JPanel();
         row.setLayout(new javax.swing.BoxLayout(row, javax.swing.BoxLayout.Y_AXIS));
-        row.setBackground(new java.awt.Color(248, 244, 241));
+        row.setOpaque(true);
+        row.setBackground(new java.awt.Color(250, 248, 245)); // Slightly off-white for contrast
         row.setBorder(javax.swing.BorderFactory.createCompoundBorder(
-                javax.swing.BorderFactory.createLineBorder(
-                        new java.awt.Color(210, 200, 195), 1, true),
-                javax.swing.BorderFactory.createEmptyBorder(8, 12, 8, 12)));
+                javax.swing.BorderFactory.createLineBorder(new java.awt.Color(230, 220, 215), 1, true),
+                javax.swing.BorderFactory.createEmptyBorder(10, 15, 10, 15)));
 
-        String stars = "⭐".repeat(r.getRating())
-                + "☆".repeat(5 - r.getRating());
-        javax.swing.JLabel lblStars = new javax.swing.JLabel(
-                stars + "  " + r.getReviewerName());
-        lblStars.setFont(new java.awt.Font("Helvetica Neue", java.awt.Font.BOLD, 12));
-        lblStars.setForeground(new java.awt.Color(45, 36, 34));
+        // Header: Stars + Reviewer Name
+        String stars = "⭐".repeat(r.getRating()) + "☆".repeat(5 - r.getRating());
+        javax.swing.JLabel lblHeader = new javax.swing.JLabel(stars + "  " + r.getReviewerName());
+        lblHeader.setFont(new java.awt.Font("Helvetica Neue", java.awt.Font.BOLD, 13));
+        lblHeader.setForeground(new java.awt.Color(45, 36, 34));
 
-        javax.swing.JLabel lblComment = new javax.swing.JLabel(
-                "<html>" + (r.getComment() != null ? r.getComment() : "No comment.") + "</html>");
-        lblComment.setFont(new java.awt.Font("Helvetica Neue", java.awt.Font.PLAIN, 12));
-        lblComment.setForeground(new java.awt.Color(80, 65, 60));
+        // Comment: Using JTextArea for multi-line support
+        javax.swing.JTextArea txtComment = new javax.swing.JTextArea(r.getComment());
+        txtComment.setEditable(false);
+        txtComment.setLineWrap(true);
+        txtComment.setWrapStyleWord(true);
+        txtComment.setOpaque(false);
+        txtComment.setBackground(new java.awt.Color(0, 0, 0, 0));
+        txtComment.setFont(new java.awt.Font("Helvetica Neue", java.awt.Font.PLAIN, 12));
+        txtComment.setForeground(new java.awt.Color(80, 70, 65));
 
-        row.add(lblStars);
-        row.add(javax.swing.Box.createVerticalStrut(4));
-        row.add(lblComment);
+        row.add(lblHeader);
+        row.add(javax.swing.Box.createVerticalStrut(5));
+        row.add(txtComment);
+
+        // Optional: Add timestamp if you want to show when it was posted
+        if (r.getCreatedAt() != null) {
+            javax.swing.JLabel lblDate = new javax.swing.JLabel(new java.text.SimpleDateFormat("MMM dd, yyyy").format(r.getCreatedAt()));
+            lblDate.setFont(new java.awt.Font("Helvetica Neue", java.awt.Font.PLAIN, 10));
+            lblDate.setForeground(java.awt.Color.GRAY);
+            row.add(javax.swing.Box.createVerticalStrut(5));
+            row.add(lblDate);
+        }
+
         return row;
     }
     
@@ -540,6 +539,33 @@ public class CarDetailsPanel extends javax.swing.JPanel {
                 super.paintComponent(g);
             }
         };
+        lblDriver = new javax.swing.JLabel() {
+            {
+                setOpaque(false); // Make background transparent so we can paint the round shape
+                setBackground(new java.awt.Color(245, 245, 245)); // Light grey
+                // Padding: top, left, bottom, right (45px left for the icon)
+                setBorder(javax.swing.BorderFactory.createEmptyBorder(5, 45, 5, 15));
+            }
+
+            @Override
+            protected void paintComponent(java.awt.Graphics g) {
+                java.awt.Graphics2D g2 = (java.awt.Graphics2D) g.create();
+                g2.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING,
+                    java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
+
+                // Frosted glass — semi-transparent dark brown fill
+                g2.setColor(new java.awt.Color(45, 36, 34, 160));
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 30, 30);
+
+                // Subtle lighter border stroke for the glass edge
+                g2.setColor(new java.awt.Color(255, 255, 255, 55));
+                g2.setStroke(new java.awt.BasicStroke(1.2f));
+                g2.drawRoundRect(1, 1, getWidth() - 2, getHeight() - 2, 30, 30);
+
+                g2.dispose();
+                super.paintComponent(g);
+            }
+        };
         spDescription = new javax.swing.JScrollPane();
         taDescription = new javax.swing.JTextArea() {
             {
@@ -565,6 +591,8 @@ public class CarDetailsPanel extends javax.swing.JPanel {
                 super.paintComponent(g);
             }
         };
+        spReviews = new javax.swing.JScrollPane();
+        pnlReviews = new javax.swing.JPanel();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -572,7 +600,7 @@ public class CarDetailsPanel extends javax.swing.JPanel {
         lblCarImage.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         lblCarImage.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
         lblCarImage.setPreferredSize(new java.awt.Dimension(560, 350));
-        add(lblCarImage, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 130, 560, 260));
+        add(lblCarImage, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 130, 560, 200));
 
         lblTitle.setFont(new java.awt.Font("Helvetica Neue", 1, 36)); // NOI18N
         lblTitle.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
@@ -583,27 +611,27 @@ public class CarDetailsPanel extends javax.swing.JPanel {
         lblPriceValue.setFont(new java.awt.Font("Helvetica Neue", 1, 45)); // NOI18N
         lblPriceValue.setText("Price Value /day");
         lblPriceValue.setPreferredSize(new java.awt.Dimension(400, 45));
-        add(lblPriceValue, new org.netbeans.lib.awtextra.AbsoluteConstraints(620, 100, 400, 45));
+        add(lblPriceValue, new org.netbeans.lib.awtextra.AbsoluteConstraints(620, 120, 400, 45));
 
         lblOwnerName.setFont(new java.awt.Font("Helvetica Neue", 0, 15)); // NOI18N
         lblOwnerName.setForeground(new java.awt.Color(6, 6, 6));
         lblOwnerName.setText("Listed by: Owner Name");
         lblOwnerName.setPreferredSize(new java.awt.Dimension(400, 35));
-        add(lblOwnerName, new org.netbeans.lib.awtextra.AbsoluteConstraints(620, 350, 400, 35));
+        add(lblOwnerName, new org.netbeans.lib.awtextra.AbsoluteConstraints(620, 300, 400, 35));
 
         btnRentNow.setBackground(new java.awt.Color(245, 245, 245));
         btnRentNow.setFont(new java.awt.Font("Helvetica Neue", 1, 24)); // NOI18N
         btnRentNow.setText("RENT NOW");
         btnRentNow.setPreferredSize(new java.awt.Dimension(200, 50));
         btnRentNow.addActionListener(this::btnRentNowActionPerformed);
-        add(btnRentNow, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 570, 260, -1));
+        add(btnRentNow, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 480, 260, -1));
 
         btnContactOwner.setBackground(new java.awt.Color(245, 245, 245));
         btnContactOwner.setFont(new java.awt.Font("Helvetica Neue", 1, 24)); // NOI18N
         btnContactOwner.setText("CONTACT OWNER");
         btnContactOwner.setPreferredSize(new java.awt.Dimension(200, 50));
         btnContactOwner.addActionListener(this::btnContactOwnerActionPerformed);
-        add(btnContactOwner, new org.netbeans.lib.awtextra.AbsoluteConstraints(590, 570, 260, -1));
+        add(btnContactOwner, new org.netbeans.lib.awtextra.AbsoluteConstraints(590, 480, 260, -1));
 
         pnlSpecRow.setBackground(new java.awt.Color(255, 255, 255));
         pnlSpecRow.setOpaque(false);
@@ -680,7 +708,17 @@ public class CarDetailsPanel extends javax.swing.JPanel {
         lblMileage.setPreferredSize(new java.awt.Dimension(150, 45));
         pnlSpecRow.add(lblMileage);
 
-        add(pnlSpecRow, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 410, 980, 130));
+        lblDriver.setBackground(new java.awt.Color(45, 36, 34));
+        lblDriver.setFont(new java.awt.Font("Helvetica Neue", 0, 15)); // NOI18N
+        lblDriver.setForeground(new java.awt.Color(230, 220, 215));
+        lblDriver.setIcon(new javax.swing.ImageIcon(getClass().getResource("/carrentalsystem/ui/user/Icons/Driver.png"))); // NOI18N
+        lblDriver.setText("jLabel1");
+        lblDriver.setBorder(javax.swing.BorderFactory.createEmptyBorder(5, 15, 5, 15));
+        lblDriver.setIconTextGap(10);
+        lblDriver.setPreferredSize(new java.awt.Dimension(150, 45));
+        pnlSpecRow.add(lblDriver);
+
+        add(pnlSpecRow, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 350, 980, 130));
 
         spDescription.setBorder(null);
         spDescription.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
@@ -688,7 +726,7 @@ public class CarDetailsPanel extends javax.swing.JPanel {
         spDescription.setPreferredSize(new java.awt.Dimension(980, 150));
 
         taDescription.setEditable(false);
-        taDescription.setBackground(new java.awt.Color(45, 36, 34));
+        taDescription.setBackground(new java.awt.Color(255, 255, 255));
         taDescription.setColumns(20);
         taDescription.setFont(new java.awt.Font("Helvetica Neue", 0, 14)); // NOI18N
         taDescription.setForeground(new java.awt.Color(230, 220, 215));
@@ -698,7 +736,15 @@ public class CarDetailsPanel extends javax.swing.JPanel {
         taDescription.setOpaque(false);
         spDescription.setViewportView(taDescription);
 
-        add(spDescription, new org.netbeans.lib.awtextra.AbsoluteConstraints(620, 150, 410, 200));
+        add(spDescription, new org.netbeans.lib.awtextra.AbsoluteConstraints(620, 170, 410, 120));
+
+        spReviews.setPreferredSize(new java.awt.Dimension(800, 60));
+
+        pnlReviews.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
+        pnlReviews.setLayout(new javax.swing.BoxLayout(pnlReviews, javax.swing.BoxLayout.Y_AXIS));
+        spReviews.setViewportView(pnlReviews);
+
+        add(spReviews, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 550, 990, 130));
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnRentNowActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRentNowActionPerformed
@@ -733,12 +779,12 @@ public class CarDetailsPanel extends javax.swing.JPanel {
         java.awt.Graphics2D g2 = (java.awt.Graphics2D) g.create();
         g2.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING,
                 java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
-        // Soft shadow
-        g2.setColor(new java.awt.Color(0, 0, 0, 15));
-        g2.fillRoundRect(8, 8, getWidth() - 8, getHeight() - 8, 36, 36);
-        // White card background
+
+        // Fill the background FULLY to match your 1100x700 size
+        // This removes the 8px gap that was cutting off your bottom components
         g2.setColor(java.awt.Color.WHITE);
-        g2.fillRoundRect(0, 0, getWidth() - 8, getHeight() - 8, 36, 36);
+        g2.fillRoundRect(0, 0, getWidth(), getHeight(), 36, 36);
+
         g2.dispose();
         super.paintComponent(g);
     }
@@ -749,6 +795,7 @@ public class CarDetailsPanel extends javax.swing.JPanel {
     private javax.swing.JLabel lblCarImage;
     private javax.swing.JLabel lblColor;
     private javax.swing.JLabel lblCondition;
+    private javax.swing.JLabel lblDriver;
     private javax.swing.JLabel lblFuel;
     private javax.swing.JLabel lblMileage;
     private javax.swing.JLabel lblOwnerName;
@@ -757,8 +804,10 @@ public class CarDetailsPanel extends javax.swing.JPanel {
     private javax.swing.JLabel lblSeats;
     private javax.swing.JLabel lblTitle;
     private javax.swing.JLabel lblTransmission;
+    private javax.swing.JPanel pnlReviews;
     private javax.swing.JPanel pnlSpecRow;
     private javax.swing.JScrollPane spDescription;
+    private javax.swing.JScrollPane spReviews;
     private javax.swing.JTextArea taDescription;
     // End of variables declaration//GEN-END:variables
 }

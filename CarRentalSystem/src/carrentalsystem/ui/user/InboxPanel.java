@@ -5,6 +5,7 @@
 package carrentalsystem.ui.user;
 
 import java.sql.SQLException;
+import javax.swing.JButton;
 
 /**
  *
@@ -20,6 +21,7 @@ public class InboxPanel extends javax.swing.JPanel {
     private int activeOtherUserId = -1;
     private int activeCarId = -1;
     private String activeContactName = "";
+    private JButton btnLeaveReview;
 
     public InboxPanel() {
         initComponents();
@@ -199,6 +201,10 @@ public class InboxPanel extends javax.swing.JPanel {
     }
 
     public void openThread(int otherId, int carId, String contactName) {
+        this.activeOtherUserId = otherId;
+        this.activeCarId = carId;
+        this.activeContactName = contactName;
+        
         lblContactName.setText(contactName);
         lblRightName.setText(contactName);
         
@@ -209,6 +215,13 @@ public class InboxPanel extends javax.swing.JPanel {
         
         pnlMessages.removeAll();
         
+        if (carId > 0) {
+            checkReviewStatus(carId);
+        } else {
+            if (btnLeaveReview != null) {
+                btnLeaveReview.setVisible(false);
+            }
+        }
 
         new Thread(() -> {
             try {
@@ -307,7 +320,8 @@ public class InboxPanel extends javax.swing.JPanel {
         int myId = carrentalsystem.core.SessionManager.getCurrentUser().getUserId();
         new Thread(() -> {
             try {
-                messageService.sendMessage(myId, activeOtherUserId, activeCarId, text);
+                // CORRECT: 5 arguments, passing -1 for bookingId
+                messageService.sendMessage(myId, activeOtherUserId, activeCarId, text, -1);
                 javax.swing.SwingUtilities.invokeLater(() -> 
                 openThread(activeOtherUserId, 0, activeContactName));
             } catch (Exception e) {
@@ -375,6 +389,66 @@ public class InboxPanel extends javax.swing.JPanel {
             javax.swing.JScrollBar vertical = spCenter.getVerticalScrollBar();
             vertical.setValue(vertical.getMaximum());
         });
+    }
+    
+    private void checkReviewStatus(int carId) {
+        if (carrentalsystem.core.SessionManager.getCurrentUser() == null) {
+            return;
+        }
+
+        int myId = carrentalsystem.core.SessionManager.getCurrentUser().getUserId();
+
+        new Thread(() -> {
+            try {
+                carrentalsystem.services.ReviewService reviewSvc = new carrentalsystem.services.ReviewService();
+                java.util.List<carrentalsystem.models.Review> reviews = reviewSvc.getReviewsForCar(carId);
+
+                // Check if I am one of the people who already left a review for this car
+                boolean alreadyReviewed = reviews.stream()
+                        .anyMatch(r -> r.getReviewerId() == myId);
+
+                javax.swing.SwingUtilities.invokeLater(() -> {
+                    if (btnLeaveReview != null) {
+                        // Only show the button if a car exists and I HAVEN'T reviewed it yet
+                        btnLeaveReview.setVisible(!alreadyReviewed);
+                    }
+                });
+            } catch (java.sql.SQLException e) {
+                e.printStackTrace();
+            }
+        }).start();
+    }
+    
+    // Inside constructor or a setup method
+    private void setupReviewButton() {
+        btnLeaveReview = new javax.swing.JButton("Rate Experience");
+        btnLeaveReview.setBackground(new java.awt.Color(98, 89, 85)); // Match your theme
+        btnLeaveReview.setForeground(java.awt.Color.WHITE);
+        btnLeaveReview.setFocusPainted(false);
+        btnLeaveReview.setVisible(false); // Hidden until a thread is opened
+
+        btnLeaveReview.addActionListener(e -> {
+            handleReviewAction();
+        });
+
+        // Add it to your header panel (pnlContactHeader)
+        pnlContactHeader.add(btnLeaveReview, java.awt.BorderLayout.EAST);
+    }
+    
+    private void handleReviewAction() {
+        if (activeCarId <= 0) {
+            return;
+        }
+
+        int myId = carrentalsystem.core.SessionManager.getCurrentUser().getUserId();
+        // Assuming ReviewDialog is the JDialog class we built
+        ReviewDialog dialog = new ReviewDialog((java.awt.Frame) javax.swing.SwingUtilities.getWindowAncestor(this), activeCarId, myId);
+        dialog.setVisible(true);
+
+        if (dialog.isSubmitted()) {
+            btnLeaveReview.setVisible(false); // Hide immediately so they can't click again
+            javax.swing.JOptionPane.showMessageDialog(this, "Thank you for your feedback!");
+        }
     }
 
     /**

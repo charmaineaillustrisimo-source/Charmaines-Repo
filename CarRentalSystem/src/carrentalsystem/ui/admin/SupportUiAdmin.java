@@ -42,6 +42,11 @@ public class SupportUiAdmin extends javax.swing.JPanel {
         TableContent.setBackground(themeColor);
         TableContent.setForeground(java.awt.Color.WHITE);
         TableContent.setRowHeight(60);
+        
+        jScrollPane1.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        TableContent.setPreferredSize(null);
+        jScrollPane1.setBorder(BorderFactory.createEmptyBorder());
+jScrollPane1.getVerticalScrollBar().setUnitIncrement(16);
     }
 
     public void loadTicketData() {

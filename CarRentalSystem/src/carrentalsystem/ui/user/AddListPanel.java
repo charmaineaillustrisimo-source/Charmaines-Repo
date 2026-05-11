@@ -3,11 +3,13 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JPanel.java to edit this template
  */
 package carrentalsystem.ui.user;
+
 import carrentalsystem.utils.RoundedBorder;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+
 /**
  *
  * @author macbookairm1grey
@@ -17,15 +19,14 @@ public class AddListPanel extends javax.swing.JPanel {
     /**
      * Creates new form AddListPanel
      */
-    
     private MainDashboard dashboard;
     private String selectedImagePath = null;
     private Object txtPrice;
     private int currentEditingCarId;
-    
+
     public AddListPanel() {
         initComponents();
-        
+
         // 1. Set the look of the card
         this.setBackground(java.awt.Color.WHITE);
         this.setOpaque(false); // Allows the MainDashboard nude background to show through corners
@@ -33,16 +34,16 @@ public class AddListPanel extends javax.swing.JPanel {
         // 2. Apply the Rounded Border (30px radius, subtle grey border)
         // Ensure you have created RoundedBorder.java in carrentalsystem.utils
         this.setBorder(new carrentalsystem.utils.RoundedBorder(30, new java.awt.Color(220, 220, 220), 1));
-        
+
         // Ensure preview is hidden initially
         lblPhotoPreview.setVisible(false);
-        
+
         // This removes the border from the scroll pane itself
         spDescription.setBorder(null);
         spDescription.setOpaque(false);
         spDescription.getViewport().setOpaque(false);
     }
-    
+
     private void clearForm() {
         txtBrand.setText("e.g., Toyota");
         txtModel.setText("e.g., Vios");
@@ -53,8 +54,16 @@ public class AddListPanel extends javax.swing.JPanel {
         lblImageIcon.setVisible(true);
         lblUploadText.setVisible(true);
         selectedImagePath = null;
+        txtBrand.setText("");
+        txtModel.setText("");
+        txtBasePrice.setText("");
+        txtDescription.setText("");
+        txtPlateNumber.setText("");
+        txtColor.setText("");
+        txtMileage.setText("");
+        cbDriverOption.setSelectedIndex(0);
     }
-    
+
     // Inside your AddList panel class (e.g., AddListPanel.java)
     public void prepareEdit(carrentalsystem.models.Car car) {
         // Fill text fields with existing car data
@@ -71,13 +80,13 @@ public class AddListPanel extends javax.swing.JPanel {
         // Change the button text from "Add Car" to "Update Listing"
         btnCreateListing.setText("Update Listing");
     }
-    
+
     public void prepareAdd() {
         this.currentEditingCarId = -1; // CRITICAL: Reset the state[cite: 10]
         clearForm();                   // Wipe the text fields
         btnCreateListing.setText("Create Listing"); // Fix the button label[cite: 10]
     }
-    
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -387,7 +396,7 @@ public class AddListPanel extends javax.swing.JPanel {
             }
         };
         lblVehicleType = new javax.swing.JLabel();
-        cbVehicleType = new javax.swing.JComboBox<String>() {
+        cbVehicleType1 = new javax.swing.JComboBox<String>() {
             {
                 setOpaque(false);
                 setBackground(new java.awt.Color(245, 245, 245));
@@ -560,6 +569,193 @@ public class AddListPanel extends javax.swing.JPanel {
             }
         }
         ;
+        lblPlateNumber = new javax.swing.JLabel();
+        txtPlateNumber = new javax.swing.JTextField() {
+            {
+                setOpaque(false);
+                setBackground(new java.awt.Color(245, 245, 245)); // Inner capsule color
+                setBorder(javax.swing.BorderFactory.createEmptyBorder(5, 50, 5, 15));
+
+                setUI(new javax.swing.plaf.basic.BasicTextFieldUI() {
+                    @Override
+                    protected void paintBackground(java.awt.Graphics g) {
+                        // We handle the background below
+                    }
+                });
+            }
+
+            @Override
+            protected void paintComponent(java.awt.Graphics g) {
+                java.awt.Graphics2D g2 = (java.awt.Graphics2D) g.create();
+                g2.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING, java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
+
+                // 1. FILL THE ENTIRE SQUARE WITH WHITE
+                // This matches your JPanel background and "hides" the corners
+                g2.setColor(java.awt.Color.WHITE);
+                g2.fillRect(0, 0, getWidth(), getHeight());
+
+                // 2. Draw the Grey Capsule on top of the white square
+                g2.setColor(getBackground());
+                g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 30, 30);
+
+                // 3. Draw the subtle border
+                g2.setColor(new java.awt.Color(220, 220, 220));
+                g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 30, 30);
+
+                // 4. Draw the Icon at X=15
+                try {
+                    java.net.URL imgUrl = getClass().getResource("/carrentalsystem/ui/user/Icons/BasePrice.png");
+                    if (imgUrl != null) {
+                        javax.swing.ImageIcon icon = new javax.swing.ImageIcon(imgUrl);
+                        g2.drawImage(icon.getImage(), 15, (getHeight() - 20) / 2, 20, 20, null);
+                    }
+                } catch (Exception e) {}
+
+                g2.dispose();
+                super.paintComponent(g);
+            }
+        };
+        lblMileage = new javax.swing.JLabel();
+        txtMileage = new javax.swing.JTextField() {
+            {
+                setOpaque(false);
+                setBackground(new java.awt.Color(245, 245, 245)); // Inner capsule color
+                setBorder(javax.swing.BorderFactory.createEmptyBorder(5, 50, 5, 15));
+
+                setUI(new javax.swing.plaf.basic.BasicTextFieldUI() {
+                    @Override
+                    protected void paintBackground(java.awt.Graphics g) {
+                        // We handle the background below
+                    }
+                });
+            }
+
+            @Override
+            protected void paintComponent(java.awt.Graphics g) {
+                java.awt.Graphics2D g2 = (java.awt.Graphics2D) g.create();
+                g2.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING, java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
+
+                // 1. FILL THE ENTIRE SQUARE WITH WHITE
+                // This matches your JPanel background and "hides" the corners
+                g2.setColor(java.awt.Color.WHITE);
+                g2.fillRect(0, 0, getWidth(), getHeight());
+
+                // 2. Draw the Grey Capsule on top of the white square
+                g2.setColor(getBackground());
+                g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 30, 30);
+
+                // 3. Draw the subtle border
+                g2.setColor(new java.awt.Color(220, 220, 220));
+                g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 30, 30);
+
+                // 4. Draw the Icon at X=15
+                try {
+                    java.net.URL imgUrl = getClass().getResource("/carrentalsystem/ui/user/Icons/BasePrice.png");
+                    if (imgUrl != null) {
+                        javax.swing.ImageIcon icon = new javax.swing.ImageIcon(imgUrl);
+                        g2.drawImage(icon.getImage(), 15, (getHeight() - 20) / 2, 20, 20, null);
+                    }
+                } catch (Exception e) {}
+
+                g2.dispose();
+                super.paintComponent(g);
+            }
+        };
+        lblColor = new javax.swing.JLabel();
+        txtColor = new javax.swing.JTextField() {
+            {
+                setOpaque(false);
+                setBackground(new java.awt.Color(245, 245, 245)); // Inner capsule color
+                setBorder(javax.swing.BorderFactory.createEmptyBorder(5, 50, 5, 15));
+
+                setUI(new javax.swing.plaf.basic.BasicTextFieldUI() {
+                    @Override
+                    protected void paintBackground(java.awt.Graphics g) {
+                        // We handle the background below
+                    }
+                });
+            }
+
+            @Override
+            protected void paintComponent(java.awt.Graphics g) {
+                java.awt.Graphics2D g2 = (java.awt.Graphics2D) g.create();
+                g2.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING, java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
+
+                // 1. FILL THE ENTIRE SQUARE WITH WHITE
+                // This matches your JPanel background and "hides" the corners
+                g2.setColor(java.awt.Color.WHITE);
+                g2.fillRect(0, 0, getWidth(), getHeight());
+
+                // 2. Draw the Grey Capsule on top of the white square
+                g2.setColor(getBackground());
+                g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 30, 30);
+
+                // 3. Draw the subtle border
+                g2.setColor(new java.awt.Color(220, 220, 220));
+                g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 30, 30);
+
+                // 4. Draw the Icon at X=15
+                try {
+                    java.net.URL imgUrl = getClass().getResource("/carrentalsystem/ui/user/Icons/BasePrice.png");
+                    if (imgUrl != null) {
+                        javax.swing.ImageIcon icon = new javax.swing.ImageIcon(imgUrl);
+                        g2.drawImage(icon.getImage(), 15, (getHeight() - 20) / 2, 20, 20, null);
+                    }
+                } catch (Exception e) {}
+
+                g2.dispose();
+                super.paintComponent(g);
+            }
+        };
+        lblDriverOption = new javax.swing.JLabel();
+        cbDriverOption = new javax.swing.JComboBox<String>() {
+            {
+                setOpaque(false);
+                setBackground(new java.awt.Color(245, 245, 245));
+
+                // 1. Completely override the UI to remove the vertical line and blue border
+                setUI(new javax.swing.plaf.basic.BasicComboBoxUI() {
+                    @Override
+                    protected javax.swing.JButton createArrowButton() {
+                        // Create a button that is invisible (no border/content)
+                        javax.swing.JButton button = new javax.swing.JButton();
+                        button.setBorderPainted(false);
+                        button.setContentAreaFilled(false);
+                        button.setFocusPainted(false);
+                        return button;
+                    }
+                });
+
+                // 2. Padding (Left: 15px so text doesn't touch the curve)
+                setBorder(javax.swing.BorderFactory.createEmptyBorder(5, 15, 5, 10));
+            }
+
+            @Override
+            protected void paintComponent(java.awt.Graphics g) {
+                java.awt.Graphics2D g2 = (java.awt.Graphics2D) g.create();
+                g2.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING, java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
+
+                // 3. Blend with your white card background
+                g2.setColor(java.awt.Color.WHITE);
+                g2.fillRect(0, 0, getWidth(), getHeight());
+
+                // 4. Draw the smooth capsule
+                g2.setColor(getBackground());
+                g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 20, 20);
+
+                g2.setColor(new java.awt.Color(220, 220, 220));
+                g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 20, 20);
+
+                // 5. Draw a simple Down Arrow manually (since we hid the button)
+                int[] xPoints = {getWidth() - 25, getWidth() - 20, getWidth() - 15};
+                int[] yPoints = {(getHeight() / 2) - 2, (getHeight() / 2) + 3, (getHeight() / 2) - 2};
+                g2.setColor(new java.awt.Color(100, 100, 100)); // Dark grey arrow
+                g2.fillPolygon(xPoints, yPoints, 3);
+
+                g2.dispose();
+                super.paintComponent(g);
+            }
+        };
 
         setBackground(new java.awt.Color(255, 255, 255));
         setPreferredSize(new java.awt.Dimension(800, 500));
@@ -614,15 +810,15 @@ public class AddListPanel extends javax.swing.JPanel {
         gridBagConstraints.weighty = 1.0;
         pnlImageUpload.add(lblPhotoPreview, gridBagConstraints);
 
-        add(pnlImageUpload, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 60, 360, 250));
+        add(pnlImageUpload, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 60, 350, 270));
 
         lblGenInfo.setFont(new java.awt.Font("Helvetica Neue", 1, 18)); // NOI18N
         lblGenInfo.setText("General Information");
-        add(lblGenInfo, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 60, -1, -1));
+        add(lblGenInfo, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 30, -1, -1));
 
         lblBrand.setFont(new java.awt.Font("Helvetica Neue", 1, 16)); // NOI18N
         lblBrand.setText("Brand");
-        add(lblBrand, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 100, -1, -1));
+        add(lblBrand, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 70, -1, -1));
 
         txtBrand.setBackground(new java.awt.Color(245, 245, 245));
         txtBrand.setColumns(35);
@@ -642,11 +838,11 @@ public class AddListPanel extends javax.swing.JPanel {
             }
         });
         txtBrand.addActionListener(this::txtBrandActionPerformed);
-        add(txtBrand, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 130, 300, 45));
+        add(txtBrand, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 100, 290, 40));
 
         lblBasePrice.setFont(new java.awt.Font("Helvetica Neue", 1, 16)); // NOI18N
         lblBasePrice.setText("Base Price (PHP)");
-        add(lblBasePrice, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 210, -1, -1));
+        add(lblBasePrice, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 170, -1, -1));
 
         txtBasePrice.setBackground(new java.awt.Color(245, 245, 245));
         txtBasePrice.setColumns(35);
@@ -656,11 +852,11 @@ public class AddListPanel extends javax.swing.JPanel {
         txtBasePrice.setMinimumSize(new java.awt.Dimension(400, 45));
         txtBasePrice.setOpaque(true);
         txtBasePrice.addActionListener(this::txtBasePriceActionPerformed);
-        add(txtBasePrice, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 240, 300, 45));
+        add(txtBasePrice, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 200, 290, 40));
 
         lblModel.setFont(new java.awt.Font("Helvetica Neue", 1, 16)); // NOI18N
         lblModel.setText("Model");
-        add(lblModel, new org.netbeans.lib.awtextra.AbsoluteConstraints(740, 100, -1, -1));
+        add(lblModel, new org.netbeans.lib.awtextra.AbsoluteConstraints(740, 70, -1, -1));
 
         txtModel.setBackground(new java.awt.Color(245, 245, 245));
         txtModel.setColumns(35);
@@ -680,11 +876,11 @@ public class AddListPanel extends javax.swing.JPanel {
             }
         });
         txtModel.addActionListener(this::txtModelActionPerformed);
-        add(txtModel, new org.netbeans.lib.awtextra.AbsoluteConstraints(740, 130, 320, 45));
+        add(txtModel, new org.netbeans.lib.awtextra.AbsoluteConstraints(740, 100, 310, 40));
 
         lblDescription.setFont(new java.awt.Font("Helvetica Neue", 1, 16)); // NOI18N
         lblDescription.setText("Description");
-        add(lblDescription, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 350, -1, -1));
+        add(lblDescription, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 350, -1, 40));
 
         spDescription.setOpaque(false);
 
@@ -705,53 +901,59 @@ public class AddListPanel extends javax.swing.JPanel {
         });
         spDescription.setViewportView(txtDescription);
 
-        add(spDescription, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 380, 360, 150));
+        add(spDescription, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 390, 350, 220));
 
         lblCondition.setFont(new java.awt.Font("Helvetica Neue", 1, 16)); // NOI18N
         lblCondition.setText("Condition");
-        add(lblCondition, new org.netbeans.lib.awtextra.AbsoluteConstraints(740, 210, -1, -1));
+        add(lblCondition, new org.netbeans.lib.awtextra.AbsoluteConstraints(740, 170, -1, -1));
 
         cbCondition.setBackground(new java.awt.Color(245, 245, 245));
         cbCondition.setFont(new java.awt.Font("Helvetica Neue", 0, 16)); // NOI18N
         cbCondition.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Excellent", "Good", "Fair" }));
         cbCondition.addActionListener(this::cbConditionActionPerformed);
-        add(cbCondition, new org.netbeans.lib.awtextra.AbsoluteConstraints(740, 240, 320, 45));
+        add(cbCondition, new org.netbeans.lib.awtextra.AbsoluteConstraints(740, 200, 310, 40));
 
         lblTransmission.setFont(new java.awt.Font("Helvetica Neue", 1, 16)); // NOI18N
         lblTransmission.setText("Transmission");
-        add(lblTransmission, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 330, -1, -1));
+        add(lblTransmission, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 450, -1, -1));
 
         cbTransmission.setBackground(new java.awt.Color(245, 245, 245));
         cbTransmission.setFont(new java.awt.Font("Helvetica Neue", 0, 16)); // NOI18N
         cbTransmission.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Manual", "Automatic", " " }));
-        add(cbTransmission, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 360, 300, 45));
+        add(cbTransmission, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 480, 290, 40));
 
         lblVehicleType.setFont(new java.awt.Font("Helvetica Neue", 1, 16)); // NOI18N
         lblVehicleType.setText("Vehicle Type");
-        add(lblVehicleType, new org.netbeans.lib.awtextra.AbsoluteConstraints(740, 330, -1, -1));
+        add(lblVehicleType, new org.netbeans.lib.awtextra.AbsoluteConstraints(740, 450, -1, -1));
 
-        cbVehicleType.setBackground(new java.awt.Color(245, 245, 245));
-        cbVehicleType.setFont(new java.awt.Font("Helvetica Neue", 0, 16)); // NOI18N
-        cbVehicleType.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Sedan", "SUV", "Hatchback", "Van", "Pickup", "Off-road", "Sports", "Convertible", "Crossover", "Wagon", "Muscle", "Roadster", "Cabriolet", "Limousine" }));
-        add(cbVehicleType, new org.netbeans.lib.awtextra.AbsoluteConstraints(740, 360, 320, 45));
+        cbVehicleType1.setBackground(new java.awt.Color(245, 245, 245));
+        cbVehicleType1.setFont(new java.awt.Font("Helvetica Neue", 0, 16)); // NOI18N
+        cbVehicleType1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Sedan", "SUV", "Hatchback", "Van", "Pickup", "Off-road", "Sports", "Convertible", "Crossover", "Wagon", "Muscle", "Roadster", "Cabriolet", "Limousine" }));
+        cbVehicleType1.setMinimumSize(new java.awt.Dimension(109, 27));
+        cbVehicleType1.setPreferredSize(new java.awt.Dimension(109, 27));
+        add(cbVehicleType1, new org.netbeans.lib.awtextra.AbsoluteConstraints(740, 480, 320, 40));
 
         lblFuelType.setFont(new java.awt.Font("Helvetica Neue", 1, 16)); // NOI18N
         lblFuelType.setText("Fuel Type");
-        add(lblFuelType, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 460, -1, -1));
+        add(lblFuelType, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 350, -1, -1));
 
         cbFuelType.setBackground(new java.awt.Color(245, 245, 245));
         cbFuelType.setFont(new java.awt.Font("Helvetica Neue", 0, 16)); // NOI18N
         cbFuelType.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Gasoline", "Diesel", "Electric", "Hybrid" }));
-        add(cbFuelType, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 490, 300, 45));
+        cbFuelType.setMinimumSize(new java.awt.Dimension(109, 27));
+        cbFuelType.setPreferredSize(new java.awt.Dimension(109, 27));
+        add(cbFuelType, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 380, 290, 40));
 
         lblSeats.setFont(new java.awt.Font("Helvetica Neue", 1, 16)); // NOI18N
         lblSeats.setText("Seats");
-        add(lblSeats, new org.netbeans.lib.awtextra.AbsoluteConstraints(740, 460, -1, -1));
+        add(lblSeats, new org.netbeans.lib.awtextra.AbsoluteConstraints(740, 350, -1, -1));
 
         cbSeats.setBackground(new java.awt.Color(245, 245, 245));
         cbSeats.setFont(new java.awt.Font("Helvetica Neue", 0, 16)); // NOI18N
         cbSeats.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "2", "4", "5", "7", "8", "12", "16" }));
-        add(cbSeats, new org.netbeans.lib.awtextra.AbsoluteConstraints(740, 490, 320, 45));
+        cbSeats.setMinimumSize(new java.awt.Dimension(109, 27));
+        cbSeats.setPreferredSize(new java.awt.Dimension(109, 27));
+        add(cbSeats, new org.netbeans.lib.awtextra.AbsoluteConstraints(740, 380, 310, 40));
 
         btnCreateListing.setBackground(new java.awt.Color(156, 142, 128));
         btnCreateListing.setFont(new java.awt.Font("Helvetica Neue", 1, 24)); // NOI18N
@@ -760,38 +962,91 @@ public class AddListPanel extends javax.swing.JPanel {
         btnCreateListing.setContentAreaFilled(false);
         btnCreateListing.setPreferredSize(new java.awt.Dimension(200, 50));
         btnCreateListing.addActionListener(this::btnCreateListingActionPerformed);
-        add(btnCreateListing, new org.netbeans.lib.awtextra.AbsoluteConstraints(380, 580, 400, -1));
+        add(btnCreateListing, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 630, 400, -1));
+
+        lblPlateNumber.setFont(new java.awt.Font("Helvetica Neue", 1, 16)); // NOI18N
+        lblPlateNumber.setText("Plate Number");
+        add(lblPlateNumber, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 260, -1, -1));
+
+        txtPlateNumber.setBackground(new java.awt.Color(245, 245, 245));
+        txtPlateNumber.setColumns(35);
+        txtPlateNumber.setFont(new java.awt.Font("Helvetica Neue", 0, 16)); // NOI18N
+        txtPlateNumber.setBorder(javax.swing.BorderFactory.createEmptyBorder(5, 45, 5, 5));
+        txtPlateNumber.setMargin(new java.awt.Insets(5, 35, 5, 10));
+        txtPlateNumber.setMinimumSize(new java.awt.Dimension(400, 45));
+        txtPlateNumber.setOpaque(true);
+        txtPlateNumber.addActionListener(this::txtPlateNumberActionPerformed);
+        add(txtPlateNumber, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 290, 290, 40));
+
+        lblMileage.setFont(new java.awt.Font("Helvetica Neue", 1, 16)); // NOI18N
+        lblMileage.setText("Mileage");
+        add(lblMileage, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 540, -1, -1));
+
+        txtMileage.setBackground(new java.awt.Color(245, 245, 245));
+        txtMileage.setColumns(35);
+        txtMileage.setFont(new java.awt.Font("Helvetica Neue", 0, 16)); // NOI18N
+        txtMileage.setBorder(javax.swing.BorderFactory.createEmptyBorder(5, 45, 5, 5));
+        txtMileage.setMargin(new java.awt.Insets(5, 35, 5, 10));
+        txtMileage.setMinimumSize(new java.awt.Dimension(400, 45));
+        txtMileage.setOpaque(true);
+        txtMileage.addActionListener(this::txtMileageActionPerformed);
+        add(txtMileage, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 570, 290, 40));
+
+        lblColor.setFont(new java.awt.Font("Helvetica Neue", 1, 16)); // NOI18N
+        lblColor.setText("Color");
+        add(lblColor, new org.netbeans.lib.awtextra.AbsoluteConstraints(740, 260, -1, -1));
+
+        txtColor.setBackground(new java.awt.Color(245, 245, 245));
+        txtColor.setColumns(35);
+        txtColor.setFont(new java.awt.Font("Helvetica Neue", 0, 16)); // NOI18N
+        txtColor.setBorder(javax.swing.BorderFactory.createEmptyBorder(5, 45, 5, 5));
+        txtColor.setMargin(new java.awt.Insets(5, 35, 5, 10));
+        txtColor.setMinimumSize(new java.awt.Dimension(400, 45));
+        txtColor.setOpaque(true);
+        txtColor.addActionListener(this::txtColorActionPerformed);
+        add(txtColor, new org.netbeans.lib.awtextra.AbsoluteConstraints(740, 290, 310, 40));
+
+        lblDriverOption.setFont(new java.awt.Font("Helvetica Neue", 1, 16)); // NOI18N
+        lblDriverOption.setText("Driver");
+        add(lblDriverOption, new org.netbeans.lib.awtextra.AbsoluteConstraints(740, 540, -1, -1));
+
+        cbDriverOption.setBackground(new java.awt.Color(245, 245, 245));
+        cbDriverOption.setFont(new java.awt.Font("Helvetica Neue", 0, 16)); // NOI18N
+        cbDriverOption.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "With Driver", "Without Driver" }));
+        cbDriverOption.setMinimumSize(new java.awt.Dimension(109, 27));
+        cbDriverOption.setPreferredSize(new java.awt.Dimension(109, 27));
+        add(cbDriverOption, new org.netbeans.lib.awtextra.AbsoluteConstraints(740, 570, 320, 40));
     }// </editor-fold>//GEN-END:initComponents
 
     private void pnlImageUploadMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pnlImageUploadMouseClicked
         // TODO add your handling code here:
-    javax.swing.JFileChooser fileChooser = new javax.swing.JFileChooser();
-    javax.swing.filechooser.FileNameExtensionFilter filter
-        = new javax.swing.filechooser.FileNameExtensionFilter("Images", "jpg", "png", "jpeg");
-    fileChooser.setFileFilter(filter);
-    
-    int result = fileChooser.showOpenDialog(this);
-    
-    if (result == javax.swing.JFileChooser.APPROVE_OPTION) {
-        java.io.File selectedFile = fileChooser.getSelectedFile();
-        
-        // 1. Save path to a class variable
-        this.selectedImagePath = carrentalsystem.utils.ImageUtil.copyImage(selectedFile);
-        
-        if (selectedImagePath != null) {
-            // 2. HIDE the instructions
-            lblImageIcon.setVisible(false);
-            lblUploadText.setVisible(false);
-            
-            // 3. SHOW and update the preview label
-            lblPhotoPreview.setVisible(true);
-            carrentalsystem.utils.ImageUtil.applyScaledImage(lblPhotoPreview, selectedImagePath, 450, 250);
-            
-            // 4. Refresh to ensure the new image paints
-            pnlImageUpload.revalidate();
-            pnlImageUpload.repaint();
+        javax.swing.JFileChooser fileChooser = new javax.swing.JFileChooser();
+        javax.swing.filechooser.FileNameExtensionFilter filter
+                = new javax.swing.filechooser.FileNameExtensionFilter("Images", "jpg", "png", "jpeg");
+        fileChooser.setFileFilter(filter);
+
+        int result = fileChooser.showOpenDialog(this);
+
+        if (result == javax.swing.JFileChooser.APPROVE_OPTION) {
+            java.io.File selectedFile = fileChooser.getSelectedFile();
+
+            // 1. Save path to a class variable
+            this.selectedImagePath = carrentalsystem.utils.ImageUtil.copyImage(selectedFile);
+
+            if (selectedImagePath != null) {
+                // 2. HIDE the instructions
+                lblImageIcon.setVisible(false);
+                lblUploadText.setVisible(false);
+
+                // 3. SHOW and update the preview label
+                lblPhotoPreview.setVisible(true);
+                carrentalsystem.utils.ImageUtil.applyScaledImage(lblPhotoPreview, selectedImagePath, 450, 250);
+
+                // 4. Refresh to ensure the new image paints
+                pnlImageUpload.revalidate();
+                pnlImageUpload.repaint();
+            }
         }
-    }
     }//GEN-LAST:event_pnlImageUploadMouseClicked
 
     private void txtBrandActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtBrandActionPerformed
@@ -839,107 +1094,116 @@ public class AddListPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_txtModelActionPerformed
 
     private void btnCreateListingActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCreateListingActionPerformed
-        // TODO add your handling code here:
-        carrentalsystem.models.User user = carrentalsystem.core.SessionManager.getCurrentUser();
 
-        // Safety check for NEW listings only (currentEditingCarId == -1)
+        carrentalsystem.models.User user = carrentalsystem.core.SessionManager.getCurrentUser();
+        if (user == null) {
+            return;
+        }
+
+        // 1. Safety check for NEW listings limit (Only for FREE users)
         if (currentEditingCarId == -1 && "FREE".equalsIgnoreCase(user.getTier())) {
             try {
                 int count = new carrentalsystem.services.CarService().countUserListings(user.getUserId());
                 if (count >= 5) {
-                    javax.swing.JOptionPane.showMessageDialog(this, "Limit reached! Free accounts are restricted to 5 listings.");
+                    javax.swing.JOptionPane.showMessageDialog(this,
+                            "Limit reached! Free accounts are restricted to 5 listings.\nUpgrade to PRO for unlimited listings.");
                     return;
                 }
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
-        
-        //Debug
-        System.out.println("[DEBUG] Create Button Clicked");
-        
-        // Basic UI Validation
+
+        // 2. Extract Data from UI
         String brand = txtBrand.getText().trim();
         String model = txtModel.getText().trim();
         String priceStr = txtBasePrice.getText().trim();
         String description = txtDescription.getText().trim();
-        
-        //Debug
-        System.out.println("[DEBUG] Inputs - Brand: " + brand + ", Model: " + model + ", Price: " + priceStr);
-        
-        if (brand.isEmpty() || brand.equals("e.g., Toyota") || model.isEmpty() || selectedImagePath == null) {
-            javax.swing.JOptionPane.showMessageDialog(this, "Please fill in all fields and upload a car photo.");
+        String plateNumber = txtPlateNumber.getText().trim();
+        String color = txtColor.getText().trim();
+        String mileageStr = txtMileage.getText().trim();
+
+        // Convert Driver Option String to Boolean
+        String driverOption = cbDriverOption.getSelectedItem().toString();
+        boolean hasDriver = driverOption.equalsIgnoreCase("Yes") || driverOption.equalsIgnoreCase("With Driver");
+
+        // 3. Validation - Ensure no critical fields are empty
+        if (brand.isEmpty() || brand.equals("e.g., Toyota") || model.isEmpty()
+                || plateNumber.isEmpty() || color.isEmpty() || mileageStr.isEmpty()
+                || priceStr.isEmpty() || selectedImagePath == null) {
+
+            javax.swing.JOptionPane.showMessageDialog(this,
+                    "Please fill in all fields (Plate, Color, Mileage, Price) and upload a car photo.");
             return;
         }
 
         try {
-            // 2. Create the Car object to match the Service's mapCar structure
-            carrentalsystem.models.Car newCar = new carrentalsystem.models.Car();
+            // 4. Populate the Car object
+            carrentalsystem.models.Car carObj = new carrentalsystem.models.Car();
 
-            // Populate fields based on your ComboBoxes and TextFields
-            newCar.setOwnerId(carrentalsystem.core.SessionManager.getCurrentUser().getUserId());
-            newCar.setBrand(brand);
-            newCar.setModel(model);
-            newCar.setBasePrice(Double.parseDouble(priceStr));
-            newCar.setDescription(description);
-            newCar.setImagePath(selectedImagePath); // Stored path from ImageUtil.copyImage
+            carObj.setOwnerId(user.getUserId());
+            carObj.setBrand(brand);
+            carObj.setModel(model);
+            carObj.setBasePrice(Double.parseDouble(priceStr));
+            carObj.setDescription(description);
+            carObj.setImagePath(selectedImagePath);
 
-            // These match the new columns we added to the DB and mapCar
-            newCar.setSeats(Integer.parseInt(cbSeats.getSelectedItem().toString()));
-            newCar.setType(cbVehicleType.getSelectedItem().toString());
-            newCar.setTransmission(cbTransmission.getSelectedItem().toString());
-            newCar.setFuelType(cbFuelType.getSelectedItem().toString());
-            newCar.setCondition(cbCondition.getSelectedItem().toString());
+            // Map New Technical Fields
+            carObj.setPlateNumber(plateNumber);
+            carObj.setColor(color);
+            carObj.setHasDriver(hasDriver);
 
-            // Set defaults for the remaining fields
-            newCar.setStatus("PENDING_APPROVAL");
-            newCar.setPriority(false);
+            // Use setMileage if your model uses that name, or setMileageLimit based on your Car.java
+            // Based on your previous files, I'm using the Integer conversion here:
+            carObj.setMileageLimit(Integer.parseInt(mileageStr));
 
-            // 3. Call the Service to save to Database
-            carrentalsystem.interfaces.ICarService carService = new carrentalsystem.services.CarService();
-            
-            if(currentEditingCarId == -1){
-            int generatedId = carService.addCar(newCar);
-            System.out.println("[DEBUG] AddCar Result ID: " + generatedId);
-            
-            if (generatedId != -1) {
-                //Debug
-                System.out.println("[DEBUG] Database Save Successful. ID: " + generatedId);
-                
-                newCar.setCarId(generatedId);
-                javax.swing.JOptionPane.showMessageDialog(this,
-                        "Listing created successfully!\nPending for approval from the admin.",
-                        "Success",
-                        javax.swing.JOptionPane.INFORMATION_MESSAGE);
-            }
+            // Map ComboBoxes correctly
+            carObj.setSeats(Integer.parseInt(cbSeats.getSelectedItem().toString()));
+            carObj.setTransmission(cbTransmission.getSelectedItem().toString());
+            carObj.setFuelType(cbFuelType.getSelectedItem().toString());
+            carObj.setCondition(cbCondition.getSelectedItem().toString());
+
+            // Fix: setType should come from cbVehicleType, not cbDriverOption
+            carObj.setType(cbVehicleType1.getSelectedItem().toString());
+
+            carObj.setStatus("PENDING_APPROVAL");
+            carObj.setPriority(false);
+
+            // 5. Database Operations
+            carrentalsystem.services.CarService carService = new carrentalsystem.services.CarService();
+
+            if (currentEditingCarId == -1) {
+                // Adding New Car
+                int generatedId = carService.addCar(carObj);
+                if (generatedId != -1) {
+                    carObj.setCarId(generatedId);
+                    javax.swing.JOptionPane.showMessageDialog(this, "Listing created successfully!\nPending for admin approval.");
+                }
             } else {
-                newCar.setCarId(currentEditingCarId);
-                carService.updateCar(newCar);
-                
+                // Updating Existing Car
+                carObj.setCarId(currentEditingCarId);
+                carService.updateCar(carObj);
                 javax.swing.JOptionPane.showMessageDialog(this, "Listing updated successfully!");
-                
             }
-            
-            // 4. Update the Dashboard Feed immediately
+
+            // 6. Refresh UI and Navigate
             if (dashboard != null) {
-                //Debug
-                System.out.println("[DEBUG] Calling Dashboard Refresh...");
                 dashboard.refreshCarFeed();
-                dashboard.showCarDetails(newCar);
-            } else {
-                System.out.println("[DEBUG] ERROR: Dashboard reference is NULL!");
+                // Automatically show the details of the car just created/edited
+                dashboard.showCarDetails(carObj);
             }
-            
+
+            // Reset Form
             currentEditingCarId = -1;
             btnCreateListing.setText("Create Listing");
             clearForm();
 
+        } catch (NumberFormatException e) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Price and Mileage must be valid numbers.");
         } catch (Exception e) {
-            //Debug
-            System.out.println("[DEBUG] Exception: " + e.getMessage());
             e.printStackTrace();
-            //javax.swing.JOptionPane.showMessageDialog(this, "Please enter a valid numeric price.");
-        } 
+            javax.swing.JOptionPane.showMessageDialog(this, "An error occurred: " + e.getMessage());
+        }
     }//GEN-LAST:event_btnCreateListingActionPerformed
 
     private void cbConditionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbConditionActionPerformed
@@ -961,11 +1225,23 @@ public class AddListPanel extends javax.swing.JPanel {
             txtDescription.setForeground(new java.awt.Color(180, 180, 180)); // Light grey
         }
     }//GEN-LAST:event_txtDescriptionFocusLost
-    
+
+    private void txtPlateNumberActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtPlateNumberActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtPlateNumberActionPerformed
+
+    private void txtMileageActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtMileageActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtMileageActionPerformed
+
+    private void txtColorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtColorActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtColorActionPerformed
+
     public void setDashboard(MainDashboard dashboard) {
         this.dashboard = dashboard;
     }
-    
+
     @Override
     protected void paintComponent(java.awt.Graphics g) {
         java.awt.Graphics2D g2 = (java.awt.Graphics2D) g.create();
@@ -978,24 +1254,29 @@ public class AddListPanel extends javax.swing.JPanel {
         g2.dispose();
         super.paintComponent(g);
     }
-    
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnCreateListing;
     private javax.swing.JComboBox<String> cbCondition;
+    private javax.swing.JComboBox<String> cbDriverOption;
     private javax.swing.JComboBox<String> cbFuelType;
     private javax.swing.JComboBox<String> cbSeats;
     private javax.swing.JComboBox<String> cbTransmission;
-    private javax.swing.JComboBox<String> cbVehicleType;
+    private javax.swing.JComboBox<String> cbVehicleType1;
     private javax.swing.JLabel lblBasePrice;
     private javax.swing.JLabel lblBrand;
+    private javax.swing.JLabel lblColor;
     private javax.swing.JLabel lblCondition;
     private javax.swing.JLabel lblDescription;
+    private javax.swing.JLabel lblDriverOption;
     private javax.swing.JLabel lblFuelType;
     private javax.swing.JLabel lblGenInfo;
     private javax.swing.JLabel lblImageIcon;
+    private javax.swing.JLabel lblMileage;
     private javax.swing.JLabel lblModel;
     private javax.swing.JLabel lblPhotoPreview;
+    private javax.swing.JLabel lblPlateNumber;
     private javax.swing.JLabel lblSeats;
     private javax.swing.JLabel lblTitle;
     private javax.swing.JLabel lblTransmission;
@@ -1005,7 +1286,10 @@ public class AddListPanel extends javax.swing.JPanel {
     private javax.swing.JScrollPane spDescription;
     private javax.swing.JTextField txtBasePrice;
     private javax.swing.JTextField txtBrand;
+    private javax.swing.JTextField txtColor;
     private javax.swing.JTextArea txtDescription;
+    private javax.swing.JTextField txtMileage;
     private javax.swing.JTextField txtModel;
+    private javax.swing.JTextField txtPlateNumber;
     // End of variables declaration//GEN-END:variables
 }

@@ -24,14 +24,39 @@ public class ViewingDocumentsPanel extends javax.swing.JFrame {
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(ViewingDocumentsPanel.class.getName());
     private final IAdminService adminService = new AdminService();
     private List<carrentalsystem.models.User> currentUsers;
-
+    private carrentalsystem.models.User currentUser;
     
     public ViewingDocumentsPanel() {
         initComponents();
+
+        // 1. Set the correct close operation so it doesn't close your whole app
+        this.setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+
+        // 2. Setup your UI styles
         setupTableStyles();
-        setupDocumentGallery();
-        
+
+        // 3. Center the window and maximize it
         this.setExtendedState(javax.swing.JFrame.MAXIMIZED_BOTH);
+        this.setLocationRelativeTo(null);
+
+        // 4. Safety Check: Only load if a user exists
+        if (this.currentUser != null) {
+            loadUserDocuments();
+        } else {
+            // If opened from main() or testing, show placeholders
+            setupDocumentGallery("Placeholder", null);
+        }
+    }
+    
+    public ViewingDocumentsPanel(carrentalsystem.models.User user) {
+        this.currentUser = user;
+        initComponents();
+
+        // This ensures ONLY this window closes, not the whole app
+        this.setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+
+        this.setLocationRelativeTo(null);
+        loadUserDocuments();
     }
     
     private void setupTableStyles() {
@@ -57,69 +82,111 @@ public class ViewingDocumentsPanel extends javax.swing.JFrame {
     }
 }
     
-    public void setupDocumentGallery() {
-    pnlImageContainer.removeAll(); // Clear existing slots
-    
-    // Create 8 slots as an example
-    for (int i = 0; i < 8; i++) {
-        // 1. Create a Label to hold the image
+    public void setupDocumentGallery(String docName, String path) {
+        // If there is no path, don't create a slot
+        if (path == null || path.isEmpty()) {
+            return;
+        }
+
+        // 1. Create the Label using your existing styling
         JLabel lblPic = new JLabel();
         lblPic.setPreferredSize(new java.awt.Dimension(200, 150));
-        
-        // 2. Styling: Add a subtle border to each picture slot
-        lblPic.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(60, 60, 60), 2));
-        
-        // 3. Set a placeholder or actual icon
-        final String imagePath = "/path/to/your/image.png"; // Replace with your actual database path
-        
-        // 4. Click Listener for Enlarging
+        lblPic.setBorder(javax.swing.BorderFactory.createTitledBorder(
+                javax.swing.BorderFactory.createLineBorder(new java.awt.Color(60, 60, 60), 2),
+                docName, 0, 0, null, Color.WHITE));
+
+        // 2. Load and scale the image from the DB path
+        try {
+            ImageIcon icon = new ImageIcon(path);
+            Image img = icon.getImage().getScaledInstance(200, 150, Image.SCALE_SMOOTH);
+            lblPic.setIcon(new ImageIcon(img));
+        } catch (Exception e) {
+            lblPic.setText("Image not found");
+        }
+
+        // 3. Your existing Click Listener for Enlarging
         lblPic.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                // Trigger your enlargement pop-up here
-                javax.swing.JOptionPane.showMessageDialog(null, "Enlarging Image...");
+                showEnlargedImage(path);
             }
         });
 
         pnlImageContainer.add(lblPic);
     }
     
-    // Refresh the UI to show the new elements
-    pnlImageContainer.revalidate();
-    pnlImageContainer.repaint();
-}
-    
     private boolean areAllRequirementsMet() {
-    return chkOCR.isSelected() && // Use the actual variable names from your Navigator
-           chkOR.isSelected() && 
-           chkGovID.isSelected() && 
-           chkDriLicense.isSelected() && 
-           chkVehiclePhotos.isSelected() && 
-           chkPI.isSelected();
-}
+        return chkOCR.isSelected()
+                && // Use the actual variable names from your Navigator
+                chkOR.isSelected()
+                && chkGovID.isSelected()
+                && chkDriLicense.isSelected()
+                && chkVehiclePhotos.isSelected()
+                && chkPI.isSelected();
+    }
     
     private void showEnlargedImage(String path) {
-    // Create a pop-up window (JDialog)
-    JDialog viewer = new JDialog(this, "Document Viewer", true);
-    
-    // Create a label to hold the full-size image
-    JLabel lblFull = new JLabel(new ImageIcon(path));
-    
-    // Add a scroll pane in case the image is bigger than the screen
-    JScrollPane scroll = new JScrollPane(lblFull);
-    
-    viewer.add(scroll);
-    viewer.setSize(900, 700); // Set a large size for the viewer
-    viewer.setLocationRelativeTo(this); // Center it on your dashboard
-    viewer.setVisible(true);
-}
+        // Create a pop-up window (JDialog)
+        JDialog viewer = new JDialog(this, "Document Viewer", true);
+
+        // Create a label to hold the full-size image
+        JLabel lblFull = new JLabel(new ImageIcon(path));
+
+        // Add a scroll pane in case the image is bigger than the screen
+        JScrollPane scroll = new JScrollPane(lblFull);
+
+        viewer.add(scroll);
+        viewer.setSize(900, 700); // Set a large size for the viewer
+        viewer.setLocationRelativeTo(this); // Center it on your dashboard
+        viewer.setVisible(true);
+    }
     
     private void enlargeCheckboxes() {
-    JCheckBox[] boxes = {chkOR, chkOR, chkGovID, chkDriLicense, chkVehiclePhotos, chkPI};
-    for (JCheckBox cb : boxes) {
-        // This scales the rendering of the component
-        cb.setFont(new Font("Segoe UI", Font.PLAIN, 20)); // Match your dark aesthetic
+        JCheckBox[] boxes = {chkOR, chkOR, chkGovID, chkDriLicense, chkVehiclePhotos, chkPI};
+        for (JCheckBox cb : boxes) {
+            // This scales the rendering of the component
+            cb.setFont(new Font("Segoe UI", Font.PLAIN, 20)); // Match your dark aesthetic
+        }
     }
-}
+    
+    private void loadUserDocuments() {
+        pnlImageContainer.removeAll();
+
+        try (java.sql.Connection conn = carrentalsystem.core.DBConnection.getConnection()) {
+            String type = currentUser.getUserType();
+
+            if ("LISTER".equals(type) || "BOTH".equals(type)) {
+                // Use existing SQL structure for Listers
+                String sql = "SELECT * FROM lister_requirements WHERE user_id = ? ORDER BY submitted_at DESC LIMIT 1";
+                java.sql.PreparedStatement ps = conn.prepareStatement(sql);
+                ps.setInt(1, currentUser.getUserId());
+                java.sql.ResultSet rs = ps.executeQuery();
+
+                if (rs.next()) {
+                    setupDocumentGallery("Valid ID", rs.getString("valid_id_path"));
+                    setupDocumentGallery("Selfie", rs.getString("selfie_photo_path"));
+                    setupDocumentGallery("LTO Doc", rs.getString("lto_document_path"));
+                }
+            } else {
+                // Use existing SQL structure for Renters
+                String sql = "SELECT valid_id_path FROM renter_verifications WHERE renter_id = ? LIMIT 1";
+                java.sql.PreparedStatement ps = conn.prepareStatement(sql);
+                ps.setInt(1, currentUser.getUserId());
+                java.sql.ResultSet rs = ps.executeQuery();
+
+                if (rs.next()) {
+                    setupDocumentGallery("Renter ID", rs.getString("valid_id_path"));
+                    pnlChecklist.setVisible(false); // Hide the lister checklist
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Database Access Error: " + e.getMessage());
+        }
+
+        pnlImageContainer.revalidate();
+        pnlImageContainer.repaint();
+    }
+    
+    
     
 
 
@@ -424,98 +491,96 @@ public class ViewingDocumentsPanel extends javax.swing.JFrame {
 
     private void btnSendChatActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSendChatActionPerformed
 
-    String message = txtChatInput.getText().trim();
+        String message = txtChatInput.getText().trim();
 
-    if (!message.isEmpty()) {
+        if (!message.isEmpty()) {
 
-        // Wrapper panel
-        JPanel messagePanel = new JPanel();
-        messagePanel.setLayout(new FlowLayout(FlowLayout.LEFT));
-        messagePanel.setOpaque(false);
+            // Wrapper panel
+            JPanel messagePanel = new JPanel();
+            messagePanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+            messagePanel.setOpaque(false);
 
-        // Message text area
-        JTextArea txtMessage = new JTextArea("Admin: " + message);
+            // Message text area
+            JTextArea txtMessage = new JTextArea("Admin: " + message);
 
-        txtMessage.setLineWrap(true);
-        txtMessage.setWrapStyleWord(true);
+            txtMessage.setLineWrap(true);
+            txtMessage.setWrapStyleWord(true);
 
-        txtMessage.setEditable(false);
-        txtMessage.setFocusable(false);
+            txtMessage.setEditable(false);
+            txtMessage.setFocusable(false);
 
-        txtMessage.setForeground(Color.WHITE);
-        txtMessage.setBackground(new Color(0, 102, 204));
+            txtMessage.setForeground(Color.WHITE);
+            txtMessage.setBackground(new Color(0, 102, 204));
 
-        txtMessage.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+            txtMessage.setFont(new Font("Segoe UI", Font.PLAIN, 14));
 
-        txtMessage.setBorder(
-            BorderFactory.createEmptyBorder(10, 15, 10, 15)
-        );
+            txtMessage.setBorder(
+                    BorderFactory.createEmptyBorder(10, 15, 10, 15)
+            );
 
-        // Width control
-        txtMessage.setColumns(20);
+            // Width control
+            txtMessage.setColumns(20);
 
-        // Auto height adjustment
-        txtMessage.setSize(250, Short.MAX_VALUE);
+            // Auto height adjustment
+            txtMessage.setSize(250, Short.MAX_VALUE);
 
-        // Rounded bubble panel
-        JPanel bubble = new JPanel(new BorderLayout()) {
+            // Rounded bubble panel
+            JPanel bubble = new JPanel(new BorderLayout()) {
 
-            @Override
-            protected void paintComponent(Graphics g) {
+                @Override
+                protected void paintComponent(Graphics g) {
 
-                Graphics2D g2 = (Graphics2D) g;
+                    Graphics2D g2 = (Graphics2D) g;
 
-                g2.setRenderingHint(
-                    RenderingHints.KEY_ANTIALIASING,
-                    RenderingHints.VALUE_ANTIALIAS_ON
-                );
+                    g2.setRenderingHint(
+                            RenderingHints.KEY_ANTIALIASING,
+                            RenderingHints.VALUE_ANTIALIAS_ON
+                    );
 
-                g2.setColor(new Color(0, 102, 204));
+                    g2.setColor(new Color(0, 102, 204));
 
-                g2.fillRoundRect(
-                    0,
-                    0,
-                    getWidth(),
-                    getHeight(),
-                    25,
-                    25
-                );
+                    g2.fillRoundRect(
+                            0,
+                            0,
+                            getWidth(),
+                            getHeight(),
+                            25,
+                            25
+                    );
 
-                super.paintComponent(g);
-            }
-        };
+                    super.paintComponent(g);
+                }
+            };
 
-        bubble.setOpaque(false);
+            bubble.setOpaque(false);
 
-        bubble.add(txtMessage);
+            bubble.add(txtMessage);
 
-        messagePanel.add(bubble);
+            messagePanel.add(bubble);
 
-        // Add message to chat history
-        pnlChatHistory.add(messagePanel);
+            // Add message to chat history
+            pnlChatHistory.add(messagePanel);
 
-        // Refresh UI
-        pnlChatHistory.revalidate();
-        pnlChatHistory.repaint();
+            // Refresh UI
+            pnlChatHistory.revalidate();
+            pnlChatHistory.repaint();
 
-        // Clear input
-        txtChatInput.setText("");
+            // Clear input
+            txtChatInput.setText("");
 
-        // Scroll automatically
-        SwingUtilities.invokeLater(() -> {
+            // Scroll automatically
+            SwingUtilities.invokeLater(() -> {
 
-            JScrollBar vertical =
-                jScrollPaneChat.getVerticalScrollBar();
+                JScrollBar vertical
+                        = jScrollPaneChat.getVerticalScrollBar();
 
-            vertical.setValue(vertical.getMaximum());
+                vertical.setValue(vertical.getMaximum());
 
-        });
-    }
+            });
+        }
     }//GEN-LAST:event_btnSendChatActionPerformed
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
-        ListingApplicantsPanel applicants = new ListingApplicantsPanel();
-        applicants.setVisible(true);
         this.dispose();
     }//GEN-LAST:event_jButton4ActionPerformed
 /**/

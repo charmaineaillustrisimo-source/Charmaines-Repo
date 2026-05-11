@@ -28,8 +28,7 @@ public interface IMessageService {
      * Inserts a new message row into the messages table. Pass carId = 0 if not
      * related to a specific car.
      */
-    void sendMessage(int senderId, int receiverId, int carId, String content)
-            throws SQLException;
+    void sendMessage(int senderId, int receiverId, int carId, String content, int bookingId) throws SQLException;
 
     /**
      * Marks all messages from senderId to receiverId as is_read = TRUE. Called

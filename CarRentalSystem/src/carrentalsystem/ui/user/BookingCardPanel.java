@@ -103,71 +103,120 @@ public class BookingCardPanel extends JPanel{
         }
 
         private void buildActionButtons(JPanel pnlActions) {
-            String status = booking.getStatus() != null
-                    ? booking.getStatus().toUpperCase() : "PENDING";
+        String status = booking.getStatus() != null
+                ? booking.getStatus().toUpperCase() : "PENDING";
 
-            if (isOwner) {
-                // ── OWNER VIEW ──────────────────────────────────
-                if ("PENDING".equals(status)) {
-                    JButton btnApprove = makeButton("Approve", new Color(45, 36, 34));
-                    JButton btnReject = makeButton("Reject", new Color(180, 80, 80));
+        if (isOwner) {
+            // ── OWNER VIEW ──────────────────────────────────
+            if ("PENDING".equals(status)) {
+                JButton btnApprove = makeButton("Approve", new Color(45, 36, 34));
+                JButton btnReject = makeButton("Reject", new Color(180, 80, 80));
 
-                    btnApprove.addActionListener(e -> {
-                        updateBookingStatus("CONFIRMED");
-                        refreshCard("CONFIRMED");
-                    });
-                    btnReject.addActionListener(e -> {
-                        updateBookingStatus("REJECTED");
-                        refreshCard("REJECTED");
-                    });
+                btnApprove.addActionListener(e -> {
+                    updateBookingStatus("CONFIRMED");
+                    refreshCard("CONFIRMED");
+                });
+                btnReject.addActionListener(e -> {
+                    updateBookingStatus("REJECTED");
+                    refreshCard("REJECTED");
+                });
 
-                    pnlActions.add(btnApprove);
-                    pnlActions.add(btnReject);
+                pnlActions.add(btnApprove);
+                pnlActions.add(btnReject);
 
-                } else if ("CONFIRMED".equals(status)) {
-                    JButton btnPaid = makeButton("Paid", new Color(60, 130, 80));
-                    JButton btnNotPaid = makeButton("Not Paid", new Color(180, 80, 80));
+            } else if ("CONFIRMED".equals(status)) {
+                // Owner can also manually mark as paid if receiving cash
+                JButton btnPaid = makeButton("Mark Paid", new Color(60, 130, 80));
+                btnPaid.addActionListener(e -> {
+                    handlePaymentFlow(); // This handles the DB updates and Receipt
+                });
+                pnlActions.add(btnPaid);
+            }
 
-                    btnPaid.addActionListener(e -> {
-                        updateBookingStatus("SUCCESSFUL");
-                        refreshCard("SUCCESSFUL");
-                    });
-                    btnNotPaid.addActionListener(e -> {
-                        updateBookingStatus("CANCELLED");
-                        refreshCard("CANCELLED");
-                    });
-
-                    pnlActions.add(btnPaid);
-                    pnlActions.add(btnNotPaid);
-                }
-
+        } else {
+            // ── RENTER VIEW ─────────────────────────────────
+            if ("CONFIRMED".equals(status)) {
+                // This is the trigger you asked for
+                JButton btnPayNow = makeButton("PAY NOW", new Color(60, 130, 80));
+                btnPayNow.addActionListener(e -> {
+                    handlePaymentFlow();
+                });
+                pnlActions.add(btnPayNow);
             } else {
-                // ── RENTER VIEW ─────────────────────────────────
-                // Renter only sees the status badge — no buttons
-                // The badge in the details grid already shows it
                 JLabel lblInfo = new JLabel(getRenterStatusMessage(status));
                 lblInfo.setFont(new Font("Helvetica Neue", Font.ITALIC, 12));
                 lblInfo.setForeground(new Color(100, 80, 75));
                 pnlActions.add(lblInfo);
             }
         }
+    }
 
-        private String getRenterStatusMessage(String status) {
-            switch (status) {
-                case "PENDING":
-                    return "Waiting for owner approval...";
-                case "CONFIRMED":
-                    return "Approved — please prepare payment.";
-                case "SUCCESSFUL":
-                    return "Payment confirmed. Enjoy your trip!";
-                case "REJECTED":
-                    return "This booking was declined.";
-                case "CANCELLED":
-                    return "This booking was cancelled.";
-                default:
-                    return "";
-            }
+    private String getRenterStatusMessage(String status) {
+        switch (status) {
+            case "PENDING":
+                return "Waiting for owner approval...";
+            case "CONFIRMED":
+                return "Approved — please complete payment.";
+            case "SUCCESSFUL":
+                return "Payment confirmed. You can now leave a review!";
+            case "REJECTED":
+                return "This booking was declined.";
+            case "CANCELLED":
+                return "This booking was cancelled.";
+            default:
+                return "";
         }
+    }
+
+    /**
+     * Handles the actual payment logic, recording to DB, and updating status to
+     * SUCCESSFUL.
+     */
+    private void handlePaymentFlow() {
+        // 1. Create the payment model based on the booking details
+        carrentalsystem.models.Payment p = new carrentalsystem.models.Payment();
+        p.setBookingId(booking.getBookingId());
+        p.setRenterId(booking.getRenterId());
+
+        // Math logic: Base Price + 2000 Security Deposit
+        double base = booking.getTotalPrice();
+        double deposit = 2000.0;
+        double total = base + deposit;
+
+        p.setBaseAmount(base);
+        p.setSecurityDeposit(deposit);
+        p.setTotalAmount(total);
+        p.setAmountPaid(total);
+        p.setPaymentMethod("GCASH"); // Default or show a selection dialog
+        p.setReferenceNumber("REF-" + System.currentTimeMillis());
+        p.setRemainingBalance(0);
+
+        try {
+            // 2. Record Payment (This also calls completeBooking which sets status to SUCCESSFUL)
+            int payId = new carrentalsystem.services.PaymentService().recordPayment(p);
+
+            if (payId > 0) {
+                JOptionPane.showMessageDialog(this,
+                        "<html><body style='width:250px'><b>Payment Successful!</b><br><br>"
+                        + "Your booking is now confirmed. You can now leave a review for this car in the chat header.</body></html>",
+                        "Payment Confirmed", JOptionPane.INFORMATION_MESSAGE);
+
+                // 3. UI Sync
+                refreshCard("SUCCESSFUL");
+
+                // 4. Trigger the Inbox Header to show the "Rate Experience" button
+                Window win = SwingUtilities.getWindowAncestor(this);
+                if (win instanceof carrentalsystem.ui.user.MainDashboard) {
+                    MainDashboard d = (carrentalsystem.ui.user.MainDashboard) win;
+                    // Re-opening the thread refreshes the 'checkReviewStatus' logic
+                    d.getInboxPanel().openThread(booking.getOwnerId(), booking.getCarId(), "Car Owner");
+                }
+            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Error processing payment: " + ex.getMessage());
+            ex.printStackTrace();
+        }
+    }
 
         private void updateBookingStatus(String newStatus) {
             new Thread(() -> {

@@ -698,6 +698,32 @@ public class MainDashboard extends javax.swing.JFrame {
         cl.show(pnlMainContent, "discovery");
     }
     
+    public void loadData() {
+        // 1. Refresh the Car Discovery feed
+        refreshCarFeed();
+
+        // 2. Refresh the Notification bell badge
+        updateNotificationBadge();
+
+        // 3. If a user is logged in, refresh specific panels
+        if (carrentalsystem.core.SessionManager.getCurrentUser() != null) {
+            if (inboxPanel1 != null) {
+                inboxPanel1.loadData();
+            }
+            if (myRentalsPanel1 != null) {
+                myRentalsPanel1.loadData();
+            }
+            if (myListings1 != null) {
+                myListings1.loadData();
+            }
+        }
+
+        // 4. Update Header state (icons/guest mode)
+        if (headerPanel != null) {
+            headerPanel.updateGuestMode();
+        }
+    }
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always

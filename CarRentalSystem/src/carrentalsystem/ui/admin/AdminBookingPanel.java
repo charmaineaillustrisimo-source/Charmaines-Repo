@@ -35,6 +35,14 @@ public class AdminBookingPanel extends javax.swing.JFrame {
         loadBookingsFromDatabase();
 
         this.setExtendedState(javax.swing.JFrame.MAXIMIZED_BOTH);
+        
+        // 1. Set the background of the header area to match your panel
+      tableBookings.getTableHeader().setBackground(new Color(48, 48, 46));
+    // 2. Set the text color to white
+      tableBookings.getTableHeader().setForeground(Color.BLACK);
+
+   // 3. Optional: Make the font bold so it stands out
+       tableBookings.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 18));
     }
     
     public void loadBookingsFromDatabase() {
@@ -123,6 +131,17 @@ public class AdminBookingPanel extends javax.swing.JFrame {
             new ApprovalQueuePanel().setVisible(true);
             this.dispose();
         });
+        // 5. Support Button
+        btnSupportButton.addActionListener(e -> {
+            new AdminSupportPanel().setVisible(true);
+            this.dispose();
+        });
+
+        // 6. Settings Button
+        btnSettingsButton.addActionListener(e -> {
+            new AdminSettings().setVisible(true);
+            this.dispose();
+        });
         btnLogoutButton.addActionListener(e -> {
             if (JOptionPane.showConfirmDialog(this, "Logout?", "Confirm", JOptionPane.YES_NO_OPTION) == 0) {
                 try {
@@ -141,6 +160,8 @@ public class AdminBookingPanel extends javax.swing.JFrame {
         setIcon(lblUsersIcon, "/carrentalsystem/ui/admin/PIC/Users.png", 35, 35);
         setIcon(lblBookingsIcon, "/carrentalsystem/ui/admin/PIC/Bookings.png", 35, 35);
         setIcon(lblLogoutIcon, "/carrentalsystem/ui/admin/PIC/logout-white.png", 35, 35);
+        setIcon(lblSupportIcon, "/carrentalsystem/ui/admin/PIC/support.png", 35, 35);
+        setIcon(lblSettingsIcon, "/carrentalsystem/ui/admin/PIC/setting (1).png", 35, 35);
     }
     
     private void setIcon(javax.swing.JLabel label, String path, int width, int height) {
@@ -376,8 +397,6 @@ public class AdminBookingPanel extends javax.swing.JFrame {
                 "Renter", "Owner", "Car", "Dates", "Status"
             }
         ));
-        tableBookings.setPreferredSize(new java.awt.Dimension(610, 500));
-        tableBookings.setShowVerticalLines(false);
         spForTable.setViewportView(tableBookings);
 
         pnlMainPanel.add(spForTable, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 70, 980, -1));

@@ -132,6 +132,9 @@ public class AuthService implements IAuthService{
         // Status and Verification (New Columns)
         u.setStatus(rs.getString("status"));
         u.setVerified(rs.getBoolean("is_verified"));
+        
+        // User Type
+        u.setUserType(rs.getString("user_type"));
 
         // Timestamps
         u.setLastLogin(rs.getTimestamp("last_login"));

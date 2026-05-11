@@ -73,20 +73,32 @@ public class MessageService implements IMessageService{
     }
 
     @Override
-    public void sendMessage(int senderId, int receiverId, int carId, String content)
+    public void sendMessage(int senderId, int receiverId, int carId, String content, int bookingId)
             throws SQLException {
+        // Added booking_id to the column list and an extra '?' placeholder
         String sql = "INSERT INTO messages "
-                + "(sender_id, receiver_id, car_id, content) VALUES (?,?,?,?)";
-        try (PreparedStatement ps
-                = DBConnection.getConnection().prepareStatement(sql)) {
+                + "(sender_id, receiver_id, car_id, content, booking_id) VALUES (?,?,?,?,?)";
+
+        try (PreparedStatement ps = DBConnection.getConnection().prepareStatement(sql)) {
             ps.setInt(1, senderId);
             ps.setInt(2, receiverId);
+
+            // Handle carId (null if not related to a specific car)
             if (carId > 0) {
                 ps.setInt(3, carId);
             } else {
                 ps.setNull(3, Types.INTEGER);
             }
+
             ps.setString(4, content);
+
+            // Handle bookingId (null if it's just a regular chat message)
+            if (bookingId > 0) {
+                ps.setInt(5, bookingId);
+            } else {
+                ps.setNull(5, Types.INTEGER);
+            }
+
             ps.executeUpdate();
         }
     }
