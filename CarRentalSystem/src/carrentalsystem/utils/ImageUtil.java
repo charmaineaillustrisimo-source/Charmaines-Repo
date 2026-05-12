@@ -240,4 +240,28 @@ public class ImageUtil {
             System.err.println("[ImageUtil] Circle crop (button) failed: " + e.getMessage());
         }
     }
+    
+    public static ImageIcon loadFileIcon(String filePath, int width, int height) {
+        if (filePath == null || filePath.isEmpty()) {
+            return null;
+        }
+        try {
+            File f = new File(filePath);
+            if (!f.exists()) {
+                System.err.println("[ImageUtil] File does not exist: " + filePath);
+                return null;
+            }
+
+            BufferedImage img = ImageIO.read(f);
+            if (img == null) {
+                return null;
+            }
+
+            Image scaled = img.getScaledInstance(width, height, Image.SCALE_SMOOTH);
+            return new ImageIcon(scaled);
+        } catch (Exception e) {
+            System.err.println("[ImageUtil] Error reading file: " + e.getMessage());
+            return null;
+        }
+    }
 }

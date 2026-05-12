@@ -432,19 +432,21 @@ public class InboxPanel extends javax.swing.JPanel {
         javax.swing.JLabel lblTitle = new javax.swing.JLabel("<html><div style='padding:10px 0 5px 0;'><b style='font-size:12px; color:#443322;'>" + title + "</b></div></html>");
         p.add(lblTitle);
 
-        if (path != null && !path.isEmpty() && new java.io.File(path).exists()) {
-            javax.swing.JLabel imgLabel = new javax.swing.JLabel();
-            // Scale to fit the width of the dialog (approx 460px)
-            javax.swing.ImageIcon icon = carrentalsystem.utils.ImageUtil.loadIcon(path, 460, 320);
+        // Use loadFileIcon instead of loadIcon for external file paths
+        if (path != null && !path.isEmpty()) {
+            javax.swing.ImageIcon icon = carrentalsystem.utils.ImageUtil.loadFileIcon(path, 460, 320);
+
             if (icon != null) {
+                javax.swing.JLabel imgLabel = new javax.swing.JLabel();
                 imgLabel.setIcon(icon);
                 imgLabel.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(220, 210, 205), 1));
                 p.add(imgLabel);
             } else {
-                p.add(new javax.swing.JLabel("<html><i style='color:red;'>&nbsp;&nbsp;Failed to load image at: " + path + "</i></html>"));
+                // If icon is null, file might be missing from disk
+                p.add(new javax.swing.JLabel("<html><i style='color:red;'>&nbsp;&nbsp;File not found on this computer: <br>&nbsp;&nbsp;" + path + "</i></html>"));
             }
         } else {
-            javax.swing.JLabel lblMissing = new javax.swing.JLabel("<html><span style='color:gray;'>&nbsp;&nbsp;Not provided or file missing.</span></html>");
+            javax.swing.JLabel lblMissing = new javax.swing.JLabel("<html><span style='color:gray;'>&nbsp;&nbsp;Not provided.</span></html>");
             p.add(lblMissing);
         }
         p.add(javax.swing.Box.createVerticalStrut(15));
