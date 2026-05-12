@@ -106,9 +106,20 @@ public class BookingCardPanel extends JPanel{
             if ("PENDING".equals(status)) {
                 JButton btnVerify = makeButton("Verification", new Color(70, 130, 180));
                 btnVerify.addActionListener(e -> {
-                    Window win = SwingUtilities.getWindowAncestor(this);
-                    if (win instanceof MainDashboard) {
-                        ((MainDashboard) win).getInboxPanel().showRenterVerification(booking.getBookingId());
+                    // Try to find MainDashboard in hierarchy
+                    Container parent = getParent();
+                    while (parent != null && !(parent instanceof MainDashboard)) {
+                        parent = parent.getParent();
+                    }
+
+                    if (parent instanceof MainDashboard) {
+                        ((MainDashboard) parent).getInboxPanel().showRenterVerification(booking.getBookingId());
+                    } else {
+                        // Fallback: search for top-level frame
+                        Window win = SwingUtilities.getWindowAncestor(this);
+                        if (win instanceof MainDashboard) {
+                            ((MainDashboard) win).getInboxPanel().showRenterVerification(booking.getBookingId());
+                        }
                     }
                 });
                 pnlActions.add(btnVerify);

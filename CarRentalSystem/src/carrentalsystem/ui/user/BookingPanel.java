@@ -400,6 +400,22 @@ public class BookingPanel extends javax.swing.JPanel {
         title.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
         panel.add(title);
 
+        
+        // ------ Selfie Required ------
+        final String[] selfiePath = {null};
+        javax.swing.JButton btnSelfie = makeVerifButton("🤳  Upload Selfie with ID (REQUIRED)");
+        btnSelfie.addActionListener(e -> {
+            java.io.File f = chooseImageFile();
+            if (f != null) {
+                selfiePath[0] = f.getAbsolutePath();
+                btnSelfie.setText("✅ Selfie Uploaded");
+                btnSelfie.setForeground(new java.awt.Color(0, 120, 0));
+            }
+        });
+        panel.add(btnSelfie);
+        panel.add(javax.swing.Box.createVerticalStrut(10));
+        
+        
         // ── Required: Valid Government ID ─────────────────────────────────
         final String[] idPath = {null};
         javax.swing.JButton btnID = makeVerifButton(
@@ -473,9 +489,9 @@ public class BookingPanel extends javax.swing.JPanel {
             return null;
         }
 
-        if (idPath[0] == null) {
+        if (selfiePath[0] == null || idPath[0] == null) {
             javax.swing.JOptionPane.showMessageDialog(this,
-                    "Please upload your Valid Government ID.",
+                    "Please upload your Selfie Picture and Valid Government ID.",
                     "Missing Document", javax.swing.JOptionPane.WARNING_MESSAGE);
             return null;
         }
@@ -490,6 +506,7 @@ public class BookingPanel extends javax.swing.JPanel {
 
         // Return paths — save to DB later after booking is created
         return new String[]{
+            selfiePath[0],
             idPath[0],
             licensePath[0] != null ? licensePath[0] : ""
         };
@@ -498,7 +515,7 @@ public class BookingPanel extends javax.swing.JPanel {
     private void saveRenterVerification(int bookingId, String selfiePath, String idPath,String licensePath, boolean requiresLicense) throws java.sql.SQLException {
         String sql
                 = "INSERT INTO renter_verifications "
-                + "(booking_id, renter_id, , selfie_path, valid_id_path, driver_license_path, requires_license) "
+                + "(booking_id, renter_id, selfie_path, valid_id_path, driver_license_path, requires_license) "
                 + "VALUES (?, ?, ?, ?, ?, ?)";
         try (java.sql.Connection conn
                 = carrentalsystem.core.DBConnection.getConnection(); java.sql.PreparedStatement ps = conn.prepareStatement(sql)) {

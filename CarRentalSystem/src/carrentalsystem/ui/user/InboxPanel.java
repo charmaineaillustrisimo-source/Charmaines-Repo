@@ -429,15 +429,25 @@ public class InboxPanel extends javax.swing.JPanel {
     }
 
     private void addDocToViewer(javax.swing.JPanel p, String title, String path) {
-        p.add(new javax.swing.JLabel("<html><b>" + title + "</b></html>"));
-        if (path != null && !path.isEmpty()) {
-            javax.swing.JLabel lbl = new javax.swing.JLabel();
-            lbl.setIcon(carrentalsystem.utils.ImageUtil.loadIcon(path, 450, 300));
-            p.add(lbl);
+        javax.swing.JLabel lblTitle = new javax.swing.JLabel("<html><div style='padding:10px 0 5px 0;'><b style='font-size:12px; color:#443322;'>" + title + "</b></div></html>");
+        p.add(lblTitle);
+
+        if (path != null && !path.isEmpty() && new java.io.File(path).exists()) {
+            javax.swing.JLabel imgLabel = new javax.swing.JLabel();
+            // Scale to fit the width of the dialog (approx 460px)
+            javax.swing.ImageIcon icon = carrentalsystem.utils.ImageUtil.loadIcon(path, 460, 320);
+            if (icon != null) {
+                imgLabel.setIcon(icon);
+                imgLabel.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(220, 210, 205), 1));
+                p.add(imgLabel);
+            } else {
+                p.add(new javax.swing.JLabel("<html><i style='color:red;'>&nbsp;&nbsp;Failed to load image at: " + path + "</i></html>"));
+            }
         } else {
-            p.add(new javax.swing.JLabel("Not provided."));
+            javax.swing.JLabel lblMissing = new javax.swing.JLabel("<html><span style='color:gray;'>&nbsp;&nbsp;Not provided or file missing.</span></html>");
+            p.add(lblMissing);
         }
-        p.add(javax.swing.Box.createVerticalStrut(20));
+        p.add(javax.swing.Box.createVerticalStrut(15));
     }
     
     private void refreshChatThread() {
