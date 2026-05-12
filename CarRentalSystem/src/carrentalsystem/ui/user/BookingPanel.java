@@ -495,19 +495,20 @@ public class BookingPanel extends javax.swing.JPanel {
         };
     }
 
-    private void saveRenterVerification(int bookingId, String idPath,String licensePath, boolean requiresLicense) throws java.sql.SQLException {
+    private void saveRenterVerification(int bookingId, String selfiePath, String idPath,String licensePath, boolean requiresLicense) throws java.sql.SQLException {
         String sql
                 = "INSERT INTO renter_verifications "
-                + "(booking_id, renter_id, valid_id_path, driver_license_path, requires_license) "
-                + "VALUES (?, ?, ?, ?, ?)";
+                + "(booking_id, renter_id, , selfie_path, valid_id_path, driver_license_path, requires_license) "
+                + "VALUES (?, ?, ?, ?, ?, ?)";
         try (java.sql.Connection conn
                 = carrentalsystem.core.DBConnection.getConnection(); java.sql.PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, bookingId);   // ← real booking ID now
             ps.setInt(2, carrentalsystem.core.SessionManager
                     .getCurrentUser().getUserId());
-            ps.setString(3, idPath);
-            ps.setString(4, licensePath);
-            ps.setBoolean(5, requiresLicense);
+            ps.setString(3, selfiePath);
+            ps.setString(4, idPath);
+            ps.setString(5, licensePath);
+            ps.setBoolean(6, requiresLicense);
             ps.executeUpdate();
         }
     }
@@ -1174,8 +1175,11 @@ public class BookingPanel extends javax.swing.JPanel {
                 b.setBookingId(generatedId);
 
                 // ── 4. Save verification documents ──
-                saveRenterVerification(generatedId, verificationPaths[0],
-                        verificationPaths[1].isEmpty() ? null : verificationPaths[1], !carHasDriver);
+                saveRenterVerification(generatedId, 
+                        verificationPaths[0], // selfie
+                        verificationPaths[1], // valid_id
+                        verificationPaths[2], // license
+                        !carHasDriver);       // requiresLicense
 
                 // ── 5. AUTO-SUBMIT BOOKING CARD VIA MESSAGE ──
                 // We send a message with the bookingId linked so the card appears in the chat
