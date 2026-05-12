@@ -386,22 +386,43 @@ public class InboxPanel extends javax.swing.JPanel {
     }
     
     public void showRenterVerification(int bookingId) {
+        System.out.println("[DEBUG] showRenterVerification triggered for Booking ID: " + bookingId);
+
         javax.swing.JPanel viewer = new javax.swing.JPanel();
         viewer.setLayout(new javax.swing.BoxLayout(viewer, javax.swing.BoxLayout.Y_AXIS));
-        String sql = "SELECT selfie_path, id_card_path, driver_license_path FROM renter_verifications WHERE booking_id = ?";
+
+        // FIXED: Using 'valid_id_path' instead of 'id_card_path' to match database.
+        // REQUIRES: Run SQL to add 'selfie_path' column to renter_verifications.
+        String sql = "SELECT selfie_path, valid_id_path, driver_license_path FROM renter_verifications WHERE booking_id = ?";
+
         try (java.sql.Connection conn = carrentalsystem.core.DBConnection.getConnection(); java.sql.PreparedStatement ps = conn.prepareStatement(sql)) {
+
             ps.setInt(1, bookingId);
+            System.out.println("[DEBUG] Executing Query: " + ps.toString());
+
             java.sql.ResultSet rs = ps.executeQuery();
             if (rs.next()) {
-                addDocToViewer(viewer, "Renter Selfie:", rs.getString("selfie_path"));
-                addDocToViewer(viewer, "Valid ID:", rs.getString("id_card_path"));
-                addDocToViewer(viewer, "Driver's License:", rs.getString("driver_license_path"));
+                String selfie = rs.getString("selfie_path");
+                String validId = rs.getString("valid_id_path");
+                String license = rs.getString("driver_license_path");
+
+                System.out.println("[DEBUG] Found verification data:");
+                System.out.println("        Selfie: " + selfie);
+                System.out.println("        Valid ID: " + validId);
+                System.out.println("        License: " + license);
+
+                addDocToViewer(viewer, "Renter Selfie:", selfie);
+                addDocToViewer(viewer, "Valid ID:", validId);
+                addDocToViewer(viewer, "Driver's License:", license);
             } else {
-                viewer.add(new javax.swing.JLabel("No verification documents found."));
+                System.out.println("[DEBUG] No record found in renter_verifications for booking ID: " + bookingId);
+                viewer.add(new javax.swing.JLabel("No verification documents found in database."));
             }
         } catch (java.sql.SQLException ex) {
+            System.err.println("[DEBUG] SQL Error: " + ex.getMessage());
             javax.swing.JOptionPane.showMessageDialog(this, "Database Error: " + ex.getMessage());
         }
+
         javax.swing.JScrollPane scroll = new javax.swing.JScrollPane(viewer);
         scroll.setPreferredSize(new java.awt.Dimension(500, 600));
         javax.swing.JOptionPane.showMessageDialog(this, scroll, "Renter Verification", javax.swing.JOptionPane.PLAIN_MESSAGE);
