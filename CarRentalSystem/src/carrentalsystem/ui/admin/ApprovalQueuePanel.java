@@ -26,8 +26,7 @@ public class ApprovalQueuePanel extends javax.swing.JFrame {
     private List<carrentalsystem.models.User> currentUsers;
     // ── ADD: Lister verification fields ──────────────────────────────────
     private javax.swing.JTable tableListerVerif;
-    private java.util.List<carrentalsystem.models.ListerRequirement> listerReqList
-            = new java.util.ArrayList<>();
+    private java.util.List<carrentalsystem.models.ListerRequirement> listerReqList = new java.util.ArrayList<>();
     
     public ApprovalQueuePanel() {
         initComponents();
@@ -135,7 +134,24 @@ public class ApprovalQueuePanel extends javax.swing.JFrame {
         try {
             switch (choice) {
                 case 0: // Verify ID (New Case)
-                    handleDocumentVerification(user);
+                    carrentalsystem.models.ListerRequirement matchingReq = null;
+                    if (listerReqList != null) {
+                        for (carrentalsystem.models.ListerRequirement req : listerReqList) {
+                            if (req.getUserId() == user.getUserId()) {
+                                matchingReq = req;
+                                break;
+                            }
+                        }
+                    }
+
+                    // 2. Pass the Requirement object (matchingReq) NOT the User object
+                    if (matchingReq != null) {
+                        handleDocumentVerification(matchingReq);
+                    } else {
+                        JOptionPane.showMessageDialog(this,
+                                "This user has not submitted any verification documents yet.",
+                                "No Documents Found", JOptionPane.INFORMATION_MESSAGE);
+                    }
                     break;
                 case 1: // Warning (Was case 0)
                     String msg = JOptionPane.showInputDialog(this, "Enter Warning Message:");
@@ -340,9 +356,12 @@ public class ApprovalQueuePanel extends javax.swing.JFrame {
             public void mouseClicked(java.awt.event.MouseEvent e) {
                 int row = tableListerVerif.rowAtPoint(e.getPoint());
                 int col = tableListerVerif.columnAtPoint(e.getPoint());
+
+                // Column 4 is the Action column
                 if (col == 4 && row >= 0 && row < listerReqList.size()) {
-                    carrentalsystem.models.User selectedUser = currentUsers.get(row);
-                    handleDocumentVerification(selectedUser);
+                    // FIX: Get the Requirement from listerReqList, NOT User from currentUsers
+                    carrentalsystem.models.ListerRequirement selectedReq = listerReqList.get(row);
+                    handleDocumentVerification(selectedReq);
                 }
             }
         });
@@ -436,12 +455,10 @@ public class ApprovalQueuePanel extends javax.swing.JFrame {
             listerReqList.addAll(adminService.getListerRequirements("APPROVED"));
             listerReqList.addAll(adminService.getListerRequirements("REJECTED"));
 
-            javax.swing.table.DefaultTableModel model
-                    = (javax.swing.table.DefaultTableModel) tableListerVerif.getModel();
+            DefaultTableModel model = (DefaultTableModel) tableListerVerif.getModel();
             model.setRowCount(0);
 
-            java.text.SimpleDateFormat sdf
-                    = new java.text.SimpleDateFormat("MMM dd, yyyy HH:mm");
+            java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("MMM dd, yyyy");
 
             for (carrentalsystem.models.ListerRequirement req : listerReqList) {
                 String submittedStr = req.getSubmittedAt() != null
@@ -464,39 +481,27 @@ public class ApprovalQueuePanel extends javax.swing.JFrame {
     }
 
     
-    private void handleDocumentVerification(carrentalsystem.models.User user) {
-        // This opens the new viewing panel you just created
-        ViewingDocumentsPanel viewPanel = new ViewingDocumentsPanel(user);
+    private void handleDocumentVerification(carrentalsystem.models.ListerRequirement req) {
+        if (req == null) {
+            return;
+        }
+
+        ViewingDocumentsPanel viewPanel = new ViewingDocumentsPanel(req);
+        viewPanel.setDefaultCloseOperation(javax.swing.JFrame.DISPOSE_ON_CLOSE);
+        viewPanel.setLocationRelativeTo(this);
         viewPanel.setVisible(true);
 
-        // Optional: Add a listener or check back here after the window closes 
-        // to refresh the table if the user status changed
+        // Refresh tables after admin review
+        viewPanel.addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosed(java.awt.event.WindowEvent e) {
+                loadListerVerifications();
+                loadUsersFromDatabase();
+            }
+        });
     }
     
-    /*private void applyActionColumnRenderer() {
-    tableUsers.getColumnModel().getColumn(4).setCellRenderer(new javax.swing.table.DefaultTableCellRenderer() {
-        @Override
-        public java.awt.Component getTableCellRendererComponent(javax.swing.JTable table, Object value,
-                boolean isSelected, boolean hasFocus, int row, int column) {
-            
-            javax.swing.JButton button = new javax.swing.JButton("View");
-            
-            // Style it to match your theme
-            button.setBackground(new java.awt.Color(60, 60, 60));
-            button.setForeground(java.awt.Color.WHITE);
-            button.setFocusPainted(false);
-            button.setBorderPainted(false);
-            button.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 14));
-
-            // If the row is selected, make the button slightly lighter
-            if (isSelected) {
-                button.setBackground(new java.awt.Color(80, 80, 80));
-            }
-
-            return button;
-        }
-    });
-}*/
+    
     
 
 

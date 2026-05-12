@@ -1114,7 +1114,7 @@ public class AddListPanel extends javax.swing.JPanel {
             }
         }
 
-        // 2. Extract Data from UI
+        // 1. Extract Data from UI
         String brand = txtBrand.getText().trim();
         String model = txtModel.getText().trim();
         String priceStr = txtBasePrice.getText().trim();
@@ -1123,24 +1123,17 @@ public class AddListPanel extends javax.swing.JPanel {
         String color = txtColor.getText().trim();
         String mileageStr = txtMileage.getText().trim();
 
-        // Convert Driver Option String to Boolean
-        String driverOption = cbDriverOption.getSelectedItem().toString();
-        boolean hasDriver = driverOption.equalsIgnoreCase("Yes") || driverOption.equalsIgnoreCase("With Driver");
-
-        // 3. Validation - Ensure no critical fields are empty
+        // Validation logic
         if (brand.isEmpty() || brand.equals("e.g., Toyota") || model.isEmpty()
                 || plateNumber.isEmpty() || color.isEmpty() || mileageStr.isEmpty()
                 || priceStr.isEmpty() || selectedImagePath == null) {
-
-            javax.swing.JOptionPane.showMessageDialog(this,
-                    "Please fill in all fields (Plate, Color, Mileage, Price) and upload a car photo.");
+            javax.swing.JOptionPane.showMessageDialog(this, "Please fill in all fields and upload a car photo.");
             return;
         }
 
         try {
-            // 4. Populate the Car object
+            // 2. Map inputs to Car Object
             carrentalsystem.models.Car carObj = new carrentalsystem.models.Car();
-
             carObj.setOwnerId(user.getUserId());
             carObj.setBrand(brand);
             carObj.setModel(model);
@@ -1148,61 +1141,47 @@ public class AddListPanel extends javax.swing.JPanel {
             carObj.setDescription(description);
             carObj.setImagePath(selectedImagePath);
 
-            // Map New Technical Fields
+            // Map the Technical Fields (Matching CarDetailsPanel)
             carObj.setPlateNumber(plateNumber);
             carObj.setColor(color);
-            carObj.setHasDriver(hasDriver);
-
-            // Use setMileage if your model uses that name, or setMileageLimit based on your Car.java
-            // Based on your previous files, I'm using the Integer conversion here:
             carObj.setMileageLimit(Integer.parseInt(mileageStr));
 
-            // Map ComboBoxes correctly
+            // Map Driver Option
+            String driverOption = cbDriverOption.getSelectedItem().toString();
+            carObj.setHasDriver(driverOption.equalsIgnoreCase("With Driver"));
+
+            // Map ComboBoxes
             carObj.setSeats(Integer.parseInt(cbSeats.getSelectedItem().toString()));
             carObj.setTransmission(cbTransmission.getSelectedItem().toString());
             carObj.setFuelType(cbFuelType.getSelectedItem().toString());
             carObj.setCondition(cbCondition.getSelectedItem().toString());
-
-            // Fix: setType should come from cbVehicleType, not cbDriverOption
             carObj.setType(cbVehicleType1.getSelectedItem().toString());
 
             carObj.setStatus("PENDING_APPROVAL");
-            carObj.setPriority(false);
 
-            // 5. Database Operations
+            // 3. Save to Database
             carrentalsystem.services.CarService carService = new carrentalsystem.services.CarService();
-
             if (currentEditingCarId == -1) {
-                // Adding New Car
                 int generatedId = carService.addCar(carObj);
                 if (generatedId != -1) {
                     carObj.setCarId(generatedId);
-                    javax.swing.JOptionPane.showMessageDialog(this, "Listing created successfully!\nPending for admin approval.");
+                    javax.swing.JOptionPane.showMessageDialog(this, "Listing created successfully!");
                 }
             } else {
-                // Updating Existing Car
                 carObj.setCarId(currentEditingCarId);
                 carService.updateCar(carObj);
                 javax.swing.JOptionPane.showMessageDialog(this, "Listing updated successfully!");
             }
 
-            // 6. Refresh UI and Navigate
+            // 4. Refresh Dashboard and Show Details
             if (dashboard != null) {
                 dashboard.refreshCarFeed();
-                // Automatically show the details of the car just created/edited
-                dashboard.showCarDetails(carObj);
+                dashboard.showCarDetails(carObj); // This triggers CarDetailsPanel.displayCarDetails(carObj)
             }
 
-            // Reset Form
-            currentEditingCarId = -1;
-            btnCreateListing.setText("Create Listing");
             clearForm();
-
-        } catch (NumberFormatException e) {
-            javax.swing.JOptionPane.showMessageDialog(this, "Price and Mileage must be valid numbers.");
         } catch (Exception e) {
-            e.printStackTrace();
-            javax.swing.JOptionPane.showMessageDialog(this, "An error occurred: " + e.getMessage());
+            javax.swing.JOptionPane.showMessageDialog(this, "Error: " + e.getMessage());
         }
     }//GEN-LAST:event_btnCreateListingActionPerformed
 

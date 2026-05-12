@@ -4,8 +4,17 @@
  */
 package carrentalsystem.ui.user;
 
+import carrentalsystem.models.Booking;
+import carrentalsystem.models.Payment;
+import carrentalsystem.services.PaymentService;
+import java.awt.FlowLayout;
+import java.awt.Frame;
 import java.sql.SQLException;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
 /**
  *
@@ -47,12 +56,10 @@ public class InboxPanel extends javax.swing.JPanel {
     }
 
     private void loadConversations() {
-        pnlConvList.removeAll();
         new Thread(() -> {
             try {
                 int uid = carrentalsystem.core.SessionManager.getCurrentUser().getUserId();
-                java.util.List<carrentalsystem.models.Message> convs
-                        = messageService.getConversations(uid);
+                java.util.List<carrentalsystem.models.Message> convs = messageService.getConversations(uid);
 
                 javax.swing.SwingUtilities.invokeLater(() -> {
                     pnlConvList.removeAll();
@@ -63,28 +70,23 @@ public class InboxPanel extends javax.swing.JPanel {
                         pnlConvList.add(empty);
                     } else {
                         for (carrentalsystem.models.Message m : convs) {
-                            int myId = carrentalsystem.core.SessionManager
-                                    .getCurrentUser().getUserId();
-                            int otherId = m.getSenderId() == myId
-                                    ? m.getReceiverId() : m.getSenderId();
+                            int myId = carrentalsystem.core.SessionManager.getCurrentUser().getUserId();
+                            int otherId = m.getSenderId() == myId ? m.getReceiverId() : m.getSenderId();
                             pnlConvList.add(buildConvRow(m, otherId, myId));
                             pnlConvList.add(javax.swing.Box.createVerticalStrut(4));
                         }
-                        pnlConvList.revalidate();
-                        pnlConvList.repaint();
 
-                        // ── AUTO-OPEN the most recent conversation ─────────
-                        carrentalsystem.models.Message first = convs.get(0);
-                        int myId = carrentalsystem.core.SessionManager
-                                .getCurrentUser().getUserId();
-                        int otherId = first.getSenderId() == myId
-                                ? first.getReceiverId() : first.getSenderId();
-                        activeOtherUserId = otherId;
-                        activeCarId = first.getCarId();
-                        activeContactName = first.getSenderName() != null
-                                ? first.getSenderName() : "User";
-                        openThread(otherId, activeCarId, activeContactName);
+                        // Auto-open first thread if none active
+                        if (activeOtherUserId == -1 && !convs.isEmpty()) {
+                            carrentalsystem.models.Message first = convs.get(0);
+                            int myId = carrentalsystem.core.SessionManager.getCurrentUser().getUserId();
+                            int otherId = first.getSenderId() == myId ? first.getReceiverId() : first.getSenderId();
+                            openThread(otherId, first.getCarId(), first.getSenderName() != null ? first.getSenderName() : "User");
+                        }
                     }
+
+                    pnlConvList.revalidate();
+                    pnlConvList.repaint();
                 });
             } catch (Exception e) {
                 e.printStackTrace();
@@ -99,11 +101,8 @@ public class InboxPanel extends javax.swing.JPanel {
             @Override
             protected void paintComponent(java.awt.Graphics g) {
                 java.awt.Graphics2D g2 = (java.awt.Graphics2D) g.create();
-                g2.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING,
-                        java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(otherId == activeOtherUserId
-                        ? new java.awt.Color(220, 215, 225)
-                        : new java.awt.Color(236, 236, 240));
+                g2.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING, java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(otherId == activeOtherUserId ? new java.awt.Color(220, 215, 225) : new java.awt.Color(236, 236, 240));
                 g2.fillRoundRect(4, 2, getWidth() - 8, getHeight() - 4, 14, 14);
                 g2.dispose();
             }
@@ -113,65 +112,50 @@ public class InboxPanel extends javax.swing.JPanel {
         row.setMaximumSize(new java.awt.Dimension(290, 72));
         row.setCursor(java.awt.Cursor.getPredefinedCursor(java.awt.Cursor.HAND_CURSOR));
         row.setBorder(javax.swing.BorderFactory.createEmptyBorder(8, 14, 8, 14));
-        
-        // Image Avatar Profile Pic
-        String otherImagePath = null;
-        try {
-            otherImagePath = new carrentalsystem.services.UserService().getUserById(otherId).getProfileImagePath();
-        } catch (Exception ignored) {
-        }
 
-        final String finalPath = otherImagePath;
-        
-        // Avatar with initial
+        // Avatar
         javax.swing.JLabel avatar = new javax.swing.JLabel() {
             @Override
             protected void paintComponent(java.awt.Graphics g) {
                 java.awt.Graphics2D g2 = (java.awt.Graphics2D) g.create();
-                g2.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING,
-                        java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING, java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
                 g2.setColor(new java.awt.Color(155, 121, 128));
                 g2.fillOval(0, 0, 44, 44);
-                
+
                 if (getIcon() != null) {
-                    // If image is loaded, clip it to a circle
                     java.awt.geom.Ellipse2D.Double clip = new java.awt.geom.Ellipse2D.Double(0, 0, 44, 44);
                     g2.setClip(clip);
                     super.paintComponent(g2);
                 } else {
-                    // Fallback: Initial Letter
                     g2.setColor(java.awt.Color.WHITE);
                     g2.setFont(new java.awt.Font("Helvetica Neue", java.awt.Font.BOLD, 18));
                     java.awt.FontMetrics fm = g2.getFontMetrics();
-                    g2.drawString(initLetter,
-                            (44 - fm.stringWidth(initLetter)) / 2,
-                            (44 + fm.getAscent()) / 2 - 2);
+                    g2.drawString(initLetter, (44 - fm.stringWidth(initLetter)) / 2, (44 + fm.getAscent()) / 2 - 2);
                 }
                 g2.dispose();
             }
         };
-        
-        if (finalPath != null && !finalPath.isEmpty()) {
-            // This loads the raw image; the paintComponent above handles the circular clipping
-            avatar.setIcon(carrentalsystem.utils.ImageUtil.loadIcon(finalPath, 44, 44));
+
+        try {
+            String path = new carrentalsystem.services.UserService().getUserById(otherId).getProfileImagePath();
+            if (path != null && !path.isEmpty()) {
+                avatar.setIcon(carrentalsystem.utils.ImageUtil.loadIcon(path, 44, 44));
+            }
+        } catch (Exception ignored) {
         }
-        
+
         avatar.setPreferredSize(new java.awt.Dimension(44, 44));
 
-        // Text block
         javax.swing.JPanel pnlText = new javax.swing.JPanel(new java.awt.GridLayout(2, 1));
         pnlText.setOpaque(false);
         pnlText.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 10, 0, 0));
 
-        javax.swing.JLabel lblName = new javax.swing.JLabel(
-                m.getSenderName() != null ? m.getSenderName() : "User");
+        javax.swing.JLabel lblName = new javax.swing.JLabel(m.getSenderName() != null ? m.getSenderName() : "User");
         lblName.setFont(new java.awt.Font("Helvetica Neue", java.awt.Font.BOLD, 14));
         lblName.setForeground(new java.awt.Color(45, 36, 34));
 
         String raw = m.getContent() != null ? m.getContent() : "";
-        String preview = raw.startsWith("BOOKING_CARD::")
-                ? "📋 Booking Request"
-                : (raw.length() > 32 ? raw.substring(0, 32) + "…" : raw);
+        String preview = raw.startsWith("BOOKING_CARD::") ? "📋 Booking Request" : (raw.length() > 32 ? raw.substring(0, 32) + "…" : raw);
         javax.swing.JLabel lblPreview = new javax.swing.JLabel(preview);
         lblPreview.setFont(new java.awt.Font("Helvetica Neue", java.awt.Font.PLAIN, 12));
         lblPreview.setForeground(new java.awt.Color(120, 100, 95));
@@ -179,7 +163,6 @@ public class InboxPanel extends javax.swing.JPanel {
         pnlText.add(lblName);
         pnlText.add(lblPreview);
 
-        // Unread dot
         javax.swing.JLabel dot = new javax.swing.JLabel(!m.isRead() ? "●" : "");
         dot.setForeground(new java.awt.Color(116, 185, 255));
 
@@ -190,11 +173,7 @@ public class InboxPanel extends javax.swing.JPanel {
         row.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
             public void mouseClicked(java.awt.event.MouseEvent e) {
-                activeOtherUserId = otherId;
-                activeCarId = m.getCarId();
-                activeContactName = m.getSenderName() != null ? m.getSenderName() : "User";
-                openThread(otherId, 0, activeContactName);
-                row.repaint();
+                openThread(otherId, m.getCarId(), m.getSenderName());
             }
         });
         return row;
@@ -203,24 +182,15 @@ public class InboxPanel extends javax.swing.JPanel {
     public void openThread(int otherId, int carId, String contactName) {
         this.activeOtherUserId = otherId;
         this.activeCarId = carId;
-        this.activeContactName = contactName;
-        
-        lblContactName.setText(contactName);
-        lblRightName.setText(contactName);
-        
-        lblRightAvatar.setIcon(null);
-        lblRightAvatar.setText("");
-        lblRightAvatar.revalidate();
-        lblRightAvatar.repaint();
-        
-        pnlMessages.removeAll();
-        
+        this.activeContactName = (contactName != null) ? contactName : "User";
+
+        lblContactName.setText(activeContactName);
+        lblRightName.setText(activeContactName);
+
         if (carId > 0) {
             checkReviewStatus(carId);
-        } else {
-            if (btnLeaveReview != null) {
-                btnLeaveReview.setVisible(false);
-            }
+        } else if (btnLeaveReview != null) {
+            btnLeaveReview.setVisible(false);
         }
 
         new Thread(() -> {
@@ -228,73 +198,58 @@ public class InboxPanel extends javax.swing.JPanel {
                 int myId = carrentalsystem.core.SessionManager.getCurrentUser().getUserId();
                 messageService.markThreadRead(myId, otherId);
                 java.util.List<carrentalsystem.models.Message> thread = messageService.getThread(myId, otherId, 0);
-                
-                carrentalsystem.services.UserService userSvc = new carrentalsystem.services.UserService();
-                String otherUserImagePath = userSvc.getUserById(otherId).getProfileImagePath();
+
+                String imgPath = new carrentalsystem.services.UserService().getUserById(otherId).getProfileImagePath();
 
                 javax.swing.SwingUtilities.invokeLater(() -> {
-                    if (otherUserImagePath != null && !otherUserImagePath.isEmpty()) {
-                        // Use ImageUtil to create the circular crop
-                        javax.swing.JLabel circleAvatar = carrentalsystem.utils.ImageUtil.cropCircle(otherUserImagePath, 80);
-                        lblRightAvatar.setIcon(circleAvatar.getIcon());
+                    if (imgPath != null && !imgPath.isEmpty()) {
+                        lblRightAvatar.setIcon(carrentalsystem.utils.ImageUtil.loadIcon(imgPath, 80, 80));
                     } else {
-                        lblRightAvatar.setIcon(null); // Fallback to initial letter logic in paintComponent
+                        lblRightAvatar.setIcon(null);
                     }
-                    lblRightAvatar.repaint();
-                    
+
                     pnlMessages.removeAll();
                     for (carrentalsystem.models.Message msg : thread) {
-                        boolean isMine = msg.getSenderId() == myId;
-                        pnlMessages.add(buildMessageBubble(msg, isMine));
-                        pnlMessages.add(javax.swing.Box.createVerticalStrut(5));
+                        pnlMessages.add(buildMessageBubble(msg, msg.getSenderId() == myId));
+                        pnlMessages.add(javax.swing.Box.createVerticalStrut(8));
                     }
                     pnlMessages.revalidate();
                     pnlMessages.repaint();
-                    javax.swing.JScrollBar bar = spCenter.getVerticalScrollBar();
-                    javax.swing.SwingUtilities.invokeLater(
-                            () -> bar.setValue(bar.getMaximum()));
+
+                    SwingUtilities.invokeLater(() -> {
+                        spCenter.getVerticalScrollBar().setValue(spCenter.getVerticalScrollBar().getMaximum());
+                    });
                 });
             } catch (Exception e) {
-                System.err.println("[ERROR] Failed to load chat thread: " + e.getMessage());
                 e.printStackTrace();
             }
         }).start();
     }
 
     private javax.swing.JPanel buildMessageBubble(carrentalsystem.models.Message m, boolean isMine) {
-
         javax.swing.JPanel wrapper = new javax.swing.JPanel(new java.awt.FlowLayout(isMine ? java.awt.FlowLayout.RIGHT : java.awt.FlowLayout.LEFT, 0, 0));
         wrapper.setOpaque(false);
-        wrapper.setMaximumSize(new java.awt.Dimension(
-                Integer.MAX_VALUE, Short.MAX_VALUE));
+        wrapper.setMaximumSize(new java.awt.Dimension(Integer.MAX_VALUE, Short.MAX_VALUE));
 
-        // Detect booking card
         if (m.getContent() != null && m.getContent().startsWith("BOOKING_CARD::")) {
             try {
-                int bookingId = Integer.parseInt(m.getContent().replace("BOOKING_CARD::", "").trim());
-                carrentalsystem.services.BookingService bSvc = new carrentalsystem.services.BookingService();
-                carrentalsystem.models.Booking booking = bSvc.getBookingById(bookingId);
-                if (booking != null) {
-                    BookingCardPanel card = new BookingCardPanel(booking);
-                    wrapper.add(card);
+                int bid = Integer.parseInt(m.getContent().replace("BOOKING_CARD::", "").trim());
+                carrentalsystem.models.Booking b = new carrentalsystem.services.BookingService().getBookingById(bid);
+                if (b != null) {
+                    // We let BookingCardPanel handle all its own logic (Verification, Pay, Review)
+                    wrapper.add(new BookingCardPanel(b));
                     return wrapper;
                 }
-            } catch (Exception e) {e.printStackTrace(); }
+            } catch (Exception ignored) {
+            }
         }
 
-        // Regular bubble
-        java.awt.Color bubbleColor = isMine
-                ? new java.awt.Color(155, 121, 128)
-                : new java.awt.Color(240, 240, 240);
-
-        javax.swing.JLabel bubble = new javax.swing.JLabel(
-                "<html><body style='width:260px;padding:4px'>"
-                + m.getContent() + "</body></html>") {
+        java.awt.Color bubbleColor = isMine ? new java.awt.Color(155, 121, 128) : new java.awt.Color(240, 240, 240);
+        javax.swing.JLabel bubble = new javax.swing.JLabel("<html><body style='width:240px;padding:4px'>" + m.getContent() + "</body></html>") {
             @Override
             protected void paintComponent(java.awt.Graphics g) {
                 java.awt.Graphics2D g2 = (java.awt.Graphics2D) g.create();
-                g2.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING,
-                        java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING, java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
                 g2.setColor(bubbleColor);
                 g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 18, 18);
                 g2.dispose();
@@ -305,25 +260,23 @@ public class InboxPanel extends javax.swing.JPanel {
         bubble.setForeground(isMine ? java.awt.Color.WHITE : java.awt.Color.BLACK);
         bubble.setOpaque(false);
         bubble.setBorder(javax.swing.BorderFactory.createEmptyBorder(10, 14, 10, 14));
-        
+
         wrapper.add(bubble);
         return wrapper;
     }
 
     private void sendMessageAction() {
         String text = txtMessage.getText().trim();
-        if (text.isEmpty() || text.equals("Type a message.")
-                || activeOtherUserId < 0) {
+        if (text.isEmpty() || text.equals("Type a message.") || activeOtherUserId < 0) {
             return;
         }
+
         txtMessage.setText("");
         int myId = carrentalsystem.core.SessionManager.getCurrentUser().getUserId();
         new Thread(() -> {
             try {
-                // CORRECT: 5 arguments, passing -1 for bookingId
                 messageService.sendMessage(myId, activeOtherUserId, activeCarId, text, -1);
-                javax.swing.SwingUtilities.invokeLater(() -> 
-                openThread(activeOtherUserId, 0, activeContactName));
+                SwingUtilities.invokeLater(() -> openThread(activeOtherUserId, activeCarId, activeContactName));
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -331,22 +284,14 @@ public class InboxPanel extends javax.swing.JPanel {
     }
     
     public void selectConversationWith(int userId) {
-        this.activeOtherUserId = userId;
-        this.activeCarId = -1; // General inquiry from Car Details
-
-        // Attempt to fetch the contact name for the headers
         try {
-            carrentalsystem.models.User owner = new carrentalsystem.services.UserService().getUserById(userId);
-            if (owner != null) {
-                this.activeContactName = owner.getFullName();
-                lblContactName.setText(activeContactName);
-                lblRightName.setText(activeContactName);
+            carrentalsystem.models.User u = new carrentalsystem.services.UserService().getUserById(userId);
+            if (u != null) {
+                openThread(userId, -1, u.getFullName());
             }
-        } catch (java.sql.SQLException e) {
-            lblContactName.setText("Chat");
+        } catch (SQLException ex) {
+            openThread(userId, -1, "User");
         }
-
-        loadMessages(userId, -1);
     }
 
     private void loadMessages(int otherUserId, int carId) {
@@ -395,25 +340,18 @@ public class InboxPanel extends javax.swing.JPanel {
         if (carrentalsystem.core.SessionManager.getCurrentUser() == null) {
             return;
         }
-
         int myId = carrentalsystem.core.SessionManager.getCurrentUser().getUserId();
 
         new Thread(() -> {
             try {
-                carrentalsystem.services.ReviewService reviewSvc = new carrentalsystem.services.ReviewService();
-                java.util.List<carrentalsystem.models.Review> reviews = reviewSvc.getReviewsForCar(carId);
-
-                // Check if I am one of the people who already left a review for this car
-                boolean alreadyReviewed = reviews.stream()
-                        .anyMatch(r -> r.getReviewerId() == myId);
-
+                boolean alreadyReviewed = new carrentalsystem.services.ReviewService().getReviewsForCar(carId)
+                        .stream().anyMatch(r -> r.getReviewerId() == myId);
                 javax.swing.SwingUtilities.invokeLater(() -> {
                     if (btnLeaveReview != null) {
-                        // Only show the button if a car exists and I HAVEN'T reviewed it yet
                         btnLeaveReview.setVisible(!alreadyReviewed);
                     }
                 });
-            } catch (java.sql.SQLException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }).start();
@@ -422,16 +360,11 @@ public class InboxPanel extends javax.swing.JPanel {
     // Inside constructor or a setup method
     private void setupReviewButton() {
         btnLeaveReview = new javax.swing.JButton("Rate Experience");
-        btnLeaveReview.setBackground(new java.awt.Color(98, 89, 85)); // Match your theme
+        btnLeaveReview.setBackground(new java.awt.Color(98, 89, 85));
         btnLeaveReview.setForeground(java.awt.Color.WHITE);
         btnLeaveReview.setFocusPainted(false);
-        btnLeaveReview.setVisible(false); // Hidden until a thread is opened
-
-        btnLeaveReview.addActionListener(e -> {
-            handleReviewAction();
-        });
-
-        // Add it to your header panel (pnlContactHeader)
+        btnLeaveReview.setVisible(false);
+        btnLeaveReview.addActionListener(e -> handleReviewAction());
         pnlContactHeader.add(btnLeaveReview, java.awt.BorderLayout.EAST);
     }
     
@@ -439,16 +372,55 @@ public class InboxPanel extends javax.swing.JPanel {
         if (activeCarId <= 0) {
             return;
         }
-
         int myId = carrentalsystem.core.SessionManager.getCurrentUser().getUserId();
-        // Assuming ReviewDialog is the JDialog class we built
         ReviewDialog dialog = new ReviewDialog((java.awt.Frame) javax.swing.SwingUtilities.getWindowAncestor(this), activeCarId, myId);
         dialog.setVisible(true);
-
         if (dialog.isSubmitted()) {
-            btnLeaveReview.setVisible(false); // Hide immediately so they can't click again
+            btnLeaveReview.setVisible(false);
             javax.swing.JOptionPane.showMessageDialog(this, "Thank you for your feedback!");
         }
+    }
+
+    public void triggerReview(Booking b) {
+        handleReviewAction();
+    }
+    
+    public void showRenterVerification(int bookingId) {
+        javax.swing.JPanel viewer = new javax.swing.JPanel();
+        viewer.setLayout(new javax.swing.BoxLayout(viewer, javax.swing.BoxLayout.Y_AXIS));
+        String sql = "SELECT selfie_path, id_card_path, driver_license_path FROM renter_verifications WHERE booking_id = ?";
+        try (java.sql.Connection conn = carrentalsystem.core.DBConnection.getConnection(); java.sql.PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, bookingId);
+            java.sql.ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                addDocToViewer(viewer, "Renter Selfie:", rs.getString("selfie_path"));
+                addDocToViewer(viewer, "Valid ID:", rs.getString("id_card_path"));
+                addDocToViewer(viewer, "Driver's License:", rs.getString("driver_license_path"));
+            } else {
+                viewer.add(new javax.swing.JLabel("No verification documents found."));
+            }
+        } catch (java.sql.SQLException ex) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Database Error: " + ex.getMessage());
+        }
+        javax.swing.JScrollPane scroll = new javax.swing.JScrollPane(viewer);
+        scroll.setPreferredSize(new java.awt.Dimension(500, 600));
+        javax.swing.JOptionPane.showMessageDialog(this, scroll, "Renter Verification", javax.swing.JOptionPane.PLAIN_MESSAGE);
+    }
+
+    private void addDocToViewer(javax.swing.JPanel p, String title, String path) {
+        p.add(new javax.swing.JLabel("<html><b>" + title + "</b></html>"));
+        if (path != null && !path.isEmpty()) {
+            javax.swing.JLabel lbl = new javax.swing.JLabel();
+            lbl.setIcon(carrentalsystem.utils.ImageUtil.loadIcon(path, 450, 300));
+            p.add(lbl);
+        } else {
+            p.add(new javax.swing.JLabel("Not provided."));
+        }
+        p.add(javax.swing.Box.createVerticalStrut(20));
+    }
+    
+    private void refreshChatThread() {
+        openThread(activeOtherUserId, activeCarId, activeContactName);
     }
 
     /**

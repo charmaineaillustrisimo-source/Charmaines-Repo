@@ -11,52 +11,44 @@ import carrentalsystem.auth.LoginFrame;
  */
 import carrentalsystem.auth.LoginFrame;
 import carrentalsystem.interfaces.IAdminService;
+import carrentalsystem.models.ListerRequirement;
 import carrentalsystem.services.AdminService;
 import java.awt.*;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.logging.*;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 
 public class ViewingDocumentsPanel extends javax.swing.JFrame {
     
-    private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(ViewingDocumentsPanel.class.getName());
+    private static final Logger logger = Logger.getLogger(ViewingDocumentsPanel.class.getName());
     private final IAdminService adminService = new AdminService();
-    private List<carrentalsystem.models.User> currentUsers;
-    private carrentalsystem.models.User currentUser;
+    private ListerRequirement currentReq;
     
     public ViewingDocumentsPanel() {
         initComponents();
-
-        // 1. Set the correct close operation so it doesn't close your whole app
         this.setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+    }
+    
+    public ViewingDocumentsPanel(carrentalsystem.models.ListerRequirement req) {
+        initComponents(); // Initialize components first
+        this.currentReq = req;
 
-        // 2. Setup your UI styles
-        setupTableStyles();
-
-        // 3. Center the window and maximize it
+        this.setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         this.setExtendedState(javax.swing.JFrame.MAXIMIZED_BOTH);
         this.setLocationRelativeTo(null);
 
-        // 4. Safety Check: Only load if a user exists
-        if (this.currentUser != null) {
-            loadUserDocuments();
+        // Safety Guard: Only load if we have data
+        if (this.currentReq != null) {
+            lblUsersCarID.setText(String.valueOf(currentReq.getUserId()));
+            jLabel2.setText(currentReq.getUserFullName());
+            loadRequirementDocuments();
         } else {
-            // If opened from main() or testing, show placeholders
-            setupDocumentGallery("Placeholder", null);
+            // If opened without data, don't crash, just show a message
+            JOptionPane.showMessageDialog(this, "No requirement data received.");
         }
-    }
-    
-    public ViewingDocumentsPanel(carrentalsystem.models.User user) {
-        this.currentUser = user;
-        initComponents();
-
-        // This ensures ONLY this window closes, not the whole app
-        this.setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-
-        this.setLocationRelativeTo(null);
-        loadUserDocuments();
     }
     
     private void setupTableStyles() {
@@ -64,11 +56,12 @@ public class ViewingDocumentsPanel extends javax.swing.JFrame {
     }
     
     public class RoundedPanel extends JPanel {
-    private int cornerRadius = 30; // Adjust this for more/less roundness
 
-    public RoundedPanel() {
-        setOpaque(false); // Critical: allows the corners to look rounded
-    }
+        private int cornerRadius = 30; // Adjust this for more/less roundness
+
+        public RoundedPanel() {
+            setOpaque(false); // Critical: allows the corners to look rounded
+        }
 
     @Override
     protected void paintComponent(Graphics g) {
@@ -82,29 +75,68 @@ public class ViewingDocumentsPanel extends javax.swing.JFrame {
     }
 }
     
+    private boolean areAllRequirementsMet() {
+        // Updated to only check the requirements you decided to keep
+        return chkOCR.isSelected()
+                && chkOR.isSelected()
+                && chkGovID.isSelected();
+    }
+    
+    private void showEnlargedImage(String path) {
+        JDialog viewer = new JDialog(this, "Detailed View", true);
+        viewer.add(new JScrollPane(new JLabel(new ImageIcon(path))));
+        viewer.setSize(1000, 800);
+        viewer.setLocationRelativeTo(this);
+        viewer.setVisible(true);
+    }
+    
+    private void enlargeCheckboxes() {
+        // Only include the checkboxes you want to keep visible and styled
+        JCheckBox[] boxes = {chkOCR, chkOR, chkGovID};
+        for (JCheckBox cb : boxes) {
+            cb.setFont(new Font("Segoe UI", Font.PLAIN, 20));
+            cb.setForeground(Color.WHITE);
+        }
+    }
+    
+    private void loadRequirementDocuments() {
+        if (currentReq == null) {
+            return;
+        }
+
+        pnlImageContainer.removeAll();
+
+        // Use the paths from the requirement object
+        setupDocumentGallery("LTO / Vehicle Document", currentReq.getLtoDocumentPath());
+        setupDocumentGallery("Valid Government ID", currentReq.getValidIdPath());
+        setupDocumentGallery("Selfie Verification", currentReq.getSelfiePhotoPath());
+
+        pnlImageContainer.revalidate();
+        pnlImageContainer.repaint();
+    }
+
     public void setupDocumentGallery(String docName, String path) {
-        // If there is no path, don't create a slot
         if (path == null || path.isEmpty()) {
             return;
         }
 
-        // 1. Create the Label using your existing styling
         JLabel lblPic = new JLabel();
-        lblPic.setPreferredSize(new java.awt.Dimension(200, 150));
+        lblPic.setPreferredSize(new java.awt.Dimension(400, 300)); // Larger for admin review
+        lblPic.setHorizontalAlignment(JLabel.CENTER);
         lblPic.setBorder(javax.swing.BorderFactory.createTitledBorder(
-                javax.swing.BorderFactory.createLineBorder(new java.awt.Color(60, 60, 60), 2),
-                docName, 0, 0, null, Color.WHITE));
+                javax.swing.BorderFactory.createLineBorder(new java.awt.Color(100, 100, 100), 1),
+                docName, 0, 0, new Font("Segoe UI", Font.BOLD, 14), Color.WHITE));
 
-        // 2. Load and scale the image from the DB path
+        // Use ImageUtil if available, otherwise manual scale
         try {
             ImageIcon icon = new ImageIcon(path);
-            Image img = icon.getImage().getScaledInstance(200, 150, Image.SCALE_SMOOTH);
+            Image img = icon.getImage().getScaledInstance(400, 300, Image.SCALE_SMOOTH);
             lblPic.setIcon(new ImageIcon(img));
         } catch (Exception e) {
-            lblPic.setText("Image not found");
+            lblPic.setText("Error loading image");
+            lblPic.setForeground(Color.RED);
         }
 
-        // 3. Your existing Click Listener for Enlarging
         lblPic.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 showEnlargedImage(path);
@@ -112,78 +144,6 @@ public class ViewingDocumentsPanel extends javax.swing.JFrame {
         });
 
         pnlImageContainer.add(lblPic);
-    }
-    
-    private boolean areAllRequirementsMet() {
-        return chkOCR.isSelected()
-                && // Use the actual variable names from your Navigator
-                chkOR.isSelected()
-                && chkGovID.isSelected()
-                && chkDriLicense.isSelected()
-                && chkVehiclePhotos.isSelected()
-                && chkPI.isSelected();
-    }
-    
-    private void showEnlargedImage(String path) {
-        // Create a pop-up window (JDialog)
-        JDialog viewer = new JDialog(this, "Document Viewer", true);
-
-        // Create a label to hold the full-size image
-        JLabel lblFull = new JLabel(new ImageIcon(path));
-
-        // Add a scroll pane in case the image is bigger than the screen
-        JScrollPane scroll = new JScrollPane(lblFull);
-
-        viewer.add(scroll);
-        viewer.setSize(900, 700); // Set a large size for the viewer
-        viewer.setLocationRelativeTo(this); // Center it on your dashboard
-        viewer.setVisible(true);
-    }
-    
-    private void enlargeCheckboxes() {
-        JCheckBox[] boxes = {chkOR, chkOR, chkGovID, chkDriLicense, chkVehiclePhotos, chkPI};
-        for (JCheckBox cb : boxes) {
-            // This scales the rendering of the component
-            cb.setFont(new Font("Segoe UI", Font.PLAIN, 20)); // Match your dark aesthetic
-        }
-    }
-    
-    private void loadUserDocuments() {
-        pnlImageContainer.removeAll();
-
-        try (java.sql.Connection conn = carrentalsystem.core.DBConnection.getConnection()) {
-            String type = currentUser.getUserType();
-
-            if ("LISTER".equals(type) || "BOTH".equals(type)) {
-                // Use existing SQL structure for Listers
-                String sql = "SELECT * FROM lister_requirements WHERE user_id = ? ORDER BY submitted_at DESC LIMIT 1";
-                java.sql.PreparedStatement ps = conn.prepareStatement(sql);
-                ps.setInt(1, currentUser.getUserId());
-                java.sql.ResultSet rs = ps.executeQuery();
-
-                if (rs.next()) {
-                    setupDocumentGallery("Valid ID", rs.getString("valid_id_path"));
-                    setupDocumentGallery("Selfie", rs.getString("selfie_photo_path"));
-                    setupDocumentGallery("LTO Doc", rs.getString("lto_document_path"));
-                }
-            } else {
-                // Use existing SQL structure for Renters
-                String sql = "SELECT valid_id_path FROM renter_verifications WHERE renter_id = ? LIMIT 1";
-                java.sql.PreparedStatement ps = conn.prepareStatement(sql);
-                ps.setInt(1, currentUser.getUserId());
-                java.sql.ResultSet rs = ps.executeQuery();
-
-                if (rs.next()) {
-                    setupDocumentGallery("Renter ID", rs.getString("valid_id_path"));
-                    pnlChecklist.setVisible(false); // Hide the lister checklist
-                }
-            }
-        } catch (SQLException e) {
-            System.err.println("Database Access Error: " + e.getMessage());
-        }
-
-        pnlImageContainer.revalidate();
-        pnlImageContainer.repaint();
     }
     
     
@@ -224,9 +184,9 @@ public class ViewingDocumentsPanel extends javax.swing.JFrame {
         pnlDecision = new RoundedPanel();
         jLabel3 = new javax.swing.JLabel();
         jSeparator1 = new javax.swing.JSeparator();
-        jButton1 = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
-        jButton3 = new javax.swing.JButton();
+        btnPending = new javax.swing.JButton();
+        btnApprove = new javax.swing.JButton();
+        btnReject = new javax.swing.JButton();
         pnlChecklist = new RoundedPanel();
         jLabel5 = new javax.swing.JLabel();
         jSeparator3 = new javax.swing.JSeparator();
@@ -234,9 +194,6 @@ public class ViewingDocumentsPanel extends javax.swing.JFrame {
         chkOCR = new javax.swing.JCheckBox();
         chkOR = new javax.swing.JCheckBox();
         chkGovID = new javax.swing.JCheckBox();
-        chkDriLicense = new javax.swing.JCheckBox();
-        chkVehiclePhotos = new javax.swing.JCheckBox();
-        chkPI = new javax.swing.JCheckBox();
         pnlDocuments = new RoundedPanel();
         jLabel6 = new javax.swing.JLabel();
         jSeparator4 = new javax.swing.JSeparator();
@@ -331,7 +288,6 @@ public class ViewingDocumentsPanel extends javax.swing.JFrame {
         pnlChatHistory.setBackground(new java.awt.Color(38, 38, 36));
         pnlChatHistory.setBorder(javax.swing.BorderFactory.createEmptyBorder(10, 10, 10, 10));
         pnlChatHistory.setForeground(new java.awt.Color(255, 255, 255));
-        pnlChatHistory.setMaximumSize(new java.awt.Dimension(32767, 32767));
         pnlChatHistory.setMinimumSize(new java.awt.Dimension(10, 10));
         pnlChatHistory.setPreferredSize(new java.awt.Dimension(10, 10));
         pnlChatHistory.setLayout(new javax.swing.BoxLayout(pnlChatHistory, javax.swing.BoxLayout.Y_AXIS));
@@ -356,21 +312,24 @@ public class ViewingDocumentsPanel extends javax.swing.JFrame {
         jSeparator1.setPreferredSize(new java.awt.Dimension(380, 10));
         pnlDecision.add(jSeparator1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 45, -1, -1));
 
-        jButton1.setBackground(new java.awt.Color(255, 102, 0));
-        jButton1.setFont(new java.awt.Font("Segoe UI", 1, 20)); // NOI18N
-        jButton1.setText("PENDING CLARIFICATION");
-        pnlDecision.add(jButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 160, 380, 40));
+        btnPending.setBackground(new java.awt.Color(255, 102, 0));
+        btnPending.setFont(new java.awt.Font("Segoe UI", 1, 20)); // NOI18N
+        btnPending.setText("PENDING CLARIFICATION");
+        btnPending.addActionListener(this::btnPendingActionPerformed);
+        pnlDecision.add(btnPending, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 160, 380, 40));
 
-        jButton2.setBackground(new java.awt.Color(0, 204, 51));
-        jButton2.setFont(new java.awt.Font("Segoe UI", 1, 20)); // NOI18N
-        jButton2.setText("APPROVE");
-        pnlDecision.add(jButton2, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 60, 380, 40));
+        btnApprove.setBackground(new java.awt.Color(0, 204, 51));
+        btnApprove.setFont(new java.awt.Font("Segoe UI", 1, 20)); // NOI18N
+        btnApprove.setText("APPROVE");
+        btnApprove.addActionListener(this::btnApproveActionPerformed);
+        pnlDecision.add(btnApprove, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 60, 380, 40));
 
-        jButton3.setBackground(new java.awt.Color(255, 0, 0));
-        jButton3.setFont(new java.awt.Font("Segoe UI", 1, 20)); // NOI18N
-        jButton3.setForeground(new java.awt.Color(255, 255, 255));
-        jButton3.setText("REJECT");
-        pnlDecision.add(jButton3, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 110, 380, 40));
+        btnReject.setBackground(new java.awt.Color(255, 0, 0));
+        btnReject.setFont(new java.awt.Font("Segoe UI", 1, 20)); // NOI18N
+        btnReject.setForeground(new java.awt.Color(255, 255, 255));
+        btnReject.setText("REJECT");
+        btnReject.addActionListener(this::btnRejectActionPerformed);
+        pnlDecision.add(btnReject, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 110, 380, 40));
 
         pnlMain.add(pnlDecision, new org.netbeans.lib.awtextra.AbsoluteConstraints(540, 380, -1, 210));
 
@@ -406,21 +365,6 @@ public class ViewingDocumentsPanel extends javax.swing.JFrame {
         chkGovID.setForeground(new java.awt.Color(255, 255, 255));
         chkGovID.setText("Valid Government ID");
         pnlChecklistContainer1.add(chkGovID, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 80, -1, -1));
-
-        chkDriLicense.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
-        chkDriLicense.setForeground(new java.awt.Color(255, 255, 255));
-        chkDriLicense.setText("Driver's License");
-        pnlChecklistContainer1.add(chkDriLicense, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 110, -1, -1));
-
-        chkVehiclePhotos.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
-        chkVehiclePhotos.setForeground(new java.awt.Color(255, 255, 255));
-        chkVehiclePhotos.setText("Vehicle Photos");
-        pnlChecklistContainer1.add(chkVehiclePhotos, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 140, -1, -1));
-
-        chkPI.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
-        chkPI.setForeground(new java.awt.Color(255, 255, 255));
-        chkPI.setText("Proof of Insurance");
-        pnlChecklistContainer1.add(chkPI, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 170, -1, -1));
 
         pnlChecklist.add(pnlChecklistContainer1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 60, 380, 270));
 
@@ -583,6 +527,76 @@ public class ViewingDocumentsPanel extends javax.swing.JFrame {
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
         this.dispose();
     }//GEN-LAST:event_jButton4ActionPerformed
+
+    private void btnApproveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnApproveActionPerformed
+        // TODO add your handling code here:
+        if (currentReq == null) {
+            return;
+        }
+
+        if (!areAllRequirementsMet()) {
+            JOptionPane.showMessageDialog(this,
+                    "Please check all visible requirement boxes before approving.",
+                    "Incomplete Review", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        int confirm = JOptionPane.showConfirmDialog(this,
+                "Confirm Approval for " + currentReq.getUserFullName() + "?",
+                "Approve Lister", JOptionPane.YES_NO_OPTION);
+
+        if (confirm == JOptionPane.YES_OPTION) {
+            try {
+                // AdminService handles: lister_requirements status, users.lister_status, users.user_type = 'BOTH'
+                adminService.approveListerVerification(currentReq.getRequirementId(), currentReq.getUserId());
+                JOptionPane.showMessageDialog(this, "User approved! They now have Lister access.");
+                this.dispose();
+            } catch (SQLException e) {
+                JOptionPane.showMessageDialog(this, "Error: " + e.getMessage());
+            }
+        }
+    }//GEN-LAST:event_btnApproveActionPerformed
+
+    private void btnPendingActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPendingActionPerformed
+        // TODO add your handling code here:
+        if (currentReq == null) {
+            return;
+        }
+
+        StringBuilder missing = new StringBuilder();
+        if (!chkGovID.isSelected()) {
+            missing.append("Valid ID, ");
+        }
+        if (!chkOCR.isSelected()) {
+            missing.append("Vehicle Registration, ");
+        }
+
+        String msg = "Admin: We need clearer copies of the following: "
+                + (missing.length() > 0 ? missing.toString() : "Documents")
+                + ". Please update your application.";
+
+        txtChatInput.setText(msg);
+        btnSendChatActionPerformed(null);
+        JOptionPane.showMessageDialog(this, "Request for clarification sent.");
+    }//GEN-LAST:event_btnPendingActionPerformed
+
+    private void btnRejectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRejectActionPerformed
+        // TODO add your handling code here:
+        if (currentReq == null) {
+            return;
+        }
+
+        String reason = JOptionPane.showInputDialog(this, "Enter reason for rejection:");
+        if (reason != null && !reason.trim().isEmpty()) {
+            try {
+                adminService.rejectListerVerification(currentReq.getRequirementId(), currentReq.getUserId(), reason);
+                JOptionPane.showMessageDialog(this, "Application rejected.");
+                this.dispose();
+            } catch (SQLException e) {
+                JOptionPane.showMessageDialog(this, "Rejection failed: " + e.getMessage());
+            }
+        }
+    }//GEN-LAST:event_btnRejectActionPerformed
 /**/
     /**
      * @param args the command line arguments
@@ -610,16 +624,13 @@ public class ViewingDocumentsPanel extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnApprove;
+    private javax.swing.JButton btnPending;
+    private javax.swing.JButton btnReject;
     private javax.swing.JButton btnSendChat;
-    private javax.swing.JCheckBox chkDriLicense;
     private javax.swing.JCheckBox chkGovID;
     private javax.swing.JCheckBox chkOCR;
     private javax.swing.JCheckBox chkOR;
-    private javax.swing.JCheckBox chkPI;
-    private javax.swing.JCheckBox chkVehiclePhotos;
-    private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
-    private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;

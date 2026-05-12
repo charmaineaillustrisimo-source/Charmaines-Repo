@@ -61,16 +61,16 @@ public class CarService implements ICarService{
 
     @Override
     public int addCar(Car car) throws SQLException {
-        // Exactly 14 columns to be inserted
+        // Included color, plate_number, has_driver, mileage_limit
         String sql = "INSERT INTO cars (owner_id, brand, model, type, seats, "
                 + "fuel_type, transmission, car_condition, description, base_price, "
-                + "image_path, views_count, is_priority, status) "
-                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                + "image_path, views_count, is_priority, status, color, plate_number, "
+                + "has_driver, mileage_limit) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement ps = DBConnection.getConnection()
                 .prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
-            // FIXED: Indices are now sequential 1 through 14
             ps.setInt(1, car.getOwnerId());
             ps.setString(2, car.getBrand());
             ps.setString(3, car.getModel());
@@ -78,13 +78,17 @@ public class CarService implements ICarService{
             ps.setInt(5, car.getSeats());
             ps.setString(6, car.getFuelType());
             ps.setString(7, car.getTransmission());
-            ps.setString(8, car.getCondition()); // Maps to car_condition
+            ps.setString(8, car.getCondition());
             ps.setString(9, car.getDescription());
             ps.setDouble(10, car.getBasePrice());
             ps.setString(11, car.getImagePath());
-            ps.setInt(12, 0); // views_count defaults to 0
+            ps.setInt(12, 0);
             ps.setBoolean(13, car.isPriority());
-            ps.setString(14, "PENDING_APPROVAL"); // Default status upon creation
+            ps.setString(14, "PENDING_APPROVAL");
+            ps.setString(15, car.getColor());
+            ps.setString(16, car.getPlateNumber());
+            ps.setBoolean(17, car.isHasDriver());
+            ps.setInt(18, car.getMileageLimit());
 
             ps.executeUpdate();
             ResultSet keys = ps.getGeneratedKeys();
@@ -97,10 +101,10 @@ public class CarService implements ICarService{
 
     @Override
     public boolean updateCar(Car car) throws SQLException {
-        // Removed year, color, plate_number, mileage_limit, etc.
         String sql = "UPDATE cars SET brand=?, model=?, type=?, seats=?, fuel_type=?, "
                 + "transmission=?, car_condition=?, description=?, base_price=?, "
-                + "image_path=?, status=? WHERE car_id=?";
+                + "image_path=?, status=?, color=?, plate_number=?, has_driver=?, "
+                + "mileage_limit=? WHERE car_id=?";
 
         try (PreparedStatement ps = DBConnection.getConnection().prepareStatement(sql)) {
             ps.setString(1, car.getBrand());
@@ -114,14 +118,13 @@ public class CarService implements ICarService{
             ps.setDouble(9, car.getBasePrice());
             ps.setString(10, car.getImagePath());
             ps.setString(11, car.getStatus());
-            ps.setInt(12, car.getCarId());
-            ps.executeUpdate();
-            
-            int rowsAffected = ps.executeUpdate();
-            return rowsAffected > 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
+            ps.setString(12, car.getColor());
+            ps.setString(13, car.getPlateNumber());
+            ps.setBoolean(14, car.isHasDriver());
+            ps.setInt(15, car.getMileageLimit());
+            ps.setInt(16, car.getCarId());
+
+            return ps.executeUpdate() > 0;
         }
     }
 
@@ -203,6 +206,10 @@ public class CarService implements ICarService{
         c.setPriority(rs.getBoolean("is_priority"));
         c.setStatus(rs.getString("status"));
         c.setCreatedAt(rs.getTimestamp("created_at"));
+        c.setColor(rs.getString("color"));
+        c.setPlateNumber(rs.getString("plate_number"));
+        c.setHasDriver(rs.getBoolean("has_driver"));
+        c.setMileageLimit(rs.getInt("mileage_limit"));
         return c;
     }
 }

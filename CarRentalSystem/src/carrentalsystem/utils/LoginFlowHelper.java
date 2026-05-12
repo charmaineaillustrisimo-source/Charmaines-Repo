@@ -25,107 +25,93 @@ public class LoginFlowHelper {
      * after-action.
      * @param parentFrame The window to use as the dialog parent (LoginFrame).
      */
-    public static void showRoleSelectionAndProceed(
-            carrentalsystem.ui.user.MainDashboard dashboard,
-            Runnable afterAction,
-            Component parentFrame) {
+    public static void showRoleSelectionAndProceed(carrentalsystem.ui.user.MainDashboard dashboard, Runnable afterAction, Component parentFrame, String targetRole) {
 
         carrentalsystem.models.User user = carrentalsystem.core.SessionManager.getCurrentUser();
         if (user == null) {
             return;
         }
 
-        // 1. GATEKEEPER: Skip if already has a type
-        if (user.getUserType() != null && !user.getUserType().trim().isEmpty() && !user.getUserType().equalsIgnoreCase("null")) {
+        String currentType = (user.getUserType() == null || user.getUserType().equalsIgnoreCase("null"))
+                ? "NONE" : user.getUserType().toUpperCase();
+
+        // 1. If user is already BOTH, or already has the role they are looking for, just finish.
+        if ("BOTH".equals(currentType) || (targetRole != null && targetRole.equalsIgnoreCase(currentType))) {
             dashboard.loadData();
-            dashboard.setVisible(true);
             if (afterAction != null) {
                 afterAction.run();
             }
             return;
         }
 
+        // 2. Determine if we show the selection dialog or jump straight to a specific role verification
+        if (targetRole != null) {
+            if (targetRole.equalsIgnoreCase("LISTER")) {
+                handleListerUpgrade(dashboard, afterAction, parentFrame, user, currentType);
+            } else if (targetRole.equalsIgnoreCase("RENTER")) {
+                handleRenterUpgrade(dashboard, afterAction, parentFrame, user, currentType);
+            }
+        } else {
+            // Show general selection dialog (original flow)
+            showGeneralSelection(dashboard, afterAction, parentFrame, user, currentType);
+        }
+    }
+
+    private static void handleListerUpgrade(carrentalsystem.ui.user.MainDashboard dashboard, Runnable afterAction, Component parentFrame, carrentalsystem.models.User user, String currentType) {
+        if (!showListerTerms(parentFrame)) {
+            return;
+        }
+
+        // Verification docs
+        if (!"APPROVED".equals(user.getListerStatus()) && !"PENDING".equals(user.getListerStatus())) {
+            if (!showListerRequirementsDialog(parentFrame, user)) {
+                JOptionPane.showMessageDialog(parentFrame, "Verification is required to list cars.");
+                return;
+            }
+        }
+
+        try {
+            // LOGIC: If they are already a RENTER, they become BOTH
+            String newRole = "RENTER".equals(currentType) ? "BOTH" : "LISTER";
+            saveUserType(user.getUserId(), newRole);
+            dashboard.refreshAfterLogin();
+            if (afterAction != null) {
+                afterAction.run();
+            }
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(parentFrame, "Error: " + ex.getMessage());
+        }
+    }
+
+    private static void handleRenterUpgrade(carrentalsystem.ui.user.MainDashboard dashboard, Runnable afterAction, Component parentFrame, carrentalsystem.models.User user, String currentType) {
+        if (!showRenterTerms(parentFrame)) {
+            return;
+        }
+
+        try {
+            String newRole = "LISTER".equals(currentType) ? "BOTH" : "RENTER";
+            saveUserType(user.getUserId(), newRole);
+            dashboard.refreshAfterLogin();
+            if (afterAction != null) {
+                afterAction.run();
+            }
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(parentFrame, "Error: " + ex.getMessage());
+        }
+    }
+
+    private static void showGeneralSelection(carrentalsystem.ui.user.MainDashboard dashboard, Runnable afterAction, Component parentFrame, carrentalsystem.models.User user, String currentType) {
         String firstName = user.getFullName().split(" ")[0];
         Object[] options = {"🚗  Rent a Car", "📋  List My Car for Rent"};
 
-        // Start the master loop
-        while (true) {
-            int choice = JOptionPane.showOptionDialog(
-                    parentFrame,
-                    "<html><center><b style='font-size:14px'>Welcome, " + firstName + "!</b><br><br>"
-                    + "What would you like to do?</center></html>",
-                    "Select Your Path",
-                    JOptionPane.DEFAULT_OPTION,
-                    JOptionPane.QUESTION_MESSAGE,
-                    null, options, options[0]
-            );
+        int choice = JOptionPane.showOptionDialog(parentFrame,
+                "<html><center><b style='font-size:14px'>Welcome, " + firstName + "!</b><br>What would you like to do?</center></html>",
+                "Select Path", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
 
-            // If they close the window, end the session
-            if (choice == JOptionPane.CLOSED_OPTION) {
-                try {
-                    carrentalsystem.core.SessionManager.endSession();
-                } catch (Exception ignore) {
-                }
-                return;
-            }
-
-            if (choice == 0) {
-                // ── RENTER PATH ──────────────────────────────────────────────
-                if (!showRenterTerms(parentFrame)) {
-                    handleDeclined(parentFrame);
-                    continue; // Go back to the top (Role Selection)
-                }
-
-                try {
-                    saveUserType(user.getUserId(), "RENTER");
-                    carrentalsystem.core.SessionManager.setUserMode("RENTER");
-                    dashboard.loadData();
-                    dashboard.setVisible(true);
-                    if (afterAction != null) {
-                        afterAction.run();
-                    }
-                    break; // EXIT LOOP SUCCESS
-                } catch (SQLException ex) {
-                    JOptionPane.showMessageDialog(parentFrame, "Database Error: " + ex.getMessage());
-                    return;
-                }
-
-            } else if (choice == 1) {
-                // ── LISTER PATH ──────────────────────────────────────────────
-                if (!showListerTerms(parentFrame)) {
-                    handleDeclined(parentFrame);
-                    continue; // Go back to the top (Role Selection)
-                }
-
-                // If they haven't submitted requirements yet
-                if (!"PENDING".equals(user.getListerStatus()) && !"APPROVED".equals(user.getListerStatus())) {
-                    boolean submitted = showListerRequirementsDialog(parentFrame, user);
-
-                    if (!submitted) {
-                        JOptionPane.showMessageDialog(parentFrame,
-                                "Requirements are mandatory to become a Lister. Please select a role again.");
-                        // ── THE LOGIC CHANGE ──
-                        // Instead of setting them to RENTER, we just 'continue'
-                        // This restarts the 'while(true)' loop from the very top
-                        continue;
-                    }
-                }
-
-                try {
-                    saveUserType(user.getUserId(), "LISTER");
-                    carrentalsystem.core.SessionManager.setUserMode("LISTER");
-                    dashboard.loadData();
-                    dashboard.setVisible(true);
-
-                    // Switch to Lister-specific view
-                    java.awt.CardLayout cl = (java.awt.CardLayout) dashboard.getPnlMainContent().getLayout();
-                    cl.show(dashboard.getPnlMainContent(), "myListingsCard");
-                    break; // EXIT LOOP SUCCESS
-                } catch (SQLException ex) {
-                    JOptionPane.showMessageDialog(parentFrame, "Database Error: " + ex.getMessage());
-                    return;
-                }
-            }
+        if (choice == 0) {
+            handleRenterUpgrade(dashboard, afterAction, parentFrame, user, currentType);
+        } else if (choice == 1) {
+            handleListerUpgrade(dashboard, afterAction, parentFrame, user, currentType);
         }
     }
 
@@ -227,19 +213,12 @@ public class LoginFlowHelper {
         JTextArea ta = new JTextArea(text);
         ta.setEditable(false);
         ta.setFont(new java.awt.Font("Monospaced", java.awt.Font.PLAIN, 12));
-        ta.setBackground(new java.awt.Color(248, 248, 248));
-        ta.setCaretPosition(0);
-
         JScrollPane sp = new JScrollPane(ta);
         sp.setPreferredSize(new java.awt.Dimension(540, 340));
-
-        int result = JOptionPane.showConfirmDialog(
-                parent, sp,
-                title + "  —  Scroll down and read carefully",
-                JOptionPane.OK_CANCEL_OPTION,
-                JOptionPane.INFORMATION_MESSAGE);
-        return result == JOptionPane.OK_OPTION;
+        return JOptionPane.showConfirmDialog(parent, sp, title, JOptionPane.OK_CANCEL_OPTION) == JOptionPane.OK_OPTION;
     }
+    
+    
 
     // ─────────────────────────────────────────────────────────────────────────
     // LISTER REQUIREMENTS DIALOG
@@ -248,9 +227,7 @@ public class LoginFlowHelper {
      * Prompts the user to upload their 3 required lister documents. Returns
      * true if all documents were uploaded and saved to the DB.
      */
-    public static boolean showListerRequirementsDialog(
-            Component parent,
-            carrentalsystem.models.User user) {
+    public static boolean showListerRequirementsDialog(Component parent, carrentalsystem.models.User user) {
 
         javax.swing.JPanel panel = new javax.swing.JPanel();
         panel.setLayout(new javax.swing.BoxLayout(panel, javax.swing.BoxLayout.Y_AXIS));
@@ -393,9 +370,7 @@ public class LoginFlowHelper {
      * Inserts a new row into lister_requirements and updates
      * users.lister_status.
      */
-    private static void saveListerRequirements(
-            int userId, String ltoPath, String selfPath, String idPath)
-            throws java.sql.SQLException {
+    private static boolean saveListerRequirements(int userId, String ltoPath, String selfPath, String idPath) throws java.sql.SQLException {
 
         String insertSql
                 = "INSERT INTO lister_requirements "
@@ -421,23 +396,18 @@ public class LoginFlowHelper {
             carrentalsystem.core.SessionManager.getCurrentUser()
                     .setListerStatus("PENDING");
         }
+        return true;
     }
     
     private static void saveUserType(int userId, String type) throws SQLException {
         String sql = "UPDATE users SET user_type = ? WHERE user_id = ?";
-
-        try (java.sql.Connection conn = carrentalsystem.core.DBConnection.getConnection(); java.sql.PreparedStatement ps = conn.prepareStatement(sql)) {
-
+        try (java.sql.Connection conn = carrentalsystem.core.DBConnection.getConnection(); 
+                java.sql.PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, type);
             ps.setInt(2, userId);
             ps.executeUpdate();
-
-            // CRITICAL: Also update the local session object so the dashboard 
-            // knows the user is no longer 'null' without needing a restart.
             carrentalsystem.models.User currentUser = carrentalsystem.core.SessionManager.getCurrentUser();
-            if (currentUser != null) {
-                currentUser.setUserType(type);
-            }
+            if (currentUser != null) currentUser.setUserType(type);
         }
     }
 }

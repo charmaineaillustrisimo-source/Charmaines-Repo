@@ -23,108 +23,93 @@ public class CarDetailsPanel extends javax.swing.JPanel {
     public CarDetailsPanel() {
         initComponents();
         spDescription.setBorder(null);
-        
-        // Restore dark button color (initComponents overrides the anonymous initializer)
-        btnRentNow.setBackground(new java.awt.Color(98, 89, 85));
+
+        // Define the colors
+        Color darkTaupe = new java.awt.Color(98, 89, 85);
+        Color creamColor = new java.awt.Color(230, 220, 215); // The warm cream color
+
+        // Button Styles
+        btnRentNow.setBackground(darkTaupe);
         btnRentNow.setForeground(java.awt.Color.WHITE);
-        
-        // Contact Owner
-        btnContactOwner.setBackground(new java.awt.Color(98, 89, 85));
+        btnContactOwner.setBackground(darkTaupe);
         btnContactOwner.setForeground(java.awt.Color.WHITE);
 
-        // Spec pills need opaque=false for rounded painting to show
-        lblTransmission.setOpaque(false);
-        lblSeats.setOpaque(false);
-        lblFuel.setOpaque(false);
-        lblCondition.setOpaque(false);
-        
+        // 1. Setup Spec Pills Appearance (Opaque false + Cream Foreground)
+        setupSpecPill(lblTransmission, creamColor);
+        setupSpecPill(lblSeats, creamColor);
+        setupSpecPill(lblFuel, creamColor);
+        setupSpecPill(lblCondition, creamColor);
+        setupSpecPill(lblColor, creamColor);
+        setupSpecPill(lblPlateNumber, creamColor);
+        setupSpecPill(lblMileage, creamColor);
+        setupSpecPill(lblDriver, creamColor);
+
         // Owner label
         lblOwnerName.setOpaque(false);
         lblOwnerName.setBackground(new java.awt.Color(240, 240, 240));
         lblOwnerName.setBorder(javax.swing.BorderFactory.createEmptyBorder(4, 12, 4, 12));
 
-        // Fix 3: Set explicit size
         setPreferredSize(new java.awt.Dimension(1100, 700));
         setMinimumSize(new java.awt.Dimension(1100, 700));
-        
-        // Ensure the rounded painting works for the new labels
-        lblColor.setOpaque(false);
-        lblPlateNumber.setOpaque(false);
-        lblMileage.setOpaque(false);
 
-        // Set colors to match your dark brown/cream theme
-        Color detailColor = new Color(45, 36, 34);
-        lblColor.setForeground(detailColor);
-        lblPlateNumber.setForeground(detailColor);
-        lblMileage.setForeground(detailColor);
-    
         spReviews.setBorder(null);
         spReviews.setOpaque(false);
         spReviews.getViewport().setOpaque(false);
-
         pnlReviews.setOpaque(false);
         pnlReviews.setBackground(Color.WHITE);
         
     }
     
+    private void setupSpecPill(javax.swing.JLabel label, Color textColor) {
+        label.setOpaque(false);
+        label.setForeground(textColor);
+        // This ensures the custom paintComponent logic you have in the .form 
+        // works correctly with the text color.
+    }
+    
     public void setCarDetails(carrentalsystem.models.Car car) {
-        if (car == null) return;
-        
-        // Save the car to class variable
+        if (car == null) {
+            return;
+        }
         this.currentCar = car;
-        
-        // Title (Brand + Model)
+
+        // 1. Basic Info
         lblTitle.setText(car.getBrand().toUpperCase() + " " + car.getModel().toUpperCase());
-        lblOwnerName.setText("Listed by: loading...");
-        new Thread(() -> {
-            try {
-                carrentalsystem.models.User owner = userService.getUserById(car.getOwnerId());
-
-                // Build the display string
-                String displayName;
-                if (owner != null && owner.getFullName() != null && !owner.getFullName().isBlank()) {
-                    displayName = "Listed by: " + owner.getFullName();
-                } else {
-                    displayName = "Listed by: Unknown";
-                }
-
-                // Always update Swing components on the Event Dispatch Thread
-                javax.swing.SwingUtilities.invokeLater(() -> lblOwnerName.setText(displayName));
-
-            } catch (Exception e) {
-                javax.swing.SwingUtilities.invokeLater(() -> lblOwnerName.setText("Listed by: Unknown"));
-                System.err.println("[CarDetailsPanel] Could not load owner: " + e.getMessage());
-            }
-        }).start();
-
-        // Price (Dynamic value + fixed "/day")
-        // This formats 2500 into 2,500.00
         String formattedPrice = String.format("%,.2f", car.getBasePrice());
         lblPriceValue.setText("PHP " + formattedPrice + "/day");
-        
-        // Owner/lister name — uses car.getOwnerId() mapped to a name via your service
-        // For now set a placeholder; replace with real owner lookup when UserService is ready
-        lblOwnerName.setText("Listed by: Car Owner");
+        taDescription.setText(car.getDescription());
 
-        // Specs (Capsules)
+        // 2. Standard Specs (Top Row)
         lblTransmission.setText(car.getTransmission());
         lblSeats.setText(car.getSeats() + " Seaters");
         lblFuel.setText(car.getFuelType());
         lblCondition.setText(car.getCondition());
-        
-        // Color and Plate Number
-        lblColor.setText(car.getColor() != null ? car.getColor() : "Not specified");
-        lblPlateNumber.setText(car.getPlateNumber() != null ? car.getPlateNumber() : "Not specified");
-        
-        loadCarReviews(car.getCarId());
-        
-        // Description
-        taDescription.setText(car.getDescription());
 
-        // 5. Image Loading
+        // 3. Technical Specs (Bottom Row - The ones you were missing)
+        lblColor.setText(car.getColor() != null && !car.getColor().isEmpty() ? car.getColor() : "N/A");
+        lblPlateNumber.setText(car.getPlateNumber() != null && !car.getPlateNumber().isEmpty() ? car.getPlateNumber() : "N/A");
+
+        // Mileage Display Logic
+        if (car.getMileageLimit() > 0) {
+            lblMileage.setText(String.format("%,d km", car.getMileageLimit()));
+        } else {
+            lblMileage.setText("Unlimited");
+        }
+
+        // Driver Option Display Logic
+        lblDriver.setText(car.isHasDriver() ? "With Driver" : "Self-Drive");
+
+        // 4. Image Handling
         if (car.getImagePath() != null && !car.getImagePath().isEmpty()) {
             carrentalsystem.utils.ImageUtil.applyScaledImage(lblCarImage, car.getImagePath(), 560, 240);
         }
+
+        // 5. Load async data
+        updateOwnerInfo(car.getOwnerId());
+        loadCarReviews(car.getCarId());
+
+        this.revalidate();
+        this.repaint();
     }
 
     public void setDashboard(MainDashboard dashboard) {
@@ -221,38 +206,19 @@ public class CarDetailsPanel extends javax.swing.JPanel {
     }
     
     public void displayCarDetails(carrentalsystem.models.Car car) {
-        this.currentCar = car;
-
-        // 1. Text Info
-        lblTitle.setText(car.getBrand() + " " + car.getModel());
-        lblPriceValue.setText("PHP " + String.format("%,.0f", car.getBasePrice()));
-        lblSeats.setText(car.getSeats() + " Seaters");
-        lblFuel.setText(car.getFuelType());
-        lblTransmission.setText(car.getTransmission());
-        lblCondition.setText(car.getCondition());
-        taDescription.setText(car.getDescription());
-
-        // 2. New Functional Labels (Color, Plate, Mileage)
-        lblColor.setText(car.getColor());
-        lblPlateNumber.setText(car.getPlateNumber());
-        // Format mileage with a comma (e.g., 15,000)
-        lblMileage.setText(String.format("%,d", car.getMileageLimit()) + " km");
-
-        // 3. Load the Image
-        // Make sure you have ImageUtil in your project
-        carrentalsystem.utils.ImageUtil.applyScaledImage(lblCarImage, car.getImagePath(), 600, 350);
-
-        // 4. Update Owner Info
-        try {
-            carrentalsystem.models.User owner = userService.getUserById(car.getOwnerId());
-            if (owner != null) {
-                lblOwnerName.setText("Owner: " + owner.getFullName());
+        setCarDetails(car); 
+    }
+    
+    private void updateOwnerInfo(int ownerId) {
+        new Thread(() -> {
+            try {
+                carrentalsystem.models.User owner = userService.getUserById(ownerId);
+                String name = (owner != null) ? owner.getFullName() : "Unknown Owner";
+                SwingUtilities.invokeLater(() -> lblOwnerName.setText("Listed by: " + name));
+            } catch (Exception e) {
+                SwingUtilities.invokeLater(() -> lblOwnerName.setText("Listed by: Private Owner"));
             }
-        } catch (Exception e) {
-            lblOwnerName.setText("Owner: Not Available");
-        }
-        
-        loadCarReviews(car.getCarId());
+        }).start();
     }
     
     

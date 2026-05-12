@@ -381,7 +381,8 @@ public class LoginFrame extends javax.swing.JFrame {
                 carrentalsystem.utils.LoginFlowHelper.showRoleSelectionAndProceed(
                         parentDashboard,
                         afterLoginAction,
-                        parentDashboard // use dashboard as dialog parent
+                        parentDashboard, // use dashboard as dialog parent
+                        null
                 );
 
             } else {
@@ -395,7 +396,8 @@ public class LoginFrame extends javax.swing.JFrame {
                 carrentalsystem.utils.LoginFlowHelper.showRoleSelectionAndProceed(
                         newDashboard,
                         null,
-                        newDashboard
+                        newDashboard,
+                        null
                 );
             }
 

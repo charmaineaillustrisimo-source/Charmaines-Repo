@@ -651,26 +651,25 @@ public class MainDashboard extends javax.swing.JFrame {
      * header.
      */
     public void refreshAfterLogin() {
-        carrentalsystem.models.User user
-                = carrentalsystem.core.SessionManager.getCurrentUser();
-        if (user == null) {
-            return;
-        }
+        carrentalsystem.models.User user = carrentalsystem.core.SessionManager.getCurrentUser();
 
-        // Rebuild sidebar (now role-aware)
+        // 1. Just refresh the existing sidebar instead of replacing it
         if (sideMenu != null) {
-            this.getLayeredPane().remove(sideMenu);
+            sideMenu.refresh();
         }
-        sideMenu = new SidebarPanel(pnlMainContent, this);
-        this.getLayeredPane().add(sideMenu, javax.swing.JLayeredPane.POPUP_LAYER);
-        sideMenu.setBounds(0, 65, 250, getHeight());
-        sideMenu.setVisible(false);
 
-        // Update header
+        // 2. Update header components
         updateNotificationBadge();
-        if (headerPanel != null) {
+        if (headerPanel != null && user != null) {
             headerPanel.updateProfileIcon(user.getProfileImagePath());
+            headerPanel.updateGuestMode(); // Important to switch from "Login" button to Profile
         }
+
+        // 3. Refresh dashboard data
+        loadData();
+
+        this.revalidate();
+        this.repaint();
     }
 
     /**
@@ -680,20 +679,17 @@ public class MainDashboard extends javax.swing.JFrame {
     public void refreshAfterLogout() {
         // Rebuild sidebar (guest state — no buttons)
         if (sideMenu != null) {
-            this.getLayeredPane().remove(sideMenu);
+            sideMenu.refresh();
         }
-        sideMenu = new SidebarPanel(pnlMainContent, this);
-        this.getLayeredPane().add(sideMenu, javax.swing.JLayeredPane.POPUP_LAYER);
-        sideMenu.setBounds(0, 65, 250, getHeight());
-        sideMenu.setVisible(false);
 
-        // Reset header
+        // 2. Reset header
         if (headerPanel != null) {
             headerPanel.setUnreadCount(0);
             headerPanel.updateProfileIcon(null);
+            headerPanel.updateGuestMode();
         }
 
-        // Back to discovery feed
+        // 3. Back to discovery
         java.awt.CardLayout cl = (java.awt.CardLayout) pnlMainContent.getLayout();
         cl.show(pnlMainContent, "discovery");
     }

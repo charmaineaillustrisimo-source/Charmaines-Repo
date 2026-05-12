@@ -7,6 +7,7 @@ import carrentalsystem.core.DBConnection;
 import carrentalsystem.interfaces.IAdminService;
 import carrentalsystem.models.Booking;
 import carrentalsystem.models.Car;
+import carrentalsystem.models.ListerRequirement;
 import carrentalsystem.models.Ticket;
 import java.sql.*;
 import java.util.*;
@@ -31,37 +32,11 @@ public class AdminService implements IAdminService{
 
     @Override
     public void approveListing(int carId) throws SQLException {
-        String sql = "CALL approve_listing(?, NULL)";
-        try (PreparedStatement ps = DBConnection.getConnection().prepareStatement(sql)) {
+        String sql = "CALL approve_listing(?)"; // Only ONE question mark
+        try (PreparedStatement ps = carrentalsystem.core.DBConnection.getConnection().prepareStatement(sql)) {
             ps.setInt(1, carId);
             ps.executeUpdate();
         }
-        
-        try {
-            // Fetch details needed for the notification[cite: 15]
-            String fetchSql = "SELECT owner_id, brand, model FROM cars WHERE car_id = ?";
-            try (PreparedStatement fps = DBConnection.getConnection().prepareStatement(fetchSql)) {
-                fps.setInt(1, carId);
-                ResultSet rs = fps.executeQuery();
-                if (rs.next()) {
-                    int ownerId = rs.getInt("owner_id");
-                    String carName = rs.getString("brand") + " " + rs.getString("model");
-
-                    // Insert the 'LISTING' type notification
-                    String notifSql = "INSERT INTO notifications (user_id, title, message, type, reference_id, is_read) "
-                            + "VALUES (?, 'Listing Approved', ?, 'LISTING', ?, 0)";
-                    try (PreparedStatement nps = DBConnection.getConnection().prepareStatement(notifSql)) {
-                        nps.setInt(1, ownerId);
-                        nps.setString(2, "Your listing '" + carName + "' has been approved and is now live!");
-                        nps.setInt(3, carId);
-                        nps.executeUpdate();
-                    }
-                }
-            }
-        } catch (Exception e) {
-            System.err.println("Notification failed: " + e.getMessage());
-        }
-        
     }
 
     @Override
@@ -530,27 +505,14 @@ public class AdminService implements IAdminService{
     // LISTER VERIFICATION REVIEW
     // ═══════════════════════════════════════════════════════════════════════
     @Override
-    public java.util.List<carrentalsystem.models.ListerRequirement>
-            getListerRequirements(String status) throws java.sql.SQLException {
-
-        java.util.List<carrentalsystem.models.ListerRequirement> list
-                = new java.util.ArrayList<>();
-
-        String sql
-                = "SELECT lr.*, u.full_name, u.email "
-                + "FROM lister_requirements lr "
-                + "JOIN users u ON lr.user_id = u.user_id "
-                + "WHERE lr.status = ? "
-                + "ORDER BY lr.submitted_at DESC";
-
-        try (java.sql.Connection conn = carrentalsystem.core.DBConnection.getConnection(); java.sql.PreparedStatement ps = conn.prepareStatement(sql)) {
-
+    public List<ListerRequirement> getListerRequirements(String status) throws SQLException {
+        String sql = "SELECT lr.*, u.full_name, u.email FROM lister_requirements lr JOIN users u ON lr.user_id = u.user_id WHERE lr.status = ? ORDER BY lr.submitted_at ASC";
+        List<ListerRequirement> list = new ArrayList<>();
+        try (PreparedStatement ps = DBConnection.getConnection().prepareStatement(sql)) {
             ps.setString(1, status);
-            java.sql.ResultSet rs = ps.executeQuery();
-
+            ResultSet rs = ps.executeQuery();
             while (rs.next()) {
-                carrentalsystem.models.ListerRequirement req
-                        = new carrentalsystem.models.ListerRequirement();
+                ListerRequirement req = new ListerRequirement();
                 req.setRequirementId(rs.getInt("requirement_id"));
                 req.setUserId(rs.getInt("user_id"));
                 req.setUserFullName(rs.getString("full_name"));
@@ -559,9 +521,7 @@ public class AdminService implements IAdminService{
                 req.setSelfiePhotoPath(rs.getString("selfie_photo_path"));
                 req.setValidIdPath(rs.getString("valid_id_path"));
                 req.setStatus(rs.getString("status"));
-                req.setAdminNote(rs.getString("admin_note"));
                 req.setSubmittedAt(rs.getTimestamp("submitted_at"));
-                req.setReviewedAt(rs.getTimestamp("reviewed_at"));
                 list.add(req);
             }
         }
@@ -569,65 +529,87 @@ public class AdminService implements IAdminService{
     }
 
     @Override
-    public void approveListerVerification(int requirementId, int userId)
-            throws java.sql.SQLException {
+    public void approveListerVerification(int requirementId, int userId) throws SQLException {
+        String updateReq = "UPDATE lister_requirements SET status = 'APPROVED', reviewed_at = CURRENT_TIMESTAMP WHERE requirement_id = ?";
+        String updateUser = "UPDATE users SET lister_status = 'APPROVED', user_type = 'BOTH' WHERE user_id = ?";
+        // Note: The order must match your table: user_id, title, message, type, reference_id, is_read
+        String notifSql = "INSERT INTO notifications (user_id, title, message, type, reference_id, is_read) VALUES (?, ?, ?, 'SYSTEM', ?, 0)";
 
-        String updateReq
-                = "UPDATE lister_requirements "
-                + "SET status = 'APPROVED', reviewed_at = NOW() "
-                + "WHERE requirement_id = ?";
+        Connection conn = carrentalsystem.core.DBConnection.getConnection();
+        try {
+            conn.setAutoCommit(false);
+            System.out.println("[DEBUG] Transaction Started for User ID: " + userId);
 
-        String updateUser
-                = "UPDATE users SET lister_status = 'APPROVED' WHERE user_id = ?";
+            // 1. Update Requirement
+            try (PreparedStatement ps1 = conn.prepareStatement(updateReq)) {
+                ps1.setInt(1, requirementId);
+                ps1.executeUpdate();
+                System.out.println("[DEBUG] Step 1: Lister Requirement set to APPROVED");
+            }
 
-        String notifSql
-                = "INSERT INTO notifications (user_id, message, type) VALUES (?, ?, 'ALERT')";
+            // 2. Update User
+            try (PreparedStatement ps2 = conn.prepareStatement(updateUser)) {
+                ps2.setInt(1, userId);
+                ps2.executeUpdate();
+                System.out.println("[DEBUG] Step 2: User type set to BOTH and status to APPROVED");
+            }
 
-        try (java.sql.Connection conn = carrentalsystem.core.DBConnection.getConnection(); java.sql.PreparedStatement ps1 = conn.prepareStatement(updateReq); java.sql.PreparedStatement ps2 = conn.prepareStatement(updateUser); java.sql.PreparedStatement ps3 = conn.prepareStatement(notifSql)) {
+            // 3. Send Notification
+            try (PreparedStatement ps3 = conn.prepareStatement(notifSql)) {
+                ps3.setInt(1, userId);
+                ps3.setString(2, "Verification Success");
+                ps3.setString(3, "Your lister verification is complete. You are now a verified Renter and Lister!");
+                ps3.setInt(4, requirementId);
+                ps3.executeUpdate();
+                System.out.println("[DEBUG] Step 3: Notification sent to User");
+            }
 
-            ps1.setInt(1, requirementId);
-            ps1.executeUpdate();
-
-            ps2.setInt(1, userId);
-            ps2.executeUpdate();
-
-            ps3.setInt(1, userId);
-            ps3.setString(2,
-                    "✅ Your lister verification has been APPROVED! "
-                    + "You can now list cars on RentACar.");
-            ps3.executeUpdate();
+            conn.commit();
+            System.out.println("[DEBUG] Transaction Committed Successfully!");
+        } catch (SQLException e) {
+            if (conn != null) {
+                conn.rollback();
+            }
+            System.err.println("[ERROR] Transaction Failed! Rolling back changes.");
+            System.err.println("[ERROR] SQL State: " + e.getSQLState());
+            System.err.println("[ERROR] Error Code: " + e.getErrorCode());
+            System.err.println("[ERROR] Message: " + e.getMessage());
+            throw e;
+        } finally {
+            if (conn != null) {
+                conn.setAutoCommit(true);
+            }
         }
     }
 
     @Override
-    public void rejectListerVerification(int requirementId, int userId, String reason)
-            throws java.sql.SQLException {
+    public void rejectListerVerification(int requirementId, int userId, String reason) throws SQLException {
+        String updateReq = "UPDATE lister_requirements SET status = 'REJECTED', admin_note = ?, reviewed_at = CURRENT_TIMESTAMP WHERE requirement_id = ?";
+        String updateUser = "UPDATE users SET lister_status = 'REJECTED' WHERE user_id = ?";
+        String notifSql = "INSERT INTO notifications (user_id, title, message, type, reference_id, is_read) VALUES (?, ?, ?, 'SYSTEM', ?, 0)";
 
-        String updateReq
-                = "UPDATE lister_requirements "
-                + "SET status = 'REJECTED', admin_note = ?, reviewed_at = NOW() "
-                + "WHERE requirement_id = ?";
+        try (Connection conn = DBConnection.getConnection()) {
+            conn.setAutoCommit(false);
+            try (PreparedStatement ps1 = conn.prepareStatement(updateReq); PreparedStatement ps2 = conn.prepareStatement(updateUser); PreparedStatement ps3 = conn.prepareStatement(notifSql)) {
 
-        String updateUser
-                = "UPDATE users SET lister_status = 'REJECTED' WHERE user_id = ?";
+                ps1.setString(1, reason);
+                ps1.setInt(2, requirementId);
+                ps1.executeUpdate();
 
-        String notifSql
-                = "INSERT INTO notifications (user_id, message, type) VALUES (?, ?, 'ALERT')";
+                ps2.setInt(1, userId);
+                ps2.executeUpdate();
 
-        try (java.sql.Connection conn = carrentalsystem.core.DBConnection.getConnection(); java.sql.PreparedStatement ps1 = conn.prepareStatement(updateReq); java.sql.PreparedStatement ps2 = conn.prepareStatement(updateUser); java.sql.PreparedStatement ps3 = conn.prepareStatement(notifSql)) {
+                ps3.setInt(1, userId);
+                ps3.setString(2, "Verification Rejected");
+                ps3.setString(3, "Reason: " + reason);
+                ps3.setInt(4, requirementId);
+                ps3.executeUpdate();
 
-            ps1.setString(1, reason);
-            ps1.setInt(2, requirementId);
-            ps1.executeUpdate();
-
-            ps2.setInt(1, userId);
-            ps2.executeUpdate();
-
-            ps3.setInt(1, userId);
-            ps3.setString(2,
-                    "❌ Your lister verification was REJECTED. Reason: " + reason
-                    + " — You may resubmit updated documents from your Profile.");
-            ps3.executeUpdate();
+                conn.commit();
+            } catch (SQLException e) {
+                conn.rollback();
+                throw e;
+            }
         }
     }
 
